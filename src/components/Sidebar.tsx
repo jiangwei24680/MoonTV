@@ -140,6 +140,11 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
       label: '综艺',
       href: '/douban?type=show',
     },
+    {
+    icon: Live,
+    label: '直播',
+    href: '/douban?type=live',
+    },
   ]);
 
   useEffect(() => {
