@@ -129,8 +129,11 @@ function DoubanPageClient() {
   // 生成API请求参数的辅助函数
   const getRequestParams = useCallback(
     (pageStart: number) => {
+      if (type === 'live') {
+        return null; // 或者直接跳过请求
+      }
       // 当type为tv或show或live时，kind统一为'tv'，category使用type本身
-      if (type === 'tv' || type === 'show' || type === 'live') {
+      if (type === 'tv' || type === 'show') {
         return {
           kind: 'tv' as const,
           category: type,
@@ -368,6 +371,17 @@ function DoubanPageClient() {
       ? '综艺'
       : '自定义';
   };
+  
+if (type === 'live') {
+  return (
+    <PageLayout activePath="/douban?type=live">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">📺 直播频道上传</h1>
+        <LiveUploadPage />
+      </div>
+    </PageLayout>
+  );
+}
 
   const getActivePath = () => {
     const params = new URLSearchParams();
