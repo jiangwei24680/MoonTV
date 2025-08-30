@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import PageLayout from '@/components/PageLayout'
 
-function ZhiboInner() {
+function ZhiboClient() {
   const params = useSearchParams()
   const url = params.get('url')
   const title = params.get('title') ?? '直播频道'
@@ -21,7 +21,7 @@ export default function ZhiboPage() {
   return (
     <PageLayout activePath="/zhibo">
       <Suspense fallback={<div className="p-6 text-gray-500">加载中...</div>}>
-        <ZhiboInner />
+        <ZhiboClient />
       </Suspense>
     </PageLayout>
   )
