@@ -276,7 +276,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         //自己加的代码
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
-        let data: DoubanResult;
         const data = await getDoubanCategories(params);
         if (type === 'live') return; // 跳过直播页面的数据加载
         //尾部
