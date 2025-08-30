@@ -32,7 +32,7 @@ interface VideoCardProps {
   currentEpisode?: number;
   douban_id?: string;
   onDelete?: () => void;
-  rate?: string;
+  rate?: number | string;//改动
   items?: SearchResult[];
   type?: string;
 }
