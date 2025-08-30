@@ -278,9 +278,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         if (type === 'live') return; // 跳过直播页面的数据加载
         //尾部
         try {
-          //自己加的代码
-          const data = await getDoubanCategories(params);
-          //尾部
           setIsLoadingMore(true);
 
           let data: DoubanResult;
