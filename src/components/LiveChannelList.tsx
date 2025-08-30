@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -28,28 +27,15 @@ function parseM3U(content: string): Channel[] {
 }
 
 export default function LiveChannelList({ m3uContent }: Props) {
-  const router = useRouter();
-  const searchParams = useSearchParams(); // ✅ 顶层调用，合法
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    const initial = searchParams.get('filter') || '';
-    setFilter(initial);
-  }, [searchParams]);
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFilter(value);
-
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set('filter', value);
-    } else {
-      params.delete('filter');
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const value = params.get('filter') || '';
+      setFilter(value);
     }
-
-    router.replace(`/live?${params.toString()}`);
-  };
+  }, []);
 
   if (!m3uContent) {
     return <p className="text-gray-500">暂无频道数据</p>;
@@ -65,7 +51,7 @@ export default function LiveChannelList({ m3uContent }: Props) {
       <input
         type="text"
         value={filter}
-        onChange={handleFilterChange}
+        onChange={e => setFilter(e.target.value)}
         placeholder="筛选频道名称"
         className="w-full px-3 py-2 border rounded"
       />
