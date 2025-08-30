@@ -176,6 +176,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   const loadInitialData = useCallback(async () => {
     try {
       const params = getRequestParams(0);
+      //自己加的代码
       if (!params) return; // live 页面不加载豆瓣数据
       
       setLoading(true);
@@ -199,7 +200,9 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
           throw new Error('没有找到对应的分类');
         }
       } else {
-        data = await getDoubanCategories(getRequestParams(0));
+        //自己加的代码
+        data = await getDoubanCategories(params);
+        //data = await getDoubanCategories(getRequestParams(0));
       }
 
       if (data.code === 200) {
