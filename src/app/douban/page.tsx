@@ -274,6 +274,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
     if (currentPage > 0) {
       const fetchMoreData = async () => {
         //自己加的代码
+        let data: DoubanResult;
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
         data = await getDoubanCategories(params);
