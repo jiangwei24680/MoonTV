@@ -178,7 +178,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
       const params = getRequestParams(0);
       //自己加的代码
       if (!params) return; // live 页面不加载豆瓣数据
-      
+      //尾部
       setLoading(true);
       let data: DoubanResult;
 
@@ -194,24 +194,20 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
             tag: selectedCategory.query,
             type: selectedCategory.type,
             pageLimit: 25,
-            pageStart: 0,
+            //自己加的代码
+            pageStart: currentPage * 25,
+            //尾部
+            //原代码pageStart: 0,
           });
         } else {
           throw new Error('没有找到对应的分类');
         }
       } else {
         //自己加的代码
-        const cached = doubanCache.current.get(currentPage * 25);
-        if (cached) {
-          setDoubanData(prev => [...prev, ...cached]);
-          return;
-        }
-        
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
         
         const data = await getDoubanCategories(params);
-        doubanCache.current.set(currentPage * 25, data);
         setDoubanData(prev => [...prev, ...data]);
         //尾部
         //data = await getDoubanCategories(getRequestParams(0));
