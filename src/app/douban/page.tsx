@@ -276,7 +276,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         //自己加的代码
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
-        let data: DoubanResult;
+        const data: DoubanResult;
         data = await getDoubanCategories(params);
         if (type === 'live') return; // 跳过直播页面的数据加载
         //尾部
@@ -410,18 +410,20 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
       ? '综艺'
       : '自定义';
   };
-  
-if (type === 'live') {
-  return (
-    <PageLayout activePath="/douban?type=live">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">📺 直播频道上传</h1>
-        <LiveUploadPage />
-      </div>
-    </PageLayout>
-  );
-}
 
+  //自己加的代码
+  if (type === 'live') {
+    return (
+      <PageLayout activePath="/douban?type=live">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-4">📺 直播频道上传</h1>
+          <LiveUploadPage />
+        </div>
+      </PageLayout>
+    );
+  }
+  //尾部
+  
   const getActivePath = () => {
     const params = new URLSearchParams();
     if (type) params.set('type', type);
