@@ -12,7 +12,7 @@ export default function LivePage() {
         <LiveUploadPage />
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-2">已上传频道</h2>
-          <LiveChannelList />
+          <LiveChannelList m3uContent="" />
         </div>
       </div>
     </PageLayout>
