@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+const [channels, setChannels] = useState<{ name: string; url: string }[]>([])
+
 const LivePage = () => {
   const [channels, setChannels] = useState([])
   const router = useRouter()
