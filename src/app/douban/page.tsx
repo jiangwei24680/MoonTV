@@ -105,10 +105,13 @@ function DoubanPageClient() {
       } else if (type === 'show') {
         setPrimarySelection('');
         setSecondarySelection('show');
+      } else if (type === 'live') {
+        setPrimarySelection('直播');
+        setSecondarySelection('live');
       } else {
         setPrimarySelection('');
         setSecondarySelection('全部');
-      }
+      }      
     }
 
     // 使用短暂延迟确保状态更新完成后标记选择器准备好
