@@ -143,7 +143,7 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
     {
       icon: Live,
       label: '直播',
-      href: '/douban?type=live',
+      href: '/live',
     },
   ]);
 
