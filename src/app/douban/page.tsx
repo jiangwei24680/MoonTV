@@ -144,6 +144,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   // 生成API请求参数的辅助函数
   const getRequestParams = useCallback(
     (pageStart: number) => {
+      //自己添加的代码live
       if (type === 'live') {
         return null; // 或者直接跳过请求
       }
@@ -173,6 +174,9 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   // 防抖的数据加载函数
   const loadInitialData = useCallback(async () => {
     try {
+      const params = getRequestParams(0);
+      if (!params) return; // live 页面不加载豆瓣数据
+      
       setLoading(true);
       let data: DoubanResult;
 
@@ -256,6 +260,8 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   useEffect(() => {
     if (currentPage > 0) {
       const fetchMoreData = async () => {
+        //自己加的代码
+        if (type === 'live') return; // 跳过直播页面的数据加载
         try {
           setIsLoadingMore(true);
 
