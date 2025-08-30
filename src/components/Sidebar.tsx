@@ -143,7 +143,7 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
     {
       icon: Airplay,
       label: '直播',
-      href: '/channels',
+      href: '/live',
     },
   ]);
 
