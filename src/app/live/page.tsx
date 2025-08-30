@@ -3,6 +3,7 @@
 import PageLayout from '@/components/PageLayout'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 export default function LivePage() {
   return (
