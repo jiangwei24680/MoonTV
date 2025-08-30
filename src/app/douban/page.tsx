@@ -204,12 +204,9 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         }
       } else {
         //自己加的代码
-          const fallbackParams = getRequestParams(0);
-          if (fallbackParams) {
-            data = await getDoubanCategories(fallbackParams);
-          } else {
-            return; // live 页面直接跳过
-          }
+        const params = getRequestParams(currentPage * 25);
+        if (!params) return;        
+        data = await getDoubanCategories(params);
         //尾部
         //原代码data = await getDoubanCategories(getRequestParams(0));
       }
