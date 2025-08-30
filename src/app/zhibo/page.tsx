@@ -1,63 +1,28 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import PageLayout from '@/components/PageLayout'
-import Artplayer from 'artplayer'
-import Hls from 'hls.js'
 
-export default function ZhiboPage() {
-  const artRef = useRef<HTMLDivElement | null>(null)
-  const artPlayerRef = useRef<any>(null)
-  const [channelUrl, setChannelUrl] = useState('')
-  const [channelTitle, setChannelTitle] = useState('')
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const url = params.get('url')
-    const title = params.get('title')
-    if (url) setChannelUrl(url)
-    if (title) setChannelTitle(title || '直播频道')
-  }, [])
-
-  useEffect(() => {
-    if (!channelUrl || !artRef.current) return
-
-    if (artPlayerRef.current) {
-      artPlayerRef.current.destroy()
-      artPlayerRef.current = null
-    }
-
-    artPlayerRef.current = new Artplayer({
-      container: artRef.current,
-      url: channelUrl,
-      isLive: true,
-      autoplay: true,
-      volume: 0.7,
-      muted: false,
-      theme: '#22c55e',
-      fullscreen: true,
-      airplay: true,
-      customType: {
-        m3u8: function (video: HTMLVideoElement, url: string) {
-          const hls = new Hls()
-          hls.loadSource(url)
-          hls.attachMedia(video)
-          video.hls = hls
-        },
-      },
-    })
-  }, [channelUrl])
+function ZhiboInner() {
+  const params = useSearchParams()
+  const url = params.get('url')
+  const title = params.get('title') ?? '直播频道'
 
   return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">📺 {title}</h1>
+      <p className="text-gray-600">频道地址：{url}</p>
+    </div>
+  )
+}
+
+export default function ZhiboPage() {
+  return (
     <PageLayout activePath="/zhibo">
-      <div className="p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          📺 {channelTitle}
-        </h1>
-        <div className="w-full h-[300px] md:h-[500px] bg-black rounded-xl overflow-hidden shadow-lg">
-          <div ref={artRef} className="w-full h-full" />
-        </div>
-      </div>
+      <Suspense fallback={<div className="p-6 text-gray-500">加载中...</div>}>
+        <ZhiboInner />
+      </Suspense>
     </PageLayout>
   )
 }
