@@ -207,7 +207,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
         //尾部
-        //data = await getDoubanCategories(getRequestParams(0));
+        data = await getDoubanCategories(getRequestParams(0));
       }
 
       if (data.code === 200) {
