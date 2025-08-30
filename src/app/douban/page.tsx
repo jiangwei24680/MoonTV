@@ -206,7 +206,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         //自己加的代码
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
-          const data = await getDoubanCategories(params);
         //尾部
         //data = await getDoubanCategories(getRequestParams(0));
       }
