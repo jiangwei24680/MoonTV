@@ -36,10 +36,8 @@ function DoubanPageClient() {
     Array<{ name: string; type: 'movie' | 'tv'; query: string }>
   >([]);
 
-  //本人修改位置2025.08.30
   const [primarySelection, setPrimarySelection] = useState<string>(() => {
   if (type === 'movie') return '热门';
-  if (type === 'live') return '直播';
   return '';
 });
 
@@ -47,7 +45,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   if (type === 'movie') return '全部';
   if (type === 'tv') return 'tv';
   if (type === 'show') return 'show';
-  if (type === 'live') return 'live';
   return '全部';
 });
   
@@ -122,9 +119,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
       } else if (type === 'show') {
         setPrimarySelection('');
         setSecondarySelection('show');
-      } else if (type === 'live') {
-        setPrimarySelection('直播');
-        setSecondarySelection('live');
       } else {
         setPrimarySelection('');
         setSecondarySelection('全部');
@@ -145,10 +139,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   // 生成API请求参数的辅助函数
   const getRequestParams = useCallback(
     (pageStart: number) => {
-      //自己添加的代码live
-      if (type === 'live') {
-        return null; // 或者直接跳过请求
-      }
       // 当type为tv或show或live时，kind统一为'tv'，category使用type本身
       if (type === 'tv' || type === 'show') {
         return {
@@ -176,9 +166,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   const loadInitialData = useCallback(async () => {
     try {
       const params = getRequestParams(0);
-      //自己加的代码
-      if (!params) return; // live 页面不加载豆瓣数据
-      //尾部
       setLoading(true);
       let data: DoubanResult;
 
@@ -194,21 +181,13 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
             tag: selectedCategory.query,
             type: selectedCategory.type,
             pageLimit: 25,
-            //自己加的代码
-            pageStart: currentPage * 25,
-            //尾部
-            //原代码pageStart: 0,
+            pageStart: 0,
           });
         } else {
           throw new Error('没有找到对应的分类');
         }
       } else {
-        //自己加的代码
-        const params = getRequestParams(currentPage * 25);
-        if (!params) return;        
-        data = await getDoubanCategories(params);
-        //尾部
-        //原代码data = await getDoubanCategories(getRequestParams(0));
+          data = await getDoubanCategories(getRequestParams(0));
       }
 
       if (data.code === 200) {
@@ -266,20 +245,10 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
     loadInitialData,
   ]);
 
-  //自己加的代码
-  const doubanCache = useRef(new Map<number, DoubanItem[]>());
-  //尾部
   // 单独处理 currentPage 变化（加载更多）
   useEffect(() => {
     if (currentPage > 0) {
       const fetchMoreData = async () => {
-        //自己加的代码
-        let data: DoubanResult;
-        const params = getRequestParams(currentPage * 25);
-        if (!params) return;
-        const data = await getDoubanCategories(params);//
-        if (type === 'live') return; // 跳过直播页面的数据加载
-        //尾部
         try {
           setIsLoadingMore(true);
 
@@ -410,24 +379,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
       ? '综艺'
       : '自定义';
   };
-
-  //自己加的代码
-  if (type === 'live') {
-    return (
-      <PageLayout activePath="/douban?type=live">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-4">📺 直播频道上传</h1>
-          <LiveUploadPage />
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-2">已上传频道</h2>
-            <LiveChannelList />
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-  //尾部
-  
+ 
   const getActivePath = () => {
     const params = new URLSearchParams();
     if (type) params.set('type', type);
