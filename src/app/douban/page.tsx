@@ -14,8 +14,6 @@ import DoubanCustomSelector from '@/components/DoubanCustomSelector';
 import DoubanSelector from '@/components/DoubanSelector';
 import PageLayout from '@/components/PageLayout';
 import VideoCard from '@/components/VideoCard';
-import LiveChannelList from '@/components/LiveChannelList';
-import LiveUploadPage from '@/components/LiveUploadPage';
 
 function DoubanPageClient() {
   const searchParams = useSearchParams();
