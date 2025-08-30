@@ -20,7 +20,7 @@ export default function LivePage() {
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-2">已上传频道</h2>
           <Suspense fallback={<div>加载频道列表...</div>}>
-            <LiveChannelList m3uContent={m3uContent} />
+            //<LiveChannelList m3uContent={m3uContent} />
           </Suspense>
         </div>
       </div>
