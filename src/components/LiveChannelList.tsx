@@ -33,9 +33,10 @@ export default function LiveChannelList({ m3uContent }: Props) {
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    const initial = searchParams.get('filter') || '';
+    const params = useSearchParams();
+    const initial = params.get('filter') || '';
     setFilter(initial);
-  }, [searchParams]);
+  }, []);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
