@@ -203,9 +203,6 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
           throw new Error('没有找到对应的分类');
         }
       } else {
-        //自己加的代码
-        data = await getDoubanCategories(params);
-        //尾部
         data = await getDoubanCategories(getRequestParams(0));
       }
 
