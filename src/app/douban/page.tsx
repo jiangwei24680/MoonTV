@@ -35,16 +35,31 @@ function DoubanPageClient() {
     Array<{ name: string; type: 'movie' | 'tv'; query: string }>
   >([]);
 
-  // 选择器状态 - 完全独立，不依赖URL参数
+  //本人修改位置2025.08.30
   const [primarySelection, setPrimarySelection] = useState<string>(() => {
-    return type === 'movie' ? '热门' : '';
-  });
-  const [secondarySelection, setSecondarySelection] = useState<string>(() => {
-    if (type === 'movie') return '全部';
-    if (type === 'tv') return 'tv';
-    if (type === 'show') return 'show';
-    return '全部';
-  });
+  if (type === 'movie') return '热门';
+  if (type === 'live') return '直播';
+  return '';
+});
+
+const [secondarySelection, setSecondarySelection] = useState<string>(() => {
+  if (type === 'movie') return '全部';
+  if (type === 'tv') return 'tv';
+  if (type === 'show') return 'show';
+  if (type === 'live') return 'live';
+  return '全部';
+});
+  
+  // 选择器状态 - 完全独立，不依赖URL参数
+  //const [primarySelection, setPrimarySelection] = useState<string>(() => {
+  //  return type === 'movie' ? '热门' : '';
+  //});
+  //const [secondarySelection, setSecondarySelection] = useState<string>(() => {
+  //  if (type === 'movie') return '全部';
+  //  if (type === 'tv') return 'tv';
+  //  if (type === 'show') return 'show';
+  //  return '全部';
+  //});
 
   // 获取自定义分类数据
   useEffect(() => {
