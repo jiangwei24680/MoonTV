@@ -203,7 +203,15 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
           throw new Error('没有找到对应的分类');
         }
       } else {
-        data = await getDoubanCategories(getRequestParams(0));
+        //自己加的代码
+          const fallbackParams = getRequestParams(0);
+          if (fallbackParams) {
+            data = await getDoubanCategories(fallbackParams);
+          } else {
+            return; // live 页面直接跳过
+          }
+        //尾部
+        //原代码data = await getDoubanCategories(getRequestParams(0));
       }
 
       if (data.code === 200) {
