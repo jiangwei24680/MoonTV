@@ -418,6 +418,10 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-4">📺 直播频道上传</h1>
           <LiveUploadPage />
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-2">已上传频道</h2>
+            <LiveChannelList />
+          </div>
         </div>
       </PageLayout>
     );
