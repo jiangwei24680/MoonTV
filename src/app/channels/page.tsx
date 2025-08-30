@@ -1,71 +1,68 @@
 'use client'
 
 import { useState } from 'react'
-import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 
-const ArtPlayer = dynamic(() => import('@/components/ArtPlayer'), { ssr: false })
-
-type Channel = {
-  name: string
-  url: string
-  logo?: string
-}
-
-export default function ChannelsPage() {
-  const [channels, setChannels] = useState<Channel[]>([])
-  const [currentStream, setCurrentStream] = useState<string | null>(null)
+const LivePage = () => {
+  const [channels, setChannels] = useState([])
+  const router = useRouter()
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
     const text = await file.text()
     const lines = text.split('\n')
-    const parsed: Channel[] = []
+    const parsed = []
 
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].startsWith('#EXTINF')) {
-        const name = lines[i].split(',')[1]?.trim() || `频道 ${i}`
+        const nameMatch = lines[i].match(/,(.*)/)
+        const name = nameMatch ? nameMatch[1] : `频道${i}`
         const url = lines[i + 1]?.trim()
-        parsed.push({ name, url })
+        if (url) parsed.push({ name, url })
       }
     }
 
     setChannels(parsed)
   }
 
+  const handleClick = (channel) => {
+    const encodedTitle = encodeURIComponent(channel.name)
+    const encodedUrl = encodeURIComponent(channel.url)
+    router.push(`/play?source=custom&id=${encodedUrl}&title=${encodedTitle}&year=2024`)
+  }
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">📺 MoonTV 直播频道</h1>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">直播频道预览</h1>
 
       <input
         type="file"
         accept=".m3u"
         onChange={handleUpload}
-        className="mb-6 block"
+        className="mb-4"
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {channels.map((ch, idx) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {channels.map((channel, idx) => (
           <div
             key={idx}
-            onClick={() => setCurrentStream(ch.url)}
-            className="cursor-pointer border rounded-lg p-2 hover:shadow-md transition"
+            className="border p-2 rounded hover:bg-gray-100 cursor-pointer"
+            onClick={() => handleClick(channel)}
           >
             <img
-              src={ch.logo || '/default-logo.png'}
-              alt={ch.name}
-              className="w-full h-24 object-cover rounded"
+              src={`/logos/${channel.name}.jpg`}
+              alt={channel.name}
+              className="w-full h-32 object-cover mb-2"
+              onError={(e) => (e.currentTarget.src = '/default.jpg')}
             />
-            <p className="mt-2 text-center text-sm">{ch.name}</p>
+            <p className="text-sm text-center">{channel.name}</p>
           </div>
         ))}
       </div>
-
-      {currentStream && (
-        <div className="mt-8">
-          <ArtPlayer url={currentStream} />
-        </div>
-      )}
     </div>
   )
 }
+
+export default LivePage
