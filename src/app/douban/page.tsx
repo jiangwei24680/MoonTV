@@ -201,9 +201,18 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
         }
       } else {
         //自己加的代码
+        const cached = doubanCache.current.get(currentPage * 25);
+        if (cached) {
+          setDoubanData(prev => [...prev, ...cached]);
+          return;
+        }
+        
         const params = getRequestParams(currentPage * 25);
         if (!params) return;
-        data = await getDoubanCategories(params);
+        
+        const data = await getDoubanCategories(params);
+        doubanCache.current.set(currentPage * 25, data);
+        setDoubanData(prev => [...prev, ...data]);
         //尾部
         //data = await getDoubanCategories(getRequestParams(0));
       }
@@ -263,13 +272,22 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
     loadInitialData,
   ]);
 
+  //自己加的代码
+  const doubanCache = useRef(new Map<number, DoubanItem[]>());
+  //尾部
   // 单独处理 currentPage 变化（加载更多）
   useEffect(() => {
     if (currentPage > 0) {
       const fetchMoreData = async () => {
         //自己加的代码
+        const params = getRequestParams(currentPage * 25);
+        if (!params) return;
         if (type === 'live') return; // 跳过直播页面的数据加载
+        //尾部
         try {
+          //自己加的代码
+          const data = await getDoubanCategories(params);
+          //尾部
           setIsLoadingMore(true);
 
           let data: DoubanResult;
