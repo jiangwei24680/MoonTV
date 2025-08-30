@@ -1,55 +1,83 @@
-import React, { useEffect, useState } from 'react';
+'use client';
+
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+type Props = {
+  m3uContent: string;
+};
 
 type Channel = {
   name: string;
   url: string;
 };
 
-type Props = {
-  m3uContent: string; // 直接传入 .m3u 文件内容
-};
+function parseM3U(content: string): Channel[] {
+  const lines = content.split('\n').map(line => line.trim()).filter(Boolean);
+  const channels: Channel[] = [];
 
-const LiveChannelList: React.FC<Props> = ({ m3uContent }) => {
-  const [channels, setChannels] = useState<Channel[]>([]);
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith('#EXTINF')) {
+      const name = lines[i].split(',')[1] || `频道${i}`;
+      const url = lines[i + 1] || '';
+      channels.push({ name, url });
+    }
+  }
+
+  return channels;
+}
+
+export default function LiveChannelList({ m3uContent }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    const lines = m3uContent.split('\n').map(line => line.trim()).filter(Boolean);
-    const parsed: Channel[] = [];
+    const initial = searchParams.get('filter') || '';
+    setFilter(initial);
+  }, [searchParams]);
 
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith('#EXTINF')) {
-        const nameMatch = lines[i].match(/,(.*)$/);
-        const name = nameMatch ? nameMatch[1] : `频道 ${parsed.length + 1}`;
-        const url = lines[i + 1] || '';
-        if (url.startsWith('http')) {
-          parsed.push({ name, url });
-        }
-      }
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFilter(value);
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set('filter', value);
+    } else {
+      params.delete('filter');
     }
+    router.replace(`/live?${params.toString()}`);
+  };
 
-    setChannels(parsed);
-  }, [m3uContent]);
+  if (!m3uContent) return <p className="text-gray-500">暂无频道数据</p>;
+
+  const allChannels = parseM3U(m3uContent);
+  const filtered = filter
+    ? allChannels.filter(ch => ch.name.includes(filter))
+    : allChannels;
 
   return (
-    <div style={{ padding: '1rem' }}>
-      <h2>📺 直播频道列表</h2>
-      {channels.length === 0 ? (
-        <p>未解析到频道数据。</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {channels.map((channel, idx) => (
-            <li key={idx} style={{ marginBottom: '0.5rem' }}>
-              <strong>{channel.name}</strong>
-              <br />
-              <a href={channel.url} target="_blank" rel="noopener noreferrer">
-                播放链接
-              </a>
-            </li>
-          ))}
-        </ul>
+    <div className="space-y-4">
+      <input
+        type="text"
+        value={filter}
+        onChange={handleFilterChange}
+        placeholder="搜索频道名称"
+        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+      />
+
+      <ul className="space-y-2">
+        {filtered.map((ch, idx) => (
+          <li key={idx} className="border p-2 rounded">
+            <strong>{ch.name}</strong>
+            <div className="text-sm text-gray-600">{ch.url}</div>
+          </li>
+        ))}
+      </ul>
+
+      {filtered.length === 0 && (
+        <p className="text-gray-500">未找到匹配的频道</p>
       )}
     </div>
   );
-};
-
-export default LiveChannelList;
+}
