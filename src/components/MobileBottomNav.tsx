@@ -38,6 +38,11 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
       label: '综艺',
       href: '/douban?type=show',
     },
+    {
+      icon: Airplay,
+      label: '直播',
+      href: '/channels',
+    },
   ]);
 
   useEffect(() => {
