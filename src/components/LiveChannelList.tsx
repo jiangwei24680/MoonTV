@@ -18,7 +18,7 @@ function parseM3U(content: string): Channel[] {
 
   for (let i = 0; i < lines.length; i++) {
     if (lines[i].startsWith('#EXTINF')) {
-      const name = lines[i].split(',')[1] || `频道${i}`;
+      const name = lines[i].split(',')[1] || `频道 ${i}`;
       const url = lines[i + 1] || '';
       channels.push({ name, url });
     }
@@ -29,31 +29,34 @@ function parseM3U(content: string): Channel[] {
 
 export default function LiveChannelList({ m3uContent }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ 顶层调用，合法
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    const params = useSearchParams();
-    const initial = params.get('filter') || '';
+    const initial = searchParams.get('filter') || '';
     setFilter(initial);
-  }, []);
+  }, [searchParams]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFilter(value);
+
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
       params.set('filter', value);
     } else {
       params.delete('filter');
     }
+
     router.replace(`/live?${params.toString()}`);
   };
 
-  if (!m3uContent) return <p className="text-gray-500">暂无频道数据</p>;
+  if (!m3uContent) {
+    return <p className="text-gray-500">暂无频道数据</p>;
+  }
 
   const allChannels = parseM3U(m3uContent);
-  const filtered = filter
+  const filteredChannels = filter
     ? allChannels.filter(ch => ch.name.includes(filter))
     : allChannels;
 
@@ -63,22 +66,18 @@ export default function LiveChannelList({ m3uContent }: Props) {
         type="text"
         value={filter}
         onChange={handleFilterChange}
-        placeholder="搜索频道名称"
-        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+        placeholder="筛选频道名称"
+        className="w-full px-3 py-2 border rounded"
       />
 
       <ul className="space-y-2">
-        {filtered.map((ch, idx) => (
+        {filteredChannels.map((channel, idx) => (
           <li key={idx} className="border p-2 rounded">
-            <strong>{ch.name}</strong>
-            <div className="text-sm text-gray-600">{ch.url}</div>
+            <div className="font-semibold">{channel.name}</div>
+            <div className="text-sm text-gray-600">{channel.url}</div>
           </li>
         ))}
       </ul>
-
-      {filtered.length === 0 && (
-        <p className="text-gray-500">未找到匹配的频道</p>
-      )}
     </div>
   );
 }
