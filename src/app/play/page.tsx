@@ -655,11 +655,13 @@ function PlayPageClient() {
       // ---------- 直播快速通道 ----------
       const isLive = searchParams.get('type') === 'live';
       const liveUrl = searchParams.get('url');
+      console.log('live mode', isLive, liveUrl);   // ← 看参数
       if (isLive && liveUrl) {
         setVideoUrl(liveUrl);
         setVideoTitle(searchParams.get('title') || '直播');
         setLoading(false);
         setError(null);
+        console.log('播放器即将加载:', liveUrl);   // ← 再确认
         return; // 直接走直播分支，不再跑点播逻辑
       }
       // ----------------------------------------------------
