@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ChangeEvent, DragEvent, useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import PageLayout from '@/components/PageLayout';
 import VideoCard from '@/components/VideoCard';
@@ -13,17 +13,40 @@ interface Channel {
   url: string;
 }
 
+// 本地缓存 key
+const LS_KEY = 'live-channels';
+
 export default function ChannelsPageInner() {
   const router = useRouter();
   const [channels, setChannels] = useState<Channel[]>([]);
+  const [inputUrl, setInputUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+
+  /* ---------- 读取初始列表 ---------- */
+  useEffect(() => {
+    setLoading(true);
+    // 1. 读本地缓存
+    const cached = localStorage.getItem(LS_KEY);
+    if (cached) {
+      setChannels(JSON.parse(cached));
+      setLoading(false);
+      return;
+    }
+    // 2. 读静态 playlist.m3u
+    fetch('/channels/playlist.m3u')
+      .then((r) => r.text())
+      .then((text) => {
+        const parsed = parseM3u(text);
+        setChannels(parsed);
+        localStorage.setItem(LS_KEY, JSON.stringify(parsed));
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   /* ---------- 解析 m3u ---------- */
   const parseM3u = (text: string): Channel[] => {
     const lines = text.trim().split(/\r?\n/);
     const result: Channel[] = [];
-
     let current: Partial<Channel> = {};
     for (const line of lines) {
       const trimmed = line.trim();
@@ -31,7 +54,7 @@ export default function ChannelsPageInner() {
         const nameMatch = trimmed.match(/tvg-name="([^"]*)"/i);
         const logoMatch = trimmed.match(/tvg-logo="([^"]*)"/i);
         const commaName = trimmed.split(',').pop()?.trim();
-        current.name = nameMatch?.[1] || commaName || '未知频道';
+        current.name = nameMatch?.[1] || commaName || '自定义频道';
         current.logo = logoMatch?.[1];
       } else if (trimmed && !trimmed.startsWith('#')) {
         current.url = trimmed;
@@ -42,120 +65,83 @@ export default function ChannelsPageInner() {
     return result;
   };
 
-  /* ---------- 文件处理 ---------- */
-  const handleFile = (file: File) => {
-    setLoading(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const parsed = parseM3u(reader.result as string);
-        setChannels(parsed);
-        setError('');
-      } catch {
-        setError('解析失败，请检查 m3u 格式');
-      } finally {
-        setLoading(false);
-      }
+  /* ---------- 手动追加 ---------- */
+  const addChannel = () => {
+    if (!inputUrl.trim()) return;
+    const newChannel: Channel = {
+      name: '自定义频道',
+      url: inputUrl.trim(),
     };
-    reader.readAsText(file);
+    const updated = [...channels, newChannel];
+    setChannels(updated);
+    localStorage.setItem(LS_KEY, JSON.stringify(updated));
+    setInputUrl('');
   };
 
-  const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleFile(file);
+  /* ---------- 删除 ---------- */
+  const removeChannel = (idx: number) => {
+    const updated = channels.filter((_, i) => i !== idx);
+    setChannels(updated);
+    localStorage.setItem(LS_KEY, JSON.stringify(updated));
   };
 
-  const onDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
+  const clearAll = () => {
+    setChannels([]);
+    localStorage.removeItem(LS_KEY);
   };
-
-  const onPaste = useCallback(() => {
-    navigator.clipboard.readText().then((text) => {
-      try {
-        const parsed = parseM3u(text);
-        setChannels(parsed);
-        setError('');
-      } catch {
-        setError('剪贴板内容不是合法 m3u');
-      }
-    });
-  }, []);
 
   /* ---------- 跳转播放 ---------- */
   const play = (channel: Channel) => {
-    // 把外部 .m3u8 地址通过代理转发，解决 403 / 跨域
+    // 经过代理，解决 CORS/403
     const proxyUrl = `/api/live?url=${encodeURIComponent(channel.url)}`;
     router.push(proxyUrl);
   };
 
   return (
     <PageLayout activePath="/channels">
-      <div className="px-4 sm:px-10 py-8 space-y-8">
-        {/* 标题 */}
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-            直播频道
-          </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            上传或粘贴 .m3u 文件，浏览并播放直播源
-          </p>
-        </div>
+      <div className="px-4 sm:px-10 py-8 space-y-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
+          直播频道
+        </h1>
 
-        {/* 上传区 */}
-        <div
-          className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center space-y-3 hover:border-green-500 transition-colors"
-          onDrop={onDrop}
-          onDragOver={(e) => e.preventDefault()}
-        >
-          <svg
-            className="mx-auto h-12 w-12 text-gray-400"
-            stroke="currentColor"
-            fill="none"
-            viewBox="0 0 48 48"
-          >
-            <path
-              d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <label>
-            <input
-              type="file"
-              accept=".m3u,.m3u8"
-              onChange={onFileChange}
-              className="hidden"
-            />
-            <span className="text-green-600 font-medium cursor-pointer hover:underline">
-              点击上传 .m3u
-            </span>
-          </label>
+        {/* 追加 URL */}
+        <div className="flex gap-2">
+          <input
+            type="url"
+            placeholder="输入直播 .m3u8 地址"
+            value={inputUrl}
+            onChange={(e) => setInputUrl(e.target.value)}
+            className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
+          />
           <button
-            onClick={onPaste}
-            className="text-sm text-gray-500 dark:text-gray-400 underline"
+            onClick={addChannel}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
           >
-            或粘贴剪贴板内容
+            添加
           </button>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
 
-        {/* 频道列表 */}
+        {/* 列表 */}
         {loading ? (
-          <p className="text-center text-gray-500 py-10">解析中…</p>
+          <p className="text-center text-gray-500">加载中…</p>
         ) : channels.length ? (
           <>
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-              频道列表 ({channels.length})
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">
+                频道列表 ({channels.length})
+              </h2>
+              <button
+                onClick={clearAll}
+                className="text-sm text-red-500 hover:underline"
+              >
+                清空全部
+              </button>
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {channels.map((ch) => (
+              {channels.map((ch, idx) => (
                 <div
-                  key={ch.url}
-                  className="cursor-pointer"
-                  onClick={() => play(ch)}
+                  key={idx}
+                  className="relative cursor-pointer group"
                 >
                   <VideoCard
                     from="search"
@@ -169,14 +155,24 @@ export default function ChannelsPageInner() {
                     rate="0"
                     year=""
                     type=""
+                    onClick={() => play(ch)}
                   />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeChannel(idx);
+                    }}
+                    className="absolute top-1 right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 opacity-0 group-hover:opacity-100"
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
             </div>
           </>
         ) : (
-          <p className="text-center text-gray-500 py-10">
-            暂无频道，请上传或粘贴 m3u 文件
+          <p className="text-center text-gray-500">
+            暂无频道，请在下方输入直播地址或编辑 /channels/playlist.m3u
           </p>
         )}
       </div>
