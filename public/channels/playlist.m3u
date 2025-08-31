@@ -1,0 +1,449 @@
+#EXTM3U
+#EXTINF:-1 tvg-id=" cctv1" tvg-name="CCTV-1" group-title="央视频道",CCTV-1
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv1
+#EXTINF:-1 tvg-id="cctv2" tvg-name="CCTV-2" group-title="央视频道",CCTV-2
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv2
+#EXTINF:-1 tvg-id="cctv3" tvg-name="CCTV-3" group-title="央视频道",CCTV-3
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv3
+#EXTINF:-1 tvg-id="cctv4" tvg-name="CCTV-4" group-title="央视频道",CCTV-4
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv4
+#EXTINF:-1 tvg-id="cctv5" tvg-name="CCTV-5" group-title="央视频道",CCTV-5
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv5
+#EXTINF:-1 tvg-id="cctv5p" tvg-name="CCTV-5+" group-title="央视频道",CCTV-5+
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv5p
+#EXTINF:-1 tvg-id="cctv6" tvg-name="CCTV-6" group-title="央视频道",CCTV-6
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv6
+#EXTINF:-1 tvg-id="cctv7" tvg-name="CCTV-7" group-title="央视频道",CCTV-7
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv7
+#EXTINF:-1 tvg-id="cctv8" tvg-name="CCTV-8" group-title="央视频道",CCTV-8
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv8
+#EXTINF:-1 tvg-id="cctv9" tvg-name="CCTV-9" group-title="央视频道",CCTV-9
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv9
+#EXTINF:-1 tvg-id="cctv10" tvg-name="CCTV-10" group-title="央视频道",CCTV-10
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv10
+#EXTINF:-1 tvg-id="cctv11" tvg-name="CCTV-11" group-title="央视频道",CCTV-11
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv11
+#EXTINF:-1 tvg-id="cctv12" tvg-name="CCTV-12" group-title="央视频道",CCTV-12
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv12
+#EXTINF:-1 tvg-id="cctv13" tvg-name="CCTV-13" group-title="央视频道",CCTV-13
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv13
+#EXTINF:-1 tvg-id="cctv14" tvg-name="CCTV-14" group-title="央视频道",CCTV-14
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv14
+#EXTINF:-1 tvg-id="cctv15" tvg-name="CCTV-15" group-title="央视频道",CCTV-15
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv15
+#EXTINF:-1 tvg-id="cctv16" tvg-name="CCTV-16" group-title="央视频道",CCTV-16
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv16
+#EXTINF:-1 tvg-id="cctv17" tvg-name="CCTV-17" group-title="央视频道",CCTV-17
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv17
+#EXTINF:-1 tvg-id="cctv4oz" tvg-name="CCTV4欧洲" group-title="央视频道",CCTV4欧洲
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv4oz
+#EXTINF:-1 tvg-id="cctv4mz" tvg-name="CCTV4美洲" group-title="央视频道",CCTV4美洲
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cctv4mz
+#EXTINF:-1 tvg-id="cgtnwyjl" tvg-name="CGTN外语记录" group-title="央视频道",CGTN外语记录
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cgtnwyjl
+#EXTINF:-1 tvg-id="cgtnalby" tvg-name="CGTN阿拉伯语" group-title="央视频道",CGTN阿拉伯语
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cgtnalby
+#EXTINF:-1 tvg-id="cgtnxbyy" tvg-name="CGTN西班牙语" group-title="央视频道",CGTN西班牙语
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cgtnxbyy
+#EXTINF:-1 tvg-id="cgtnfy" tvg-name="CGTN法语" group-title="央视频道",CGTN法语
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cgtnfy
+#EXTINF:-1 tvg-id="cgtney" tvg-name="CGTN俄语" group-title="央视频道",CGTN俄语
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cgtney
+#EXTINF:-1 tvg-id="cgtn" tvg-name="CGTN" group-title="央视频道",CGTN
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cgtn
+#EXTINF:-1 tvg-id="bjws" tvg-name="北京卫视" group-title="央视频道",北京卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjws
+#EXTINF:-1 tvg-id="zjws" tvg-name="浙江卫视" group-title="央视频道",浙江卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjws
+#EXTINF:-1 tvg-id="jsws" tvg-name="江苏卫视" group-title="央视频道",江苏卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jsws
+#EXTINF:-1 tvg-id="gdws" tvg-name="广东卫视" group-title="央视频道",广东卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=gdws
+#EXTINF:-1 tvg-id="henws" tvg-name="河南卫视" group-title="央视频道",河南卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=henws
+#EXTINF:-1 tvg-id="hebws" tvg-name="河北卫视" group-title="央视频道",河北卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hebws
+#EXTINF:-1 tvg-id="dwqws" tvg-name="大湾区卫视" group-title="央视频道",大湾区卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=dwqws
+#EXTINF:-1 tvg-id="hubws" tvg-name="湖北卫视" group-title="央视频道",湖北卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hubws
+#EXTINF:-1 tvg-id="jlws" tvg-name="吉林卫视" group-title="央视频道",吉林卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jlws
+#EXTINF:-1 tvg-id="hainws" tvg-name="海南卫视" group-title="央视频道",海南卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hainws
+#EXTINF:-1 tvg-id="jjkt" tvg-name="嘉佳卡通" group-title="央视频道",嘉佳卡通
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jjkt
+#EXTINF:-1 tvg-id="ymkt" tvg-name="优漫卡通" group-title="央视频道",优漫卡通
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ymkt
+#EXTINF:-1 tvg-id="btws" tvg-name="兵团卫视" group-title="央视频道",兵团卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=btws
+#EXTINF:-1 tvg-id="sdjyws" tvg-name="山东教育卫视" group-title="央视频道",山东教育卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sdjyws
+#EXTINF:-1 tvg-id="ybws" tvg-name="延边卫视" group-title="央视频道",延边卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ybws
+#EXTINF:-1 tvg-id="ynws" tvg-name="云南卫视" group-title="央视频道",云南卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ynws
+#EXTINF:-1 tvg-id="xzws" tvg-name="西藏卫视" group-title="央视频道",西藏卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xzws
+#EXTINF:-1 tvg-id="xzzy" tvg-name="西藏藏语卫视" group-title="央视频道",西藏藏语卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xzzy
+#EXTINF:-1 tvg-id="sdws" tvg-name="山东卫视" group-title="央视频道",山东卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sdws
+#EXTINF:-1 tvg-id="xjws" tvg-name="新彊卫视" group-title="央视频道",新彊卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xjws
+#EXTINF:-1 tvg-id="sxws" tvg-name="山西卫视" group-title="央视频道",山西卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sxws
+#EXTINF:-1 tvg-id="nlws" tvg-name="农林卫视" group-title="央视频道",农林卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nlws
+#EXTINF:-1 tvg-id="nmgws" tvg-name="内蒙古卫视" group-title="央视频道",内蒙古卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmgws
+#EXTINF:-1 tvg-id="nmmyws" tvg-name="内蒙古蒙语卫视" group-title="央视频道",内蒙古蒙语卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmmyws
+#EXTINF:-1 tvg-id="tjws" tvg-name="天津卫视" group-title="央视频道",天津卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=tjws
+#EXTINF:-1 tvg-id="lnws" tvg-name="辽宁卫视" group-title="央视频道",辽宁卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=lnws
+#EXTINF:-1 tvg-id="ahws" tvg-name="安徽卫视" group-title="央视频道",安徽卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ahws
+#EXTINF:-1 tvg-id="gxws" tvg-name="广西卫视" group-title="央视频道",广西卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=gxws
+#EXTINF:-1 tvg-id="scws" tvg-name="四川卫视" group-title="央视频道",四川卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=scws
+#EXTINF:-1 tvg-id="gzws" tvg-name="贵州卫视" group-title="央视频道",贵州卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=gzws
+#EXTINF:-1 tvg-id="nxws" tvg-name="宁夏卫视" group-title="央视频道",宁夏卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nxws
+#EXTINF:-1 tvg-id="cqws" tvg-name="重庆卫视" group-title="央视频道",重庆卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cqws
+#EXTINF:-1 tvg-id="gsws" tvg-name="甘肃卫视" group-title="央视频道",甘肃卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=gsws
+#EXTINF:-1 tvg-id="dnws" tvg-name="东南卫视" group-title="央视频道",东南卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=dnws
+#EXTINF:-1 tvg-id="qhadws" tvg-name="青海安多卫视" group-title="央视频道",青海安多卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=qhadws
+#EXTINF:-1 tvg-id="kbws" tvg-name="康巴卫视" group-title="央视频道",康巴卫视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=kbws
+#EXTINF:-1 tvg-id="hunjs" tvg-name="湖南经视" group-title="央视频道",湖南经视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hunjs
+#EXTINF:-1 tvg-id="jyjs" tvg-name="金鹰纪实" group-title="央视频道",金鹰纪实
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jyjs
+#EXTINF:-1 tvg-id="klcd" tvg-name="快乐垂钓" group-title="央视频道",快乐垂钓
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=klcd
+#EXTINF:-1 tvg-id="xfpy" tvg-name="先峰兵羽" group-title="央视频道",先峰兵羽
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xfpy
+#EXTINF:-1 tvg-id="hnds" tvg-name="湖南都市" group-title="央视频道",湖南都市
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hnds
+#EXTINF:-1 tvg-id="hndsj" tvg-name="湖南电视剧" group-title="央视频道",湖南电视剧
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hndsj
+#EXTINF:-1 tvg-id="hngg" tvg-name="湖南公共" group-title="央视频道",湖南公共
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hngg
+#EXTINF:-1 tvg-id="hungj" tvg-name="湖南国际" group-title="央视频道",湖南国际
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hungj
+#EXTINF:-1 tvg-id="hunyl" tvg-name="湖南娱乐" group-title="央视频道",湖南娱乐
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hunyl
+#EXTINF:-1 tvg-id="klg" tvg-name="湖南快乐购" group-title="央视频道",湖南快乐购
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=klg
+#EXTINF:-1 tvg-id="cpd" tvg-name="湖南茶频道" group-title="央视频道",湖南茶频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cpd
+#EXTINF:-1 tvg-id="hndy" tvg-name="湖南电影" group-title="央视频道",湖南电影
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hndy
+#EXTINF:-1 tvg-id="csxw" tvg-name="长沙新闻" group-title="央视频道",长沙新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=csxw
+#EXTINF:-1 tvg-id="cszf" tvg-name="长沙政法" group-title="央视频道",长沙政法
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cszf
+#EXTINF:-1 tvg-id="csnx" tvg-name="长沙女性" group-title="央视频道",长沙女性
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=csnx
+#EXTINF:-1 tvg-id="cetv1" tvg-name="CETV1" group-title="央视频道",CETV1
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cetv1
+#EXTINF:-1 tvg-id="cetv2" tvg-name="CETV2" group-title="央视频道",CETV2
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cetv2
+#EXTINF:-1 tvg-id="cetv4" tvg-name="CETV4" group-title="央视频道",CETV4
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cetv4
+#EXTINF:-1 tvg-id="sxys" tvg-name="山西影视" group-title="央视频道",山西影视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sxys
+#EXTINF:-1 tvg-id="1905lb" tvg-name="105电影轮播" group-title="央视频道",105电影轮播
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=1905lb
+#EXTINF:-1 tvg-id="xzys" tvg-name="西藏影视文化" group-title="央视频道",西藏影视文化
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xzys
+#EXTINF:-1 tvg-id="lgs" tvg-name="老故事" group-title="央视频道",老故事
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=lgs
+#EXTINF:-1 tvg-id="zxs" tvg-name="中学生" group-title="央视频道",中学生
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zxs
+#EXTINF:-1 tvg-id="jddhdjh" tvg-name="经典动画大合集" group-title="央视频道",经典动画大合集
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jddhdjh
+#EXTINF:-1 tvg-id="jszypd" tvg-name="最强综艺叭" group-title="央视频道",最强综艺叭
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jszypd
+#EXTINF:-1 tvg-id="zqzyp" tvg-name="江苏综艺频道" group-title="央视频道",江苏综艺频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zqzyp
+#EXTINF:-1 tvg-id="njxwzhpd" tvg-name="南京新闻综合" group-title="央视频道",南京新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=njxwzhpd
+#EXTINF:-1 tvg-id="njjkpd" tvg-name="南京科教频道" group-title="央视频道",南京科教频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=njjkpd
+#EXTINF:-1 tvg-id="tyxxpd" tvg-name="江苏体育休闲频道" group-title="央视频道",江苏体育休闲频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=tyxxpd
+#EXTINF:-1 tvg-id="jscspd" tvg-name="江苏城市频道" group-title="央视频道",江苏城市频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jscspd
+#EXTINF:-1 tvg-id="jsgj" tvg-name="江苏国际" group-title="央视频道",江苏国际
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jsgj
+#EXTINF:-1 tvg-id="jsjy" tvg-name="江苏教育" group-title="央视频道",江苏教育
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jsjy
+#EXTINF:-1 tvg-id="jsyspd" tvg-name="江苏影视频道" group-title="央视频道",江苏影视频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jsyspd
+#EXTINF:-1 tvg-id="ggxwpd" tvg-name="江苏公共新闻" group-title="央视频道",江苏公共新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ggxwpd
+#EXTINF:-1 tvg-id="haxwzh" tvg-name="淮安新闻综合" group-title="央视频道",淮安新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=haxwzh
+#EXTINF:-1 tvg-id="lygxwzh" tvg-name="连云港新闻综合" group-title="央视频道",连云港新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=lygxwzh
+#EXTINF:-1 tvg-id="sqxwzh" tvg-name="宿迀新闻综合" group-title="央视频道",宿迀新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sqxwzh
+#EXTINF:-1 tvg-id="xzxwzh" tvg-name="徐州新闻综合" group-title="央视频道",徐州新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xzxwzh
+#EXTINF:-1 tvg-id="xm1" tvg-name="熊猫频道1" group-title="央视频道",熊猫频道1
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm1
+#EXTINF:-1 tvg-id="xm2" tvg-name="熊猫频道2" group-title="央视频道",熊猫频道2
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm2
+#EXTINF:-1 tvg-id="xm3" tvg-name="熊猫频道3" group-title="央视频道",熊猫频道3
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm3
+#EXTINF:-1 tvg-id="xm4" tvg-name="熊猫频道4" group-title="央视频道",熊猫频道4
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm4
+#EXTINF:-1 tvg-id="xm5" tvg-name="熊猫频道5" group-title="央视频道",熊猫频道5
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm5
+#EXTINF:-1 tvg-id="xm6" tvg-name="熊猫频道6" group-title="央视频道",熊猫频道6
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm6
+#EXTINF:-1 tvg-id="xm7" tvg-name="熊猫频道7" group-title="央视频道",熊猫频道7
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm7
+#EXTINF:-1 tvg-id="xm8" tvg-name="熊猫频道8" group-title="央视频道",熊猫频道8
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm8
+#EXTINF:-1 tvg-id="xm9" tvg-name="熊猫频道9" group-title="央视频道",熊猫频道9
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm9
+#EXTINF:-1 tvg-id="xm10" tvg-name="熊猫频道10" group-title="央视频道",熊猫频道10
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xm10
+#EXTINF:-1 tvg-id="zjqj" tvg-name="浙江钱江" group-title="央视频道",浙江钱江
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjqj
+#EXTINF:-1 tvg-id="zjjjsh" tvg-name="浙江经济生活" group-title="央视频道",浙江经济生活
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjjjsh
+#EXTINF:-1 tvg-id="zjjkys" tvg-name="浙江教科影视" group-title="央视频道",浙江教科影视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjjkys
+#EXTINF:-1 tvg-id="zjmsxx" tvg-name="浙江民生休闲" group-title="央视频道",浙江民生休闲
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjmsxx
+#EXTINF:-1 tvg-id="zjxw" tvg-name="浙江新闻" group-title="央视频道",浙江新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjxw
+#EXTINF:-1 tvg-id="zjse" tvg-name="浙江少儿" group-title="央视频道",浙江少儿
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjse
+#EXTINF:-1 tvg-id="zjgj" tvg-name="浙江国际" group-title="央视频道",浙江国际
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjgj
+#EXTINF:-1 tvg-id="zjhyg" tvg-name="浙江好易购" group-title="央视频道",浙江好易购
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjhyg
+#EXTINF:-1 tvg-id="zjzjjl" tvg-name="浙江之江记录" group-title="央视频道",浙江之江记录
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjzjjl
+#EXTINF:-1 tvg-id="bjwy" tvg-name="北京文艺" group-title="央视频道",北京文艺
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjwy
+#EXTINF:-1 tvg-id="jskj" tvg-name="北京纪实科教" group-title="央视频道",北京纪实科教
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jskj
+#EXTINF:-1 tvg-id="bjys" tvg-name="北京影视" group-title="央视频道",北京影视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjys
+#EXTINF:-1 tvg-id="bjcj" tvg-name="北京财经" group-title="央视频道",北京财经
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjcj
+#EXTINF:-1 tvg-id="bjty" tvg-name="北京体育休闲" group-title="央视频道",北京体育休闲
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjty
+#EXTINF:-1 tvg-id="bjsh" tvg-name="北京生活" group-title="央视频道",北京生活
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjsh
+#EXTINF:-1 tvg-id="bjxw" tvg-name="北京新闻" group-title="央视频道",北京新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bjxw
+#EXTINF:-1 tvg-id="kkse" tvg-name="北京卡通少儿" group-title="央视频道",北京卡通少儿
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=kkse
+#EXTINF:-1 tvg-id="shxwzh" tvg-name="上海新闻综合" group-title="央视频道",上海新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=shxwzh
+#EXTINF:-1 tvg-id="xjs" tvg-name="新纪实" group-title="央视频道",新纪实
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xjs
+#EXTINF:-1 tvg-id="mdy" tvg-name="魔都眼" group-title="央视频道",魔都眼
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=mdy
+#EXTINF:-1 tvg-id="ly" tvg-name="乐游" group-title="央视频道",乐游
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ly
+#EXTINF:-1 tvg-id="dycj" tvg-name="第一财经" group-title="央视频道",第一财经
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=dycj
+#EXTINF:-1 tvg-id="ds" tvg-name="上海都市" group-title="央视频道",上海都市
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ds
+#EXTINF:-1 tvg-id="wxty" tvg-name="五星体育" group-title="央视频道",五星体育
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=wxty
+#EXTINF:-1 tvg-id="sxjj" tvg-name="山西经济" group-title="央视频道",山西经济
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sxjj
+#EXTINF:-1 tvg-id="sxfz" tvg-name="山西社会与法" group-title="央视频道",山西社会与法
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sxfz
+#EXTINF:-1 tvg-id="sxwt" tvg-name="山西文体生活" group-title="央视频道",山西文体生活
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sxwt
+#EXTINF:-1 tvg-id="sxhh" tvg-name="山西黄河" group-title="央视频道",山西黄河
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sxhh
+#EXTINF:-1 tvg-id="xwzx" tvg-name="陕西新闻资讯" group-title="央视频道",陕西新闻资讯
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xwzx
+#EXTINF:-1 tvg-id="dsqc" tvg-name="陕西都市青春" group-title="央视频道",陕西都市青春
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=dsqc
+#EXTINF:-1 tvg-id="ylpd" tvg-name="银龄频道" group-title="央视频道",银龄频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ylpd
+#EXTINF:-1 tvg-id="qqpd" tvg-name="秦腔频道" group-title="央视频道",秦腔频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=qqpd
+#EXTINF:-1 tvg-id="ljgw" tvg-name="乐家购物" group-title="央视频道",乐家购物
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ljgw
+#EXTINF:-1 tvg-id="ydds" tvg-name="移动电视" group-title="央视频道",移动电视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ydds
+#EXTINF:-1 tvg-id="gmzh" tvg-name="耿马综合" group-title="央视频道",耿马综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=gmzh
+#EXTINF:-1 tvg-id="llzh" tvg-name="龙陵综合" group-title="央视频道",龙陵综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=llzh
+#EXTINF:-1 tvg-id="lyzh" tvg-name="龙阳综合" group-title="央视频道",龙阳综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=lyzh
+#EXTINF:-1 tvg-id="yxzh" tvg-name="玉溪新闻综合" group-title="央视频道",玉溪新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=yxzh
+#EXTINF:-1 tvg-id="yxsf" tvg-name="玉溪社会与法" group-title="央视频道",玉溪社会与法
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=yxsf
+#EXTINF:-1 tvg-id="hnms" tvg-name="河南民生" group-title="央视频道",河南民生
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hnms
+#EXTINF:-1 tvg-id="hnxw" tvg-name="河南新闻" group-title="央视频道",河南新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hnxw
+#EXTINF:-1 tvg-id="htgw" tvg-name="欢腾购物" group-title="央视频道",欢腾购物
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=htgw
+#EXTINF:-1 tvg-id="hnxc" tvg-name="河南乡村" group-title="央视频道",河南乡村
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hnxc
+#EXTINF:-1 tvg-id="hnly" tvg-name="河南梨园" group-title="央视频道",河南梨园
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hnly
+#EXTINF:-1 tvg-id="wwbk" tvg-name="文物宝库" group-title="央视频道",文物宝库
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=wwbk
+#EXTINF:-1 tvg-id="wspd" tvg-name="武术世界" group-title="央视频道",武术世界
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=wspd
+#EXTINF:-1 tvg-id="jczy" tvg-name="精采中原" group-title="央视频道",精采中原
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jczy
+#EXTINF:-1 tvg-id="ydxj" tvg-name="移动戏曲" group-title="央视频道",移动戏曲
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ydxj
+#EXTINF:-1 tvg-id="xsj" tvg-name="象视界" group-title="央视频道",象视界
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xsj
+#EXTINF:-1 tvg-id="nmxwzh" tvg-name="内蒙古新闻综合" group-title="央视频道",内蒙古新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmxwzh
+#EXTINF:-1 tvg-id="nmse" tvg-name="内蒙古少儿频道" group-title="央视频道",内蒙古少儿频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmse
+#EXTINF:-1 tvg-id="nmwtyl" tvg-name="内蒙古文体娱乐" group-title="央视频道",内蒙古文体娱乐
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmwtyl
+#EXTINF:-1 tvg-id="nmnm" tvg-name="内蒙古农牧频道" group-title="央视频道",内蒙古农牧频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmnm
+#EXTINF:-1 tvg-id="nmwh" tvg-name="内蒙古蒙古语文化" group-title="央视频道",内蒙古蒙古语文化
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=nmwh
+#EXTINF:-1 tvg-id="hhht1" tvg-name="呼和浩特新闻综合" group-title="央视频道",呼和浩特新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hhht1
+#EXTINF:-1 tvg-id="xlgl1" tvg-name="锡林郭勒" group-title="央视频道",锡林郭勒
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xlgl1
+#EXTINF:-1 tvg-id="als1" tvg-name="阿拉善新闻综合" group-title="央视频道",阿拉善新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=als1
+#EXTINF:-1 tvg-id="byle1" tvg-name="巴彦淖尔" group-title="央视频道",巴彦淖尔
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=byle1
+#EXTINF:-1 tvg-id="erds1" tvg-name="鄂尔多斯" group-title="央视频道",鄂尔多斯
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=erds1
+#EXTINF:-1 tvg-id="cf1" tvg-name="赤峰新闻综合" group-title="央视频道",赤峰新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cf1
+#EXTINF:-1 tvg-id="tl1" tvg-name="通辽新闻综合" group-title="央视频道",通辽新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=tl1
+#EXTINF:-1 tvg-id="wlcb1" tvg-name="乌兰察布" group-title="央视频道",乌兰察布
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=wlcb1
+#EXTINF:-1 tvg-id="wh1" tvg-name="乌海新闻" group-title="央视频道",乌海新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=wh1
+#EXTINF:-1 tvg-id="hlbe1" tvg-name="呼伦贝尔新闻综合" group-title="央视频道",呼伦贝尔新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hlbe1
+#EXTINF:-1 tvg-id="xa1" tvg-name="兴安新闻综合" group-title="央视频道",兴安新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xa1
+#EXTINF:-1 tvg-id="bt1" tvg-name="包头新闻" group-title="央视频道",包头新闻
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bt1
+#EXTINF:-1 tvg-id="xjwyzh" tvg-name="新彊维语新闻综合" group-title="央视频道",新彊维语新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xjwyzh
+#EXTINF:-1 tvg-id="xjhyzh" tvg-name="新彊哈语新闻综合" group-title="央视频道",新彊哈语新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xjhyzh
+#EXTINF:-1 tvg-id="xjty" tvg-name="新疆体育健康" group-title="央视频道",新疆体育健康
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xjty
+#EXTINF:-1 tvg-id="xjse" tvg-name="新疆少儿频道" group-title="央视频道",新疆少儿频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=xjse
+#EXTINF:-1 tvg-id="bzzhpd" tvg-name="毫州综合频道" group-title="央视频道",毫州综合频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bzzhpd
+#EXTINF:-1 tvg-id="sgxwzh" tvg-name="韶关新闻综合" group-title="央视频道",韶关新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sgxwzh
+#EXTINF:-1 tvg-id="hyzh" tvg-name="河源综合" group-title="央视频道",河源综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hyzh
+#EXTINF:-1 tvg-id="jyzh" tvg-name="揭阳综合" group-title="央视频道",揭阳综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jyzh
+#EXTINF:-1 tvg-id="jldspd" tvg-name="吉林都市频道" group-title="央视频道",吉林都市频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jldspd
+#EXTINF:-1 tvg-id="jlyspd" tvg-name="吉林影视频道" group-title="央视频道",吉林影视频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jlyspd
+#EXTINF:-1 tvg-id="jlxcpd" tvg-name="吉林乡村频道" group-title="央视频道",吉林乡村频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jlxcpd
+#EXTINF:-1 tvg-id="jlzywhpd" tvg-name="吉林综艺文化频道" group-title="央视频道",吉林综艺文化频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jlzywhpd
+#EXTINF:-1 tvg-id="cczhpd" tvg-name="长春综合频道" group-title="央视频道",长春综合频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=cczhpd
+#EXTINF:-1 tvg-id="jlxwzhpd" tvg-name="吉林新闻综合" group-title="央视频道",吉林新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=jlxwzhpd
+#EXTINF:-1 tvg-id="spxwzhpd" tvg-name="四平新闻综合" group-title="央视频道",四平新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=spxwzhpd
+#EXTINF:-1 tvg-id="lyxwzhpd" tvg-name="辽源新闻综合" group-title="央视频道",辽源新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=lyxwzhpd
+#EXTINF:-1 tvg-id="bcxwzhpd" tvg-name="白城新闻综合" group-title="央视频道",白城新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bcxwzhpd
+#EXTINF:-1 tvg-id="thxwzhpd" tvg-name="通化新闻频道" group-title="央视频道",通化新闻频道
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=thxwzhpd
+#EXTINF:-1 tvg-id="bsxwzhpd" tvg-name="白山新闻综合" group-title="央视频道",白山新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=bsxwzhpd
+#EXTINF:-1 tvg-id="gzzh" tvg-name="广州综合" group-title="央视频道",广州综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=gzzh
+#EXTINF:-1 tvg-id="zszh" tvg-name="中山综合" group-title="央视频道",中山综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zszh
+#EXTINF:-1 tvg-id="zjxwzh" tvg-name="湛江新闻综合" group-title="央视频道",湛江新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=zjxwzh
+#EXTINF:-1 tvg-id="pzhxwzhpd" tvg-name="攀枝花新闻综合" group-title="央视频道",攀枝花新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=pzhxwzhpd
+#EXTINF:-1 tvg-id="pzhwlshpd" tvg-name="攀枝花文旅生活" group-title="央视频道",攀枝花文旅生活
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=pzhwlshpd
+#EXTINF:-1 tvg-id="hljwtpd" tvg-name="黑龙江文体" group-title="央视频道",黑龙江文体
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hljwtpd
+#EXTINF:-1 tvg-id="hljyspd" tvg-name="黑龙江影视" group-title="央视频道",黑龙江影视
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hljyspd
+#EXTINF:-1 tvg-id="hljxwfzpd" tvg-name="黑龙江新闻法治" group-title="央视频道",黑龙江新闻法治
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hljxwfzpd
+#EXTINF:-1 tvg-id="hljdspd" tvg-name="黑龙江都市" group-title="央视频道",黑龙江都市
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hljdspd
+#EXTINF:-1 tvg-id="hljnykjpd" tvg-name="黑龙江农业科教" group-title="央视频道",黑龙江农业科教
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hljnykjpd
+#EXTINF:-1 tvg-id="hebxwzhpd" tvg-name="哈尔滨新闻综合" group-title="央视频道",哈尔滨新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hebxwzhpd
+#EXTINF:-1 tvg-id="qqhexwzhpd" tvg-name="齐齐哈尔新闻综合" group-title="央视频道",齐齐哈尔新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=qqhexwzhpd
+#EXTINF:-1 tvg-id="sysxwzhpd" tvg-name="双鸭山新闻综合" group-title="央视频道",双鸭山新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=sysxwzhpd
+#EXTINF:-1 tvg-id="ycxwzhpd" tvg-name="伊春新闻综合" group-title="央视频道",伊春新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=ycxwzhpd
+#EXTINF:-1 tvg-id="qthxwzhpd" tvg-name="七台河新闻综合" group-title="央视频道",七台河新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=qthxwzhpd
+#EXTINF:-1 tvg-id="hgxwzhpd" tvg-name="鹤岗新闻综合" group-title="央视频道",鹤岗新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hgxwzhpd
+#EXTINF:-1 tvg-id="hhxwzhpd" tvg-name="黑河新闻综合" group-title="央视频道",黑河新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=hhxwzhpd
+#EXTINF:-1 tvg-id="shxwzhpd" tvg-name="绥化新闻综合" group-title="央视频道",绥化新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=shxwzhpd
+#EXTINF:-1 tvg-id="dxalxwzhpd" tvg-name="大兴安岭新闻综合" group-title="央视频道",大兴安岭新闻综合
+http://110.42.37.69:6688/live/live.php?token=nDdvpf5L&id=dxalxwzhpd
+#EXTINF:-1 tvg-name="南宁影视娱乐" group-title="地方频道",南宁影视娱乐
+http://e18f935a55887685344a5559c0db38c4.livehwc4.com/hls.nntv.cn/nnlive/YSYL_244.m3u8
+#EXTINF:-1 tvg-name="南宁影视娱乐" group-title="地方频道",南宁影视娱乐
+http://hls.nntv.cn/nnlive/YSYL_244.m3u8
+#EXTINF:-1 tvg-name="南宁影视娱乐" group-title="地方频道",南宁影视娱乐
+http://77dd51b33368680fff6386476acfb726.livehwc4.com/hls.nntv.cn/nnlive/YSYL_244.m3u8
+#EXTINF:-1 tvg-name="教科影视" group-title="地方频道",教科影视
+http://ali-m-l.cztv.com/channels/lantian/channel004/1080p.m3u8
+#EXTINF:-1 tvg-name="毫州综合频道" group-title="地方频道",毫州综合频道
+http://zbbf2.ahbztv.com/live/416.m3u8
+#EXTINF:-1 tvg-name="毫州综合频道" group-title="地方频道",毫州综合频道
+http://61.167.55.103/zbbf2.ahbztv.com/live/416.m3u8
+#EXTINF:-1 tvg-name="揭阳综合" group-title="地方频道",揭阳综合
+http://hls-jyrtv.jyrtv.tv/stjy2020/zhpd.m3u8
+#EXTINF:-1 tvg-name="长春综合频道" group-title="地方频道",长春综合频道
+http://stream2.jlntv.cn/jlcc/sd/live.m3u8?_upt=62fc42641745340902
+#EXTINF:-1 tvg-name="吉林新闻综合" group-title="地方频道",吉林新闻综合
+http://stream2.jlntv.cn/jilin1/sd/live.m3u8?_upt=fc747c681743410988
+#EXTINF:-1 tvg-name="四平新闻综合" group-title="地方频道",四平新闻综合
+http://stream2.jlntv.cn/sptv/sd/live.m3u8?_upt=f27750421743154598
