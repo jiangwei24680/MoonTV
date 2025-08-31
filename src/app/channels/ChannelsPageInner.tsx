@@ -85,12 +85,9 @@ export default function ChannelsPageInner() {
 
   /* ---------- 跳转播放 ---------- */
   const play = (channel: Channel) => {
-    const params = new URLSearchParams({
-      url: channel.url,
-      title: channel.name,
-      type: 'live',
-    });
-    router.push(`/play?${params.toString()}`);
+    // 把外部 .m3u8 地址通过代理转发，解决 403 / 跨域
+    const proxyUrl = `/api/live?url=${encodeURIComponent(channel.url)}`;
+    router.push(proxyUrl);
   };
 
   return (
