@@ -652,16 +652,15 @@ function PlayPageClient() {
     };
 
     const initAll = async () => {
-      // ----------------- 直播模式快速处理 -----------------
+      // ---------- 直播快速通道 ----------
       const isLive = searchParams.get('type') === 'live';
       const liveUrl = searchParams.get('url');
       if (isLive && liveUrl) {
         setVideoUrl(liveUrl);
         setVideoTitle(searchParams.get('title') || '直播');
-        setVideoCover(searchParams.get('poster') || '');
         setLoading(false);
         setError(null);
-        return; // 跳过其余初始化
+        return; // 直接退出，不再执行后续点播逻辑
       }
       // ----------------------------------------------------
       if (!currentSource && !currentId && !videoTitle && !searchTitle) {
