@@ -660,7 +660,7 @@ function PlayPageClient() {
         setVideoTitle(searchParams.get('title') || '直播');
         setLoading(false);
         setError(null);
-        return; // 直接退出，不再执行后续点播逻辑
+        return; // 直接走直播分支，不再跑点播逻辑
       }
       // ----------------------------------------------------
       if (!currentSource && !currentId && !videoTitle && !searchTitle) {
