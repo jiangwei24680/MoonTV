@@ -1,24 +1,21 @@
-// src/app/api/live/route.ts
-export const runtime = 'edge'; // ← 新增这一行
+export const runtime = 'edge';
 
-import { NextRequest, NextResponse } from 'next/server';
+export async function GET(req: Request) {
+  const raw = new URL(req.url).searchParams.get('url');
+  if (!raw) return new Response('missing url', { status: 400 });
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const url = searchParams.get('url');
-  if (!url) return new NextResponse('Missing url', { status: 400 });
-
-  const upstream = await fetch(url, {
+  const res = await fetch(raw, {
     headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      Referer: new URL(url).origin,
+      'User-Agent': 'VLC/3.0.18 LibVLC/3.0.18',
+      Referer: new URL(raw).origin,
     },
     redirect: 'follow',
   });
 
-  return new NextResponse(upstream.body, {
-    status: upstream.status,
+  if (!res.ok) return new Response(`upstream ${res.status}`, { status: 502 });
+
+  return new Response(res.body, {
+    status: res.status,
     headers: {
       'Content-Type': 'application/vnd.apple.mpegurl',
       'Access-Control-Allow-Origin': '*',
