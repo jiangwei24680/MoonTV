@@ -142,6 +142,7 @@ export default function ChannelsPageInner() {
                 <div
                   key={idx}
                   className="relative cursor-pointer group"
+                  onClick={() => play(ch)}
                 >
                   <VideoCard
                     from="search"
@@ -155,7 +156,6 @@ export default function ChannelsPageInner() {
                     rate="0"
                     year=""
                     type=""
-                    onClick={() => play(ch)}
                   />
                   <button
                     onClick={(e) => {
