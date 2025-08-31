@@ -90,11 +90,13 @@ export default function ChannelsPageInner() {
     localStorage.removeItem(LS_KEY);
   };
 
-  /* ---------- 跳转播放 ---------- */
+  /* ---------- 前端播放逻辑 ---------- */
   const play = (channel: Channel) => {
-    // 经过代理，解决 CORS/403
-    const proxyUrl = `/api/live?url=${encodeURIComponent(channel.url)}`;
-    router.push(proxyUrl);
+    router.push(
+      `/play?url=${encodeURIComponent(
+        channel.url
+      )}&title=${channel.name}&type=live`
+    );
   };
 
   return (
