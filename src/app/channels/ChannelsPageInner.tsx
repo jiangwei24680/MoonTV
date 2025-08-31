@@ -172,7 +172,7 @@ export default function ChannelsPageInner() {
           </>
         ) : (
           <p className="text-center text-gray-500">
-            暂无频道，请在下方输入直播地址或编辑 /channels/playlist.m3u
+            暂无频道，请在下方输入直播地址
           </p>
         )}
       </div>
