@@ -1,11 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
 import PageLayout from '@/components/PageLayout';
 import VideoCard from '@/components/VideoCard';
+import Artplayer from 'artplayer';
 
 interface Channel {
   name: string;
@@ -13,26 +11,22 @@ interface Channel {
   url: string;
 }
 
-// 本地缓存 key
 const LS_KEY = 'live-channels';
 
 export default function ChannelsPageInner() {
-  const router = useRouter();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [inputUrl, setInputUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentChannel, setCurrentChannel] = useState<Channel | null>(null);
 
-  /* ---------- 读取初始列表 ---------- */
   useEffect(() => {
     setLoading(true);
-    // 1. 读本地缓存
     const cached = localStorage.getItem(LS_KEY);
     if (cached) {
       setChannels(JSON.parse(cached));
       setLoading(false);
       return;
     }
-    // 2. 读静态 playlist.m3u
     fetch('/channels/playlist.m3u')
       .then((r) => r.text())
       .then((text) => {
@@ -43,7 +37,6 @@ export default function ChannelsPageInner() {
       .finally(() => setLoading(false));
   }, []);
 
-  /* ---------- 解析 m3u ---------- */
   const parseM3u = (text: string): Channel[] => {
     const lines = text.trim().split(/\r?\n/);
     const result: Channel[] = [];
@@ -65,7 +58,6 @@ export default function ChannelsPageInner() {
     return result;
   };
 
-  /* ---------- 手动追加 ---------- */
   const addChannel = () => {
     if (!inputUrl.trim()) return;
     const newChannel: Channel = {
@@ -78,7 +70,6 @@ export default function ChannelsPageInner() {
     setInputUrl('');
   };
 
-  /* ---------- 删除 ---------- */
   const removeChannel = (idx: number) => {
     const updated = channels.filter((_, i) => i !== idx);
     setChannels(updated);
@@ -90,23 +81,32 @@ export default function ChannelsPageInner() {
     localStorage.removeItem(LS_KEY);
   };
 
-  /* ---------- 前端播放逻辑 ---------- */
   const play = (channel: Channel) => {
-    router.push(
-      `/play?url=${encodeURIComponent(
-        channel.url
-      )}&title=${channel.name}&type=live`
-    );
+    setCurrentChannel(channel);
   };
+
+  useEffect(() => {
+    if (!currentChannel) return;
+    const art = new Artplayer({
+      container: '#player',
+      url: currentChannel.url,
+      type: 'm3u8',
+      isLive: true,
+      autoplay: true,
+      volume: 0.8,
+      muted: false,
+    });
+    return () => {
+      art.destroy();
+    };
+  }, [currentChannel]);
 
   return (
     <PageLayout activePath="/channels">
       <div className="px-4 sm:px-10 py-8 space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">
-          直播频道
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">直播频道</h1>
 
-        {/* 追加 URL */}
+        {/* 添加频道 */}
         <div className="flex gap-2">
           <input
             type="url"
@@ -123,37 +123,26 @@ export default function ChannelsPageInner() {
           </button>
         </div>
 
-        {/* 列表 */}
+        {/* 频道列表 */}
         {loading ? (
           <p className="text-center text-gray-500">加载中…</p>
         ) : channels.length ? (
           <>
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                频道列表 ({channels.length})
-              </h2>
-              <button
-                onClick={clearAll}
-                className="text-sm text-red-500 hover:underline"
-              >
+              <h2 className="text-xl font-semibold">频道列表 ({channels.length})</h2>
+              <button onClick={clearAll} className="text-sm text-red-500 hover:underline">
                 清空全部
               </button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {channels.map((ch, idx) => (
-                <div
-                  key={idx}
-                  className="relative cursor-pointer group"
-                  onClick={() => play(ch)}
-                >
+                <div key={idx} className="relative cursor-pointer group" onClick={() => play(ch)}>
                   <VideoCard
                     from="search"
                     title={ch.name}
                     poster={
                       ch.logo ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        ch.name
-                      )}&size=200`
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(ch.name)}&size=200`
                     }
                     rate="0"
                     year=""
@@ -173,9 +162,17 @@ export default function ChannelsPageInner() {
             </div>
           </>
         ) : (
-          <p className="text-center text-gray-500">
-            暂无频道，请在下方输入直播地址
-          </p>
+          <p className="text-center text-gray-500">暂无频道，请在下方输入直播地址</p>
+        )}
+
+        {/* 播放器区域 */}
+        {currentChannel && (
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+              正在播放：{currentChannel.name}
+            </h3>
+            <div id="player" className="w-full h-[500px] rounded-lg overflow-hidden border" />
+          </div>
         )}
       </div>
     </PageLayout>
