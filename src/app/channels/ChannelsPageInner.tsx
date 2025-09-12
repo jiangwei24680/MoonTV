@@ -15,15 +15,12 @@ const LS_KEY = 'live-channels';
 export default function ChannelsPageInner() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [inputUrl, setInputUrl] = useState('');
-  const [loading, setLoading] = useState(false);
   const [currentChannel, setCurrentChannel] = useState<Channel | null>(null);
 
   useEffect(() => {
-    setLoading(true);
     const cached = localStorage.getItem(LS_KEY);
     if (cached) {
       setChannels(JSON.parse(cached));
-      setLoading(false);
       return;
     }
     fetch('/channels/playlist.m3u')
@@ -32,8 +29,7 @@ export default function ChannelsPageInner() {
         const parsed = parseM3u(text);
         setChannels(parsed);
         localStorage.setItem(LS_KEY, JSON.stringify(parsed));
-      })
-      .finally(() => setLoading(false));
+      });
   }, []);
 
   const parseM3u = (text: string): Channel[] => {
@@ -70,10 +66,20 @@ export default function ChannelsPageInner() {
     setCurrentChannel(newChannel);
   };
 
+  const removeChannel = (idx: number) => {
+    const updated = channels.filter((_, i) => i !== idx);
+    setChannels(updated);
+    localStorage.setItem(LS_KEY, JSON.stringify(updated));
+  };
+
+  const clearAll = () => {
+    setChannels([]);
+    localStorage.removeItem(LS_KEY);
+  };
+
   const play = async (channel: Channel) => {
     let finalUrl = channel.url;
 
-    // 自动解析真实 m3u8 地址
     if (channel.url.includes('.php') || channel.url.includes('.m3u8')) {
       try {
         const res = await fetch(channel.url);
@@ -111,65 +117,58 @@ export default function ChannelsPageInner() {
 
   return (
     <PageLayout activePath="/channels">
-      <div className="px-4 sm:px-10 py-6 space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">MoonTV 直播</h1>
+      <div className="px-4 sm:px-10 py-6">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">MoonTV 直播</h1>
 
-        {/* 播放器区域 */}
-        <div>
-          <div id="player" className="w-full h-[400px] rounded-lg overflow-hidden border" />
-          {currentChannel && (
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              正在播放：{currentChannel.name}
-            </p>
-          )}
-        </div>
+        <div className="flex gap-4">
+          {/* 左侧频道列表 */}
+          <div className="w-[220px] h-[400px] overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-sm font-semibold">频道列表</h2>
+              <button onClick={clearAll} className="text-xs text-red-500 hover:underline">清空</button>
+            </div>
+            <ul className="space-y-2">
+              {channels.map((ch, idx) => (
+                <li
+                  key={idx}
+                  className={`cursor-pointer px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 ${
+                    currentChannel?.url === ch.url ? 'bg-green-100 dark:bg-green-800' : ''
+                  }`}
+                  onClick={() => play(ch)}
+                >
+                  {ch.name}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* 频道选择下拉菜单 */}
-        <div className="flex items-center gap-4">
-          <label htmlFor="channelSelect" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            选择频道：
-          </label>
-          <select
-            id="channelSelect"
-            className="px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
-            onChange={(e) => {
-              const idx = parseInt(e.target.value);
-              if (!isNaN(idx)) play(channels[idx]);
-            }}
-          >
-            <option value="">请选择</option>
-            {channels.map((ch, idx) => (
-              <option key={idx} value={idx}>
-                {ch.name}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={() => {
-              setChannels([]);
-              localStorage.removeItem(LS_KEY);
-            }}
-            className="text-sm text-red-500 hover:underline"
-          >
-            清空频道
-          </button>
-        </div>
+          {/* 播放器 + 添加频道 */}
+          <div className="flex-1 space-y-4">
+            <div>
+              <div id="player" className="w-full h-[400px] rounded-lg overflow-hidden border" />
+              {currentChannel && (
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                  正在播放：{currentChannel.name}
+                </p>
+              )}
+            </div>
 
-        {/* 添加自定义频道 */}
-        <div className="flex gap-2">
-          <input
-            type="url"
-            placeholder="输入直播 .m3u8 或 .php 地址"
-            value={inputUrl}
-            onChange={(e) => setInputUrl(e.target.value)}
-            className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
-          />
-          <button
-            onClick={addChannel}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            添加频道
-          </button>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                placeholder="输入直播 .m3u8 或 .php 地址"
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
+              />
+              <button
+                onClick={addChannel}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                添加频道
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </PageLayout>
