@@ -81,12 +81,31 @@ export default function ChannelsPageInner() {
     localStorage.removeItem(LS_KEY);
   };
 
-  const play = (channel: Channel) => {
-    setCurrentChannel(channel);
+  const play = async (channel: Channel) => {
+    let finalUrl = channel.url;
+
+    // 自动解析真实 m3u8 地址
+    if (channel.url.includes('.php') || channel.url.includes('.m3u8')) {
+      try {
+        const res = await fetch(channel.url);
+        const text = await res.text();
+        const match = text.match(/^(?!#).*\.m3u8.*$/m);
+        if (match) {
+          const baseUrl = new URL(channel.url);
+          finalUrl = new URL(match[0], baseUrl).toString();
+          console.log('解析后的真实地址:', finalUrl);
+        }
+      } catch (err) {
+        console.error('解析 m3u8 失败:', err);
+      }
+    }
+
+    setCurrentChannel({ ...channel, url: finalUrl });
   };
 
   useEffect(() => {
     if (!currentChannel) return;
+
     const art = new Artplayer({
       container: '#player',
       url: currentChannel.url,
@@ -96,6 +115,7 @@ export default function ChannelsPageInner() {
       volume: 0.8,
       muted: false,
     });
+
     return () => {
       art.destroy();
     };
@@ -106,35 +126,27 @@ export default function ChannelsPageInner() {
       <div className="px-4 sm:px-10 py-8 space-y-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">直播频道</h1>
 
-        {/* 添加频道 */}
-        <div className="flex gap-2">
-          <input
-            type="url"
-            placeholder="输入直播 .m3u8 地址"
-            value={inputUrl}
-            onChange={(e) => setInputUrl(e.target.value)}
-            className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
-          />
-          <button
-            onClick={addChannel}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            添加
-          </button>
-        </div>
+        {/* 播放器区域 */}
+        {currentChannel && (
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+              正在播放：{currentChannel.name}
+            </h3>
+            <div id="player" className="w-full h-[500px] rounded-lg overflow-hidden border" />
+          </div>
+        )}
 
-        {/* 频道列表 */}
-        {loading ? (
-          <p className="text-center text-gray-500">加载中…</p>
-        ) : channels.length ? (
-          <>
+        {/* 主体布局：频道列表 + 添加频道 */}
+        <div className="flex flex-col lg:flex-row gap-6 mt-6">
+          {/* 播放列表 */}
+          <div className="w-full lg:w-[300px] space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">频道列表 ({channels.length})</h2>
               <button onClick={clearAll} className="text-sm text-red-500 hover:underline">
                 清空全部
               </button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
               {channels.map((ch, idx) => (
                 <div key={idx} className="relative cursor-pointer group" onClick={() => play(ch)}>
                   <VideoCard
@@ -160,20 +172,27 @@ export default function ChannelsPageInner() {
                 </div>
               ))}
             </div>
-          </>
-        ) : (
-          <p className="text-center text-gray-500">暂无频道，请在下方输入直播地址</p>
-        )}
-
-        {/* 播放器区域 */}
-        {currentChannel && (
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
-              正在播放：{currentChannel.name}
-            </h3>
-            <div id="player" className="w-full h-[500px] rounded-lg overflow-hidden border" />
           </div>
-        )}
+
+          {/* 添加频道 */}
+          <div className="w-full lg:flex-1 mt-6 lg:mt-0">
+            <div className="flex gap-2">
+              <input
+                type="url"
+                placeholder="输入直播 .m3u8 或 .php 地址"
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
+              />
+              <button
+                onClick={addChannel}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                添加
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </PageLayout>
   );
