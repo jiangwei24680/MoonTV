@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import PageLayout from '@/components/PageLayout';
-import VideoCard from '@/components/VideoCard';
 import Artplayer from 'artplayer';
 
 interface Channel {
@@ -68,17 +67,7 @@ export default function ChannelsPageInner() {
     setChannels(updated);
     localStorage.setItem(LS_KEY, JSON.stringify(updated));
     setInputUrl('');
-  };
-
-  const removeChannel = (idx: number) => {
-    const updated = channels.filter((_, i) => i !== idx);
-    setChannels(updated);
-    localStorage.setItem(LS_KEY, JSON.stringify(updated));
-  };
-
-  const clearAll = () => {
-    setChannels([]);
-    localStorage.removeItem(LS_KEY);
+    setCurrentChannel(newChannel);
   };
 
   const play = async (channel: Channel) => {
@@ -93,7 +82,6 @@ export default function ChannelsPageInner() {
         if (match) {
           const baseUrl = new URL(channel.url);
           finalUrl = new URL(match[0], baseUrl).toString();
-          console.log('解析后的真实地址:', finalUrl);
         }
       } catch (err) {
         console.error('解析 m3u8 失败:', err);
@@ -123,75 +111,65 @@ export default function ChannelsPageInner() {
 
   return (
     <PageLayout activePath="/channels">
-      <div className="px-4 sm:px-10 py-8 space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200">直播频道</h1>
+      <div className="px-4 sm:px-10 py-6 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">MoonTV 直播</h1>
 
         {/* 播放器区域 */}
-        {currentChannel && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">
+        <div>
+          <div id="player" className="w-full h-[400px] rounded-lg overflow-hidden border" />
+          {currentChannel && (
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               正在播放：{currentChannel.name}
-            </h3>
-            <div id="player" className="w-full h-[500px] rounded-lg overflow-hidden border" />
-          </div>
-        )}
+            </p>
+          )}
+        </div>
 
-        {/* 主体布局：频道列表 + 添加频道 */}
-        <div className="flex flex-col lg:flex-row gap-6 mt-6">
-          {/* 播放列表 */}
-          <div className="w-full lg:w-[300px] space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">频道列表 ({channels.length})</h2>
-              <button onClick={clearAll} className="text-sm text-red-500 hover:underline">
-                清空全部
-              </button>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-              {channels.map((ch, idx) => (
-                <div key={idx} className="relative cursor-pointer group" onClick={() => play(ch)}>
-                  <VideoCard
-                    from="search"
-                    title={ch.name}
-                    poster={
-                      ch.logo ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(ch.name)}&size=200`
-                    }
-                    rate="0"
-                    year=""
-                    type=""
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeChannel(idx);
-                    }}
-                    className="absolute top-1 right-1 text-xs bg-red-500 text-white rounded-full w-5 h-5 opacity-0 group-hover:opacity-100"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+        {/* 频道选择下拉菜单 */}
+        <div className="flex items-center gap-4">
+          <label htmlFor="channelSelect" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            选择频道：
+          </label>
+          <select
+            id="channelSelect"
+            className="px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
+            onChange={(e) => {
+              const idx = parseInt(e.target.value);
+              if (!isNaN(idx)) play(channels[idx]);
+            }}
+          >
+            <option value="">请选择</option>
+            {channels.map((ch, idx) => (
+              <option key={idx} value={idx}>
+                {ch.name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={() => {
+              setChannels([]);
+              localStorage.removeItem(LS_KEY);
+            }}
+            className="text-sm text-red-500 hover:underline"
+          >
+            清空频道
+          </button>
+        </div>
 
-          {/* 添加频道 */}
-          <div className="w-full lg:flex-1 mt-6 lg:mt-0">
-            <div className="flex gap-2">
-              <input
-                type="url"
-                placeholder="输入直播 .m3u8 或 .php 地址"
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-                className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
-              />
-              <button
-                onClick={addChannel}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                添加
-              </button>
-            </div>
-          </div>
+        {/* 添加自定义频道 */}
+        <div className="flex gap-2">
+          <input
+            type="url"
+            placeholder="输入直播 .m3u8 或 .php 地址"
+            value={inputUrl}
+            onChange={(e) => setInputUrl(e.target.value)}
+            className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
+          />
+          <button
+            onClick={addChannel}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          >
+            添加频道
+          </button>
         </div>
       </div>
     </PageLayout>
