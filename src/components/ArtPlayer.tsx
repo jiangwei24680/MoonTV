@@ -25,31 +25,19 @@ export default function ArtPlayer({
   blockAd = true,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
-  const skipRef = useRef(skipConfig);
-
-  useEffect(() => {
-    skipRef.current = skipConfig;
-  }, [skipConfig]);
+  const playerRef = useRef<Artplayer | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || !url) return;
 
-    if (playerRef.current) {
-      playerRef.current.switch = url;
-      playerRef.current.title = title;
-      playerRef.current.poster = poster;
-      return;
-    }
-
     const loader = blockAd
       ? class extends Hls.DefaultConfig.loader {
-          constructor(config: any) {
+          constructor(config: unknown) {
             super(config);
             const load = this.load.bind(this);
-            this.load = function (context: any, config: any, callbacks: any) {
+            this.load = function (context, config, callbacks) {
               const onSuccess = callbacks.onSuccess;
-              callbacks.onSuccess = function (res: any, stats: any, ctx: any) {
+              callbacks.onSuccess = function (res, stats, ctx) {
                 if (res.data && typeof res.data === 'string') {
                   res.data = res.data
                     .split('\n')
@@ -76,9 +64,6 @@ export default function ArtPlayer({
     playerRef.current = new Artplayer({
       container: containerRef.current,
       url,
-      title,
-      poster,
-      isLive,
       autoplay: true,
       volume: 0.7,
       theme: '#22c55e',
@@ -92,45 +77,16 @@ export default function ArtPlayer({
           const hls = new Hls(hlsConfig);
           hls.loadSource(url);
           hls.attachMedia(video);
-          video.hls = hls;
+          (video as any).hls = hls;
         },
       },
     });
 
-    playerRef.current.on('video:timeupdate', () => {
-      const current = playerRef.current.currentTime || 0;
-      const duration = playerRef.current.duration || 0;
-      const config = skipRef.current;
-
-      if (config.enable) {
-        if (config.intro_time > 0 && current < config.intro_time) {
-          playerRef.current.currentTime = config.intro_time;
-          playerRef.current.notice.show = `已跳过片头 (${formatTime(config.intro_time)})`;
-        }
-        if (
-          config.outro_time < 0 &&
-          duration > 0 &&
-          current > duration + config.outro_time
-        ) {
-          playerRef.current.pause();
-          playerRef.current.notice.show = `已跳过片尾 (${formatTime(config.outro_time)})`;
-        }
-      }
-    });
-
     return () => {
-      if (playerRef.current) {
-        playerRef.current.destroy();
-        playerRef.current = null;
-      }
+      playerRef.current?.destroy();
+      playerRef.current = null;
     };
-  }, [url, title, poster, isLive, blockAd]);
+  }, [url, blockAd]);
 
   return <div ref={containerRef} className="w-full h-[360px] bg-black rounded" />;
-}
-
-function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
