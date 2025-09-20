@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch';
 
 const M3U_URL = 'https://iptv-org.github.io/iptv/countries/cn.m3u';
 const OUTPUT = path.resolve(__dirname, '../public/channels.json');
