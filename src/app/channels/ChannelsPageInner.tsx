@@ -121,7 +121,7 @@ export default function ChannelsPageInner() {
 
           {/* 播放器 + 添加频道 */}
           <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
-            <div className="flex-1 border rounded-lg overflow-hidden">
+            <div className="flex-1 border rounded-lg overflow-hidden h-full min-h-[300px]">
               {currentChannel ? (
                 <ArtPlayer
                   url={currentChannel.url}
