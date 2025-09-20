@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import PageLayout from '@/components/PageLayout';
 import ArtPlayer from '@/components/ArtPlayer';
@@ -23,6 +22,7 @@ export default function ChannelsPageInner() {
       setChannels(JSON.parse(cached));
       return;
     }
+
     fetch('/channels/playlist.m3u')
       .then((r) => r.text())
       .then((text) => {
@@ -36,6 +36,7 @@ export default function ChannelsPageInner() {
     const lines = text.trim().split(/\r?\n/);
     const result: Channel[] = [];
     let current: Partial<Channel> = {};
+
     for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed.startsWith('#EXTINF:')) {
@@ -50,26 +51,18 @@ export default function ChannelsPageInner() {
         current = {};
       }
     }
+
     return result;
   };
 
   const addChannel = () => {
     if (!inputUrl.trim()) return;
-    const newChannel: Channel = {
-      name: '自定义频道',
-      url: inputUrl.trim(),
-    };
+    const newChannel: Channel = { name: '自定义频道', url: inputUrl.trim() };
     const updated = [...channels, newChannel];
     setChannels(updated);
     localStorage.setItem(LS_KEY, JSON.stringify(updated));
     setInputUrl('');
     setCurrentChannel(newChannel);
-  };
-
-  const removeChannel = (idx: number) => {
-    const updated = channels.filter((_, i) => i !== idx);
-    setChannels(updated);
-    localStorage.setItem(LS_KEY, JSON.stringify(updated));
   };
 
   const clearAll = () => {
@@ -80,7 +73,7 @@ export default function ChannelsPageInner() {
   const play = async (channel: Channel) => {
     let finalUrl = channel.url;
 
-    if (channel.url.includes('.php') || channel.url.includes('.m3u8')) {
+    if (channel.url.includes('.php')) {
       try {
         const res = await fetch(channel.url);
         const text = await res.text();
@@ -90,7 +83,7 @@ export default function ChannelsPageInner() {
           finalUrl = new URL(match[0], baseUrl).toString();
         }
       } catch (err) {
-        console.error('解析 m3u8 失败:', err);
+        console.error('解析 .php 失败:', err);
       }
     }
 
@@ -99,17 +92,16 @@ export default function ChannelsPageInner() {
 
   return (
     <PageLayout activePath="/channels">
-      <div className="px-4 sm:px-10 py-6">
+      <div className="px-4 sm:px-10 py-6 h-[calc(100vh-64px)] flex flex-col">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">MoonTV 直播</h1>
-
-        <div className="flex gap-4">
+        <div className="flex-1 flex flex-col sm:flex-row gap-4 overflow-hidden">
           {/* 左侧频道列表 */}
-          <div className="w-[220px] h-[400px] overflow-y-auto border rounded-lg p-2 bg-gray-50 dark:bg-gray-900">
-            <div className="flex justify-between items-center mb-2">
+          <div className="w-full sm:w-[220px] flex flex-col border rounded-lg bg-gray-50 dark:bg-gray-900">
+            <div className="flex justify-between items-center px-2 py-2 border-b">
               <h2 className="text-sm font-semibold">频道列表</h2>
               <button onClick={clearAll} className="text-xs text-red-500 hover:underline">清空</button>
             </div>
-            <ul className="space-y-2">
+            <ul className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
               {channels.map((ch, idx) => (
                 <li
                   key={idx}
@@ -128,8 +120,8 @@ export default function ChannelsPageInner() {
           </div>
 
           {/* 播放器 + 添加频道 */}
-          <div className="flex-1 space-y-4">
-            <div className="border rounded-lg overflow-hidden">
+          <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
+            <div className="flex-1 border rounded-lg overflow-hidden">
               {currentChannel ? (
                 <ArtPlayer
                   url={currentChannel.url}
@@ -138,18 +130,18 @@ export default function ChannelsPageInner() {
                   blockAd={true}
                 />
               ) : (
-                <div className="w-full h-[400px] bg-black flex items-center justify-center text-white text-sm">
+                <div className="w-full h-full bg-black flex items-center justify-center text-white text-sm">
                   请选择一个频道开始播放
                 </div>
               )}
               {currentChannel && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 px-2">
                   正在播放：{currentChannel.name}
                 </p>
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="url"
                 placeholder="输入直播 .m3u8 或 .php 地址"
