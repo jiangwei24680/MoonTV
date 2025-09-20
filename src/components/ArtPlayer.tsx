@@ -51,6 +51,10 @@ export default function ArtPlayer({
       backBufferLength: 30,
       maxBufferSize: 60 * 1000 * 1000,
       loader,
+      xhrSetup: function (xhr) {
+        xhr.setRequestHeader('User-Agent', 'Mozilla/5.0 (iPad; CPU OS 13_2 like Mac OS X)');
+        xhr.setRequestHeader('Referer', 'http://example.com');
+      },
     };
 
     playerRef.current = new Artplayer({
