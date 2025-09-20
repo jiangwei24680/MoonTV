@@ -52,11 +52,10 @@ export default function ChannelsPageInner() {
         <div className="mt-6">
           <h2 className="text-lg font-bold mb-2">{currentChannel.name}</h2>
           <ArtPlayer
-            option={{
-              url: currentChannel.url,
-              type: 'm3u8',
-              autoplay: true,
-            }}
+            url={currentChannel.url}
+            title={currentChannel.name}
+            isLive={true}
+            blockAd={true}
           />
         </div>
       )}
