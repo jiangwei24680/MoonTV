@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import PageLayout from '@/components/PageLayout';
 import ArtPlayer from '@/components/ArtPlayer';
+import { toast } from 'react-hot-toast';
 
 interface Channel {
   name: string;
@@ -75,15 +76,26 @@ export default function ChannelsPageInner() {
 
     if (channel.url.includes('.php')) {
       try {
-        const res = await fetch(channel.url);
+        const res = await fetch(channel.url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 13_2 like Mac OS X)',
+            'Referer': 'http://110.42.37.69/live/',
+          },
+        });
+
         const text = await res.text();
         const match = text.match(/^(?!#).*\.m3u8.*$/m);
         if (match) {
           const baseUrl = new URL(channel.url);
           finalUrl = new URL(match[0], baseUrl).toString();
+        } else {
+          toast.error(`频道 ${channel.name} 播放地址无效`);
+          return;
         }
       } catch (err) {
         console.error('解析 .php 失败:', err);
+        toast.error(`频道 ${channel.name} 请求失败`);
+        return;
       }
     }
 
@@ -120,7 +132,7 @@ export default function ChannelsPageInner() {
           </div>
 
           {/* 播放器 + 添加频道 */}
-          <div className="flex-1 flex flex-col space-y-4 overflow-hidden">
+          <div className="flex-1 flex flex-col space-y-4 overflow-hidden h-full">
             <div className="flex-1 border rounded-lg overflow-hidden h-full min-h-[300px]">
               {currentChannel ? (
                 <ArtPlayer
