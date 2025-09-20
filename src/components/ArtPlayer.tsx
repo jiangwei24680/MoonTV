@@ -84,5 +84,5 @@ export default function ArtPlayer({
     };
   }, [url, blockAd]);
 
-  return <div ref={containerRef} className="w-full h-[360px] bg-black rounded" />;
+  return <div ref={containerRef} className="w-full h-full bg-black rounded" />;
 }
