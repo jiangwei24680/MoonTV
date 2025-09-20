@@ -1,0 +1,36 @@
+name: Update IPTV Channels
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # 每天凌晨 2 点 UTC（北京时间上午 10 点）
+  workflow_dispatch: # 手动触发支持
+
+jobs:
+  update-channels:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          pnpm install
+
+      - name: Run parseM3U.ts
+        run: pnpm exec ts-node scripts/parseM3U.ts
+
+      - name: Commit updated channels.json
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add public/channels.json
+          git commit -m "🔄 自动更新 channels.json"
+          git push
+        continue-on-error: true # 如果没有变更，不报错
