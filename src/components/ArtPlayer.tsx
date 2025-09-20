@@ -5,10 +5,17 @@ import { useEffect, useRef } from 'react';
 
 interface Props {
   url: string;
+  title?: string;
+  isLive?: boolean;
   blockAd?: boolean;
 }
 
-export default function ArtPlayer({ url, blockAd = true }: Props) {
+export default function ArtPlayer({
+  url,
+  title,
+  isLive = false,
+  blockAd = true,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Artplayer | null>(null);
 
