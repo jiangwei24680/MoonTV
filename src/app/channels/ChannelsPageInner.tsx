@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import PageLayout from '@/components/PageLayout'
 import ArtPlayer from '@/components/ArtPlayer'
-import { toast } from 'react-hot-toast'
 
 interface Channel {
   name: string
@@ -18,6 +17,7 @@ export default function ChannelsPageInner() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
   const [inputUrl, setInputUrl] = useState('')
   const [currentChannel, setCurrentChannel] = useState<Channel | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     const cached = localStorage.getItem(LS_KEY)
@@ -82,15 +82,18 @@ export default function ChannelsPageInner() {
     setGrouped([...Object.values(channelsByGroup).flat(), newChannel])
     setInputUrl('')
     setCurrentChannel(newChannel)
+    setErrorMessage(null)
   }
 
   const clearAll = () => {
     setChannelsByGroup({})
     setSelectedGroup(null)
     localStorage.removeItem(LS_KEY)
+    setErrorMessage(null)
   }
 
   const play = async (channel: Channel) => {
+    setErrorMessage(null)
     let finalUrl = channel.url
     if (channel.url.includes('.php')) {
       try {
@@ -106,12 +109,12 @@ export default function ChannelsPageInner() {
           const baseUrl = new URL(channel.url)
           finalUrl = new URL(match[0], baseUrl).toString()
         } else {
-          toast.error(`频道 ${channel.name} 播放地址无效`)
+          setErrorMessage(`频道 ${channel.name} 播放地址无效`)
           return
         }
       } catch (err) {
         console.error('解析 .php 失败:', err)
-        toast.error(`频道 ${channel.name} 请求失败`)
+        setErrorMessage(`频道 ${channel.name} 请求失败`)
         return
       }
     }
@@ -166,6 +169,9 @@ export default function ChannelsPageInner() {
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 px-2">
                   正在播放：{currentChannel.name}
                 </p>
+              )}
+              {errorMessage && (
+                <p className="mt-2 text-sm text-red-500 px-2">{errorMessage}</p>
               )}
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
