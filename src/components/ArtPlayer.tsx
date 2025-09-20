@@ -1,29 +1,14 @@
 'use client';
 import Artplayer from 'artplayer';
-import Hls from 'hls.js';
+import Hls, { HlsConfig } from 'hls.js';
 import { useEffect, useRef } from 'react';
 
 interface Props {
   url: string;
-  title?: string;
-  poster?: string;
-  isLive?: boolean;
-  skipConfig?: {
-    enable: boolean;
-    intro_time: number;
-    outro_time: number;
-  };
   blockAd?: boolean;
 }
 
-export default function ArtPlayer({
-  url,
-  title = '',
-  poster = '',
-  isLive = false,
-  skipConfig = { enable: false, intro_time: 0, outro_time: 0 },
-  blockAd = true,
-}: Props) {
+export default function ArtPlayer({ url, blockAd = true }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<Artplayer | null>(null);
 
@@ -32,8 +17,8 @@ export default function ArtPlayer({
 
     const loader = blockAd
       ? class extends Hls.DefaultConfig.loader {
-          constructor(config: unknown) {
-            super(config);
+          constructor() {
+            super(Hls.DefaultConfig);
             const load = this.load.bind(this);
             this.load = function (context, config, callbacks) {
               const onSuccess = callbacks.onSuccess;
@@ -52,7 +37,7 @@ export default function ArtPlayer({
         }
       : Hls.DefaultConfig.loader;
 
-    const hlsConfig = {
+    const hlsConfig: Partial<HlsConfig> = {
       enableWorker: true,
       lowLatencyMode: true,
       maxBufferLength: 30,
@@ -77,7 +62,7 @@ export default function ArtPlayer({
           const hls = new Hls(hlsConfig);
           hls.loadSource(url);
           hls.attachMedia(video);
-          (video as any).hls = hls;
+          (video as HTMLVideoElement & { hls?: Hls }).hls = hls;
         },
       },
     });
