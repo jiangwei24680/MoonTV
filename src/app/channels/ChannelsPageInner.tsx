@@ -168,11 +168,50 @@ export default function ChannelsPageInner() {
 
   return (
     <PageLayout activePath="/channels">
-      <div className="px-4 sm:px-10 py-6 h-[calc(100vh-64px)] flex flex-col">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">MoonTV 直播</h1>
-        <div className="flex-1 flex flex-col sm:flex-row gap-4 overflow-hidden">
-          {/* 左侧频道列表 */}
-          <div className="w-full sm:w-[260px] flex flex-col border rounded-lg bg-gray-50 dark:bg-gray-900">
+      {/* 手机：头部48px + 底部导航56px；桌面：顶部64px */}
+      <div className="px-4 sm:px-10 py-4 sm:py-6 flex flex-col h-[calc(100dvh-104px)] sm:h-[calc(100vh-64px)]">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 sm:mb-4">
+          MoonTV 直播
+        </h1>
+        <div className="flex-1 min-h-0 flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-hidden">
+          {/* 播放器：手机在上（固定16:9），桌面在右 */}
+          <div className="order-1 sm:order-2 flex-none sm:flex-1 flex flex-col min-h-0 sm:h-full sm:overflow-hidden">
+            <div className="w-full aspect-video sm:aspect-auto sm:flex-1 sm:min-h-[300px] border rounded-lg overflow-hidden bg-black">
+              {currentChannel ? (
+                <ArtPlayer url={currentChannel.url} isLive={true} type="m3u8" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-white/70 text-sm">
+                  请选择一个频道开始播放
+                </div>
+              )}
+            </div>
+            {currentChannel && (
+              <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-300 px-1 truncate">
+                正在播放：{currentChannel.name}
+              </p>
+            )}
+            {errorMessage && (
+              <p className="mt-1.5 text-sm text-red-500 px-1">{errorMessage}</p>
+            )}
+            <div className="flex gap-2 mt-2">
+              <input
+                type="url"
+                placeholder="输入直播 .m3u8 或 .php 地址"
+                value={inputUrl}
+                onChange={(e) => setInputUrl(e.target.value)}
+                className="flex-1 min-w-0 px-3 py-2 text-sm border rounded-lg dark:bg-gray-800 dark:text-white"
+              />
+              <button
+                onClick={addChannel}
+                className="flex-none px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                添加
+              </button>
+            </div>
+          </div>
+
+          {/* 频道列表：手机在下（内部滚动），桌面在左 */}
+          <div className="order-2 sm:order-1 w-full sm:w-[260px] sm:flex-none flex-1 min-h-0 flex flex-col border rounded-lg bg-gray-50 dark:bg-gray-900 overflow-hidden">
             <div className="px-2 py-2 border-b space-y-2">
               <input
                 type="search"
@@ -198,7 +237,7 @@ export default function ChannelsPageInner() {
                 </button>
               </div>
             </div>
-            <ul className="flex-1 overflow-y-auto px-2 py-2 space-y-2">
+            <ul className="flex-1 min-h-0 overflow-y-auto px-2 py-2 space-y-2">
               {loading && visibleChannels.length === 0 && (
                 <li className="text-sm text-gray-500 text-center py-8">频道加载中…</li>
               )}
@@ -223,45 +262,6 @@ export default function ChannelsPageInner() {
                 </li>
               )}
             </ul>
-          </div>
-
-          {/* 播放器 + 添加频道 */}
-          <div className="flex-1 flex flex-col space-y-4 overflow-hidden h-full">
-            <div className="flex-1 border rounded-lg overflow-hidden h-full min-h-[300px]">
-              {currentChannel ? (
-                <ArtPlayer
-                  url={currentChannel.url}
-                  title={currentChannel.name}
-                  isLive={true}
-                  type="m3u8"
-                />
-              ) : (
-                <div className="w-full h-full bg-black flex items-center justify-center text-white text-sm">
-                  请选择一个频道开始播放
-                </div>
-              )}
-              {currentChannel && (
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 px-2">
-                  正在播放：{currentChannel.name}
-                </p>
-              )}
-              {errorMessage && <p className="mt-2 text-sm text-red-500 px-2">{errorMessage}</p>}
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <input
-                type="url"
-                placeholder="输入直播 .m3u8 或 .php 地址"
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-                className="flex-1 px-3 py-2 border rounded-lg dark:bg-gray-800 dark:text-white"
-              />
-              <button
-                onClick={addChannel}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-              >
-                添加频道
-              </button>
-            </div>
           </div>
         </div>
       </div>
