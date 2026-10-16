@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MoonTV</title>
+    <style>
+      body { margin: 0; display: flex; height: 100vh; align-items: center; justify-content: center;
+             background: #000; color: #888; font-family: sans-serif; }
+    </style>
+  </head>
+  <body>
+    <p>MoonTV 加载中…</p>
+    <script>
+      // 正常情况下 Capacitor 会直接加载 capacitor.config.ts 里配置的线上站，
+      // 这个页面只是 webDir 占位，几乎不会被看到。
+      setTimeout(function () {
+        location.href = 'https://moontv.hookjune.qzz.io';
+      }, 1500);
+    </script>
+  </body>
+</html>
