@@ -272,16 +272,18 @@ export default function VideoCard({
       className='group relative w-full rounded-lg bg-transparent cursor-pointer transition-all duration-300 ease-in-out hover:scale-[1.05] hover:z-[500]'
       onClick={handleClick}
     >
-      {/* 海报容器 */}
-      <div className='relative aspect-[2/3] overflow-hidden rounded-lg'>
+      {/* 海报容器（深色打底，图片未加载时不闪白） */}
+      <div className='relative aspect-[2/3] overflow-hidden rounded-lg bg-[#222] dark:bg-[#222]'>
         {/* 骨架屏 */}
         {!isLoading && <ImagePlaceholder aspectRatio='aspect-[2/3]' />}
-        {/* 图片 */}
+        {/* 图片（淡入过渡，深色占位打底） */}
         <Image
           src={processImageUrl(actualPoster)}
           alt={actualTitle}
           fill
-          className='object-cover'
+          className={`object-cover transition-opacity duration-500 ${
+            isLoading ? 'opacity-100' : 'opacity-0'
+          }`}
           referrerPolicy='no-referrer'
           onLoadingComplete={() => setIsLoading(true)}
         />
@@ -325,6 +327,11 @@ export default function VideoCard({
         )}
 
         {/* 徽章 */}
+        {isAggregate && items && items.length > 1 && (
+          <div className='absolute top-2 left-2 bg-black/60 text-white text-xs font-semibold px-2 py-1 rounded-md backdrop-blur-sm'>
+            {items.length}源
+          </div>
+        )}
         {config.showRating && rate && (
           <div className='absolute top-2 right-2 bg-pink-500 text-white text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ease-out group-hover:scale-110'>
             {rate}
