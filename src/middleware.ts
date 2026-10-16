@@ -123,6 +123,7 @@ function shouldSkipAuth(pathname: string): boolean {
     '/robots.txt',
     '/manifest.json',
     '/app-version.json',
+    '/api/image-proxy',
     '/icons/',
     '/logo.png',
     '/screenshot.png',
