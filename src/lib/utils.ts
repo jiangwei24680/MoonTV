@@ -17,9 +17,10 @@ export function getImageProxyUrl(): string | null {
   }
 
   const localImageProxy = localStorage.getItem('imageProxyUrl');
-  if (localImageProxy != null) {
-    return localImageProxy.trim() ? localImageProxy.trim() : null;
+  if (localImageProxy != null && localImageProxy.trim()) {
+    return localImageProxy.trim();
   }
+  // 本地未设置或为空时，继续走服务端默认值
 
   // 如果未设置，则使用全局对象
   const serverImageProxy = (window as any).RUNTIME_CONFIG?.IMAGE_PROXY;
@@ -55,9 +56,10 @@ export function getDoubanProxyUrl(): string | null {
   }
 
   const localDoubanProxy = localStorage.getItem('doubanProxyUrl');
-  if (localDoubanProxy != null) {
-    return localDoubanProxy.trim() ? localDoubanProxy.trim() : null;
+  if (localDoubanProxy != null && localDoubanProxy.trim()) {
+    return localDoubanProxy.trim();
   }
+  // 本地未设置或为空时，继续走服务端默认值
 
   // 如果未设置，则使用全局对象
   const serverDoubanProxy = (window as any).RUNTIME_CONFIG?.DOUBAN_PROXY;
