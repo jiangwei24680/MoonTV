@@ -2,13 +2,14 @@
 
 'use client';
 
-import { KeyRound, LogOut, Settings, Shield, User, X } from 'lucide-react';
+import { Download, KeyRound, LogOut, Settings, Shield, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 import { checkForUpdates, CURRENT_VERSION, UpdateStatus } from '@/lib/version';
+import { checkAppUpdate, isAppEnvironment } from '@/lib/appUpdater';
 
 interface AuthInfo {
   username?: string;
@@ -399,6 +400,20 @@ export const UserMenu: React.FC = () => {
 
           {/* 分割线 */}
           <div className='my-1 border-t border-gray-200 dark:border-gray-700'></div>
+
+          {/* 检查 App 更新（仅 App 内显示） */}
+          {isAppEnvironment() && (
+            <button
+              onClick={() => {
+                handleCloseMenu();
+                checkAppUpdate();
+              }}
+              className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
+            >
+              <Download className='w-4 h-4 text-gray-500 dark:text-gray-400' />
+              <span className='font-medium'>检查 App 更新</span>
+            </button>
+          )}
 
           {/* 版本信息 */}
           <button
