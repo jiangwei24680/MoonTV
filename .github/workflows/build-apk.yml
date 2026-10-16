@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Capacitor and add Android platform
         run: |
-          pnpm add -D @capacitor/cli@7 @capacitor/core@7 @capacitor/android@7
+          pnpm add -D @capacitor/cli@7 @capacitor/core@7 @capacitor/android@7 @capacitor/status-bar@7
           npx cap add android
           npx cap sync android
 
