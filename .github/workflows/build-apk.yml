@@ -7,12 +7,16 @@ on:
     paths:
       - 'capacitor.config.ts'
       - 'www/**'
+      - 'native-updater/**'
+      - 'keystore/**'
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,6 +38,26 @@ jobs:
           pnpm add -D @capacitor/cli@7 @capacitor/core@7 @capacitor/android@7 @capacitor/status-bar@7
           npx cap add android
           npx cap sync android
+
+      - name: 接入 AppUpdater 原生插件
+        run: |
+          PLUGIN_DIR=android/app/src/main/java/com/moontv/updater
+          mkdir -p "$PLUGIN_DIR"
+          cp native-updater/AppUpdaterPlugin.java "$PLUGIN_DIR/"
+          cp native-updater/MainActivity.java android/app/src/main/java/io/hookjune/moontv/MainActivity.java
+          mkdir -p android/app/src/main/res/xml
+          cp native-updater/file_paths.xml android/app/src/main/res/xml/
+          python3 native-updater/patch_manifest.py android/app/src/main/AndroidManifest.xml
+
+      - name: 固定 debug 签名（保证各版本签名一致，可覆盖安装）
+        run: |
+          mkdir -p ~/.android
+          cp keystore/debug.keystore ~/.android/debug.keystore
+
+      - name: 设置 versionCode
+        run: |
+          sed -i "s/versionCode [0-9][0-9]*/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          grep -n "versionCode" android/app/build.gradle | head -3
 
       - name: Setup JDK 21
         uses: actions/setup-java@v4
@@ -64,9 +88,41 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: 创建 Release 并上传 APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="apk-v${{ github.run_number }}"
+          cp android/app/build/outputs/apk/debug/app-debug.apk MoonTV.apk
+          gh release create "$TAG" MoonTV.apk \
+            --title "MoonTV APK $TAG" \
+            --notes "自动构建（${{ github.sha }})"
+
+      - name: 回写 app-version.json（供 App 内更新检查）
+        run: |
+          TAG="apk-v${{ github.run_number }}"
+          python3 - "$TAG" "${{ github.run_number }}" <<'EOF'
+          import json, sys
+          tag, run_number = sys.argv[1], int(sys.argv[2])
+          info = {
+              "versionCode": run_number,
+              "versionName": f"1.0.{run_number}",
+              "apkUrl": f"https://github.com/jiangwei24680/MoonTV/releases/download/{tag}/MoonTV.apk",
+              "changelog": f"版本 {tag} 自动构建",
+          }
+          with open("public/app-version.json", "w") as f:
+              json.dump(info, f, ensure_ascii=False, indent=2)
+          print(json.dumps(info, ensure_ascii=False))
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/app-version.json
+          git commit -m "ci(apk): 更新 app-version.json 到 $TAG" || echo "no changes to commit"
+          git push
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: MoonTV-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: MoonTV.apk
           if-no-files-found: error
