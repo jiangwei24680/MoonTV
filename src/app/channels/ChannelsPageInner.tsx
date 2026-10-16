@@ -13,10 +13,12 @@ interface Channel {
 /** m3u8 中转 Worker（moontvphp）：.php 这类浏览器直连会被 CORS 拦截的地址走它代理 */
 const M3U8_PROXY = 'https://moontvphp.hookjune.workers.dev'
 /** 频道缓存版本：playlist.m3u 有大改时把数字 +1，用户下次打开即刷新 */
-const CACHE_VERSION = 2
+const CACHE_VERSION = 3
 const LS_KEY = `live-channels-v${CACHE_VERSION}`
 /** 中国频道源（iptv-org 按国家分类，远小于全库） */
 const CN_SOURCE = 'https://iptv-org.github.io/iptv/countries/cn.m3u'
+/** fanmingming 央视卫视源（华数/移动 OTT：47 央视 + 53 卫视，国内稳定） */
+const FMM_SOURCE = 'https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/itv.m3u'
 
 export default function ChannelsPageInner() {
   const [channelsByGroup, setChannelsByGroup] = useState<Record<string, Channel[]>>({})
@@ -51,7 +53,11 @@ export default function ChannelsPageInner() {
         if (!r.ok) throw new Error(`remote ${r.status}`)
         return r.text()
       }),
-    ]).then(([localRes, remoteRes]) => {
+      fetch(FMM_SOURCE).then((r) => {
+        if (!r.ok) throw new Error(`fmm ${r.status}`)
+        return r.text()
+      }),
+    ]).then(([localRes, remoteRes, fmmRes]) => {
       if (cancelled) return
       const texts: string[] = []
       if (localRes.status === 'fulfilled') {
@@ -63,6 +69,11 @@ export default function ChannelsPageInner() {
         texts.push(remoteRes.value)
       } else {
         console.warn('远程频道源加载失败:', remoteRes.reason)
+      }
+      if (fmmRes.status === 'fulfilled') {
+        texts.push(fmmRes.value)
+      } else {
+        console.warn('fanmingming 频道源加载失败:', fmmRes.reason)
       }
 
       if (texts.length > 0) {
