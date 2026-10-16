@@ -10,6 +10,9 @@ import { useEffect } from 'react';
 export default function CapacitorInit() {
   useEffect(() => {
     const cap = (window as any).Capacitor;
+    if (!cap) return;
+    // 标记 App 环境，CSS 用 .capacitor-app 做安全区适配
+    document.documentElement.classList.add('capacitor-app');
     const statusBar = cap?.Plugins?.StatusBar;
     if (!statusBar) return;
     try {

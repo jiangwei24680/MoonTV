@@ -174,3 +174,8 @@ div[data-media-provider] video {
     display: none !important;
   }
 }
+
+/* App 内（Capacitor）：顶栏避开系统状态栏，解决 Android 15 强制全面屏下顶栏被盖住点不到的问题 */
+.capacitor-app .mobile-header-safe {
+  padding-top: env(safe-area-inset-top);
+}
