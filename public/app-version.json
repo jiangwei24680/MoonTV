@@ -1,1 +1,6 @@
-{"apkUrl":"","changelog":"","versionCode":1,"versionName":"1.0"}
+{
+  "versionCode": 7,
+  "versionName": "1.0.7",
+  "apkUrl": "https://github.com/jiangwei24680/MoonTV/releases/download/apk-v7/MoonTV.apk",
+  "changelog": "版本 apk-v7 自动构建"
+}
