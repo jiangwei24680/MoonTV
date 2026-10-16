@@ -14,7 +14,6 @@ interface Props {
 
 export default function ArtPlayer({
   url,
-  title,
   isLive = false,
   blockAd = true,
   type,
@@ -64,7 +63,6 @@ export default function ArtPlayer({
     const player = new Artplayer({
       container: containerRef.current,
       url,
-      title,
       autoplay: true,
       volume: 0.7,
       theme: '#22c55e',
@@ -107,7 +105,7 @@ export default function ArtPlayer({
       hlsRef.current = null;
       player.destroy();
     };
-  }, [url, title, isLive, blockAd, type, retryKey]);
+  }, [url, isLive, blockAd, type, retryKey]);
 
   return (
     <div className="relative w-full h-full bg-black rounded overflow-hidden">
