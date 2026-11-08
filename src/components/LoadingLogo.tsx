@@ -5,7 +5,7 @@
 // 纯展示组件：不带跳转、不带进度条/倒计时逻辑。
 
 export default function LoadingLogo({
-  size = 120,
+  size = 180,
   showBrand = true,
 }: {
   size?: number;
@@ -15,12 +15,12 @@ export default function LoadingLogo({
     <div className='flex flex-col items-center gap-3'>
       <div className='relative' style={{ width: size, height: size }}>
         {/* 下层暗淡线稿 */}
-        <img src='/logo.png' alt='' className='block h-full w-full opacity-25' />
+        <img src='/logo.png' alt='' className='logo-glow block h-full w-full opacity-25' />
         {/* 上层全彩线稿：自下而上揭示 */}
         <img
           src='/logo.png'
           alt='kyrinMedia'
-          className='logo-rise-fill absolute inset-0 block h-full w-full'
+          className='logo-rise-fill logo-glow absolute inset-0 block h-full w-full'
         />
       </div>
       {showBrand && (
@@ -29,6 +29,9 @@ export default function LoadingLogo({
         </div>
       )}
       <style>{`
+        .logo-glow {
+          filter: drop-shadow(0 0 1.5px rgba(232,198,106,0.55));
+        }
         .logo-rise-fill {
           clip-path: inset(100% 0 0 0);
           animation: logo-rise 1.2s ease-in-out infinite alternate;

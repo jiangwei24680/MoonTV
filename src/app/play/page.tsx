@@ -1777,7 +1777,7 @@ function PlayPageClient() {
           <div className='text-center max-w-md mx-auto px-6'>
             {/* 涨水 logo 动效（与播放器加载蒙层、APK 启动页同款） */}
             <div className='mb-8 flex justify-center'>
-              <LoadingLogo size={96} showBrand={false} />
+              <LoadingLogo size={168} showBrand={false} />
             </div>
 
             {/* 进度指示器 */}
