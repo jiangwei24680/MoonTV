@@ -4,12 +4,14 @@
 
 import { Download, KeyRound, LogOut, Settings, Shield, User, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { checkAppUpdate, isAppEnvironment } from '@/lib/appUpdater';
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 import { checkForUpdates, CURRENT_VERSION, UpdateStatus } from '@/lib/version';
-import { checkAppUpdate, isAppEnvironment } from '@/lib/appUpdater';
+
+import AdminNoAdsModal from '@/components/AdminNoAds';
 
 interface AuthInfo {
   username?: string;
@@ -42,6 +44,11 @@ export const UserMenu: React.FC = () => {
   // 版本检查相关状态
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+
+  // 管理员免广告隐藏入口状态（设置页版本号连点 5 下打开）
+  const [isAdminNoAdsOpen, setIsAdminNoAdsOpen] = useState(false);
+  const adminTapCountRef = useRef(0);
+  const adminTapLastRef = useRef(0);
 
   // 确保组件已挂载
   useEffect(() => {
@@ -444,6 +451,20 @@ export const UserMenu: React.FC = () => {
     </>
   );
 
+  // 管理员免广告隐藏入口：设置页版本号连点 5 下（2 秒内）弹出密码框
+  const handleVersionTap = () => {
+    const now = Date.now();
+    if (now - adminTapLastRef.current > 2000) {
+      adminTapCountRef.current = 0;
+    }
+    adminTapLastRef.current = now;
+    adminTapCountRef.current += 1;
+    if (adminTapCountRef.current >= 5) {
+      adminTapCountRef.current = 0;
+      setIsAdminNoAdsOpen(true);
+    }
+  };
+
   // 设置面板内容
   const settingsPanel = (
     <>
@@ -636,6 +657,13 @@ export const UserMenu: React.FC = () => {
           <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
             这些设置保存在本地浏览器中
           </p>
+          {/* 版本号：连点 5 下打开管理员免广告入口 */}
+          <button
+            onClick={handleVersionTap}
+            className='mt-2 w-full text-center font-mono text-xs text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors'
+          >
+            MoonTV v{CURRENT_VERSION}
+          </button>
         </div>
       </div>
     </>
@@ -759,6 +787,14 @@ export const UserMenu: React.FC = () => {
       {isChangePasswordOpen &&
         mounted &&
         createPortal(changePasswordPanel, document.body)}
+
+      {/* 管理员免广告入口弹窗 */}
+      {isAdminNoAdsOpen &&
+        mounted &&
+        createPortal(
+          <AdminNoAdsModal onClose={() => setIsAdminNoAdsOpen(false)} />,
+          document.body,
+        )}
     </>
   );
 };
