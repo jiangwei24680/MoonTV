@@ -346,6 +346,13 @@ export default function VideoCard({
           </div>
         )}
 
+        {/* 年份徽章 */}
+        {actualYear && (
+          <div className='absolute bottom-2 left-2 bg-black/60 text-white text-xs font-semibold px-2 py-1 rounded-md backdrop-blur-sm'>
+            {actualYear}
+          </div>
+        )}
+
         {/* 豆瓣链接 */}
         {config.showDoubanLink && actualDoubanId && (
           <a
