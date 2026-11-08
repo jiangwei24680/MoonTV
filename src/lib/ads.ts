@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 
+import { playImaPreroll } from '@/lib/ima-preroll.client';
+
 /**
  * AdMob 广告封装（APK 用）
  *
@@ -19,7 +21,9 @@
  *   弹之前先出提示页（“观看一段广告后开始播放本集”，按钮 [观看广告] / [取消]），
  *   用户点取消或提前关闭广告 → 不播放；看完广告（以获得奖励回调为准）→ 开始播放。
  *   广告实际时长、几秒后可关闭由 AdMob 决定，我们控制不了精确时长。
- *   广告加载或展示失败属于技术故障，放行播放（否则断网/无填充时无法看片）。
+ *   原生 App：广告加载或展示失败时不放行（必须弹出来才给看；断网/无填充时
+ *   无法看片，管理员通道不受影响）。网页端走 IMA 贴片（见 ima-preroll.client），
+ *   失败时放行；电视端直接放行（AdMob 不支持 Android TV）。
  * - 真实广告单元建好后：把下面三个单元 ID 换成真实的，并把 USE_TEST_ADS 改成 false；
  *   换单元 ID 时 patch_manifest.py 里的应用 ID 不用动（已是真实的）。
  */
@@ -45,6 +49,7 @@ const RI_SHOW_TIMEOUT_MS = 180 * 1000;
 // 管理员免广告：本地口令校验（仅防普通用户；写在客户端代码里的口令防不住反编译）
 // ---------------------------------------------------------------------------
 const ADMIN_NO_ADS_KEY = 'moontv_admin_no_ads';
+export const ADMIN_NO_ADS_EVENT = 'moontv-admin-no-ads-changed';
 const ADMIN_PASSWORD = '1122';
 
 /** 管理员免广告是否开启（本机 localStorage 持久标记，App 更新后保留） */
@@ -57,7 +62,7 @@ export function isAdminNoAds(): boolean {
   }
 }
 
-/** 开关管理员免广告（开启时立即隐藏当前横幅） */
+/** 开关管理员免广告（开启时立即隐藏当前横幅；网页端 AdBanner 通过事件同步） */
 export function setAdminNoAds(enabled: boolean): void {
   if (typeof window === 'undefined') return;
   try {
@@ -69,6 +74,8 @@ export function setAdminNoAds(enabled: boolean): void {
   } catch {
     /* ignore */
   }
+  // 通知网页端 AdBanner 同步隐藏/恢复（原生横幅走下面的 hideBanner）
+  window.dispatchEvent(new Event(ADMIN_NO_ADS_EVENT));
   if (enabled) {
     void hideBanner();
   }
@@ -97,6 +104,23 @@ export function isNativeApp(): boolean {
     const platform =
       typeof cap.getPlatform === 'function' ? cap.getPlatform() : '';
     return platform === 'android' || platform === 'ios';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 是否电视端（Android TV / Tizen / WebOS / GoogleTV，或 URL 带 ?tv=1）。
+ * AdMob 不支持 Android TV，电视端没有 AdMob 可用，贴片直接放行
+ * （否则电视上永远播不了，直接变砖）；电视端暂时无贴片广告，以后再说。
+ */
+export function isTV(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('tv') === '1') return true;
+    const ua = window.navigator.userAgent || '';
+    return /Android TV|GoogleTV|Tizen|WebOS|SmartTV|Smart-TV/i.test(ua);
   } catch {
     return false;
   }
@@ -310,34 +334,53 @@ async function showRewardedInterstitial(): Promise<RewardedInterstitialResult> {
 let prerollInFlight: Promise<boolean> | null = null;
 
 /**
- * 点播前贴片主入口：每次点播（打开播放页、切集）都先弹全屏激励插屏，
- * 看完广告才允许播放；网页端直接放行，不弹广告。
- * 返回 true = 可以开始播放；false = 用户取消或提前关闭，不播放。
- * 广告加载或展示失败属于技术故障，放行播放（否则断网/无填充时无法看片）。
+ * 点播前贴片主入口：每次点播（打开播放页、切集、自动连播）都先过广告关。
+ * - 管理员免广告：直接放行。
+ * - 电视端（isTV）：直接放行（AdMob 不支持 Android TV，没有广告可弹）。
+ * - 原生 App：弹全屏激励插屏，看完才放行；加载/展示失败时不放行。
+ * - 网页端：走 IMA HTML5 贴片（Ad Manager 视频广告）；广告播完放行，
+ *   请求失败或无 tag 时放行（不要堵死网页用户，等真实 tag 配好再严格）。
+ * 参数 videoWrap：网页端 IMA 贴片的挂载容器（播放器外层 relative 容器）；
+ * 原生端忽略。返回 true = 可以开始播放；false = 用户取消或提前关闭，不播放。
  */
-export async function playWithPrerollAd(): Promise<boolean> {
+export async function playWithPrerollAd(
+  videoWrap?: HTMLElement | null,
+): Promise<boolean> {
   if (isAdminNoAds()) return true;
-  if (!isNativeApp()) return true;
+  if (isTV()) return true;
   if (prerollInFlight) return prerollInFlight;
   const run = (async (): Promise<boolean> => {
+    // 网页端：IMA 贴片，失败放行
+    if (!isNativeApp()) {
+      try {
+        const result = await playImaPreroll(videoWrap ?? null);
+        if (result === 'failed') {
+          console.warn('[ads] 网页贴片未播出，放行播放');
+        }
+      } catch (err) {
+        console.warn('[ads] 网页贴片失败，放行播放', err);
+      }
+      return true;
+    }
+    // 原生端：激励插屏，失败不放行
     try {
       const ok = await initAdMob();
-      if (!ok) return true;
+      if (!ok) return false;
       const prepared = await prepareRewardedInterstitial();
-      if (!prepared) return true;
+      if (!prepared) return false;
       // 合规前置页：说明看完广告才开始播放，用户可取消
       const accepted = await requestRewardPrompt();
       if (!accepted) return false;
       const result = await showRewardedInterstitial();
       if (result === 'granted') return true;
       if (result === 'failed') {
-        console.warn('[ads] 激励插屏展示失败，放行播放');
-        return true;
+        console.warn('[ads] 激励插屏展示失败，不放行');
+        return false;
       }
       return false;
     } catch (err) {
-      console.warn('[ads] 贴片广告失败，放行播放', err);
-      return true;
+      console.warn('[ads] 贴片广告失败，不放行', err);
+      return false;
     }
   })();
   prerollInFlight = run;
