@@ -116,18 +116,12 @@ function handleAuthFailure(
 }
 
 // 判断是否需要跳过认证的路径
+// 密码墙已拆除：全站公开，任何人无需密码即可访问（访客也能看广告）。
+// 这里用 '/' 前缀匹配所有路径，一律放行；middleware 其余认证逻辑不再
+// 生效。/login 与 /warning 页面文件保留备用；管理员免广告口令（ads.ts）
+// 不受影响。matcher/config 保持不动。
 function shouldSkipAuth(pathname: string): boolean {
-  const skipPaths = [
-    '/_next',
-    '/favicon.ico',
-    '/robots.txt',
-    '/manifest.json',
-    '/app-version.json',
-    '/api/image-proxy',
-    '/icons/',
-    '/logo.png',
-    '/screenshot.png',
-  ];
+  const skipPaths = ['/'];
 
   return skipPaths.some((path) => pathname.startsWith(path));
 }

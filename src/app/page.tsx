@@ -18,6 +18,7 @@ import { getDoubanCategories } from '@/lib/douban.client';
 import { DoubanItem } from '@/lib/types';
 
 import AdBanner from '@/components/AdBanner';
+import AdminVersionTap from '@/components/AdminVersionTap';
 import CapsuleSwitch from '@/components/CapsuleSwitch';
 import ContinueWatching from '@/components/ContinueWatching';
 import PageLayout from '@/components/PageLayout';
@@ -369,6 +370,10 @@ function HomeClient() {
         </div>
       </div>
       <AdBanner />
+      {/* 页脚：版本号（连点 5 下打开管理员免广告入口，访客也能用） */}
+      <footer className='mt-2 pb-6 text-center'>
+        <AdminVersionTap className='font-mono text-xs text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors' />
+      </footer>
       {announcement && showAnnouncement && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm dark:bg-black/70 p-4 transition-opacity duration-300 ${
