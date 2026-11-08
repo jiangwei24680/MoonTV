@@ -41,6 +41,44 @@ const BANNER_BOTTOM_MARGIN = 64;
 // 广告展示安全超时：防止展示回调丢失时拖住播放
 const RI_SHOW_TIMEOUT_MS = 180 * 1000;
 
+// ---------------------------------------------------------------------------
+// 管理员免广告：本地口令校验（仅防普通用户；写在客户端代码里的口令防不住反编译）
+// ---------------------------------------------------------------------------
+const ADMIN_NO_ADS_KEY = 'moontv_admin_no_ads';
+const ADMIN_PASSWORD = '1122';
+
+/** 管理员免广告是否开启（本机 localStorage 持久标记，App 更新后保留） */
+export function isAdminNoAds(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(ADMIN_NO_ADS_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/** 开关管理员免广告（开启时立即隐藏当前横幅） */
+export function setAdminNoAds(enabled: boolean): void {
+  if (typeof window === 'undefined') return;
+  try {
+    if (enabled) {
+      window.localStorage.setItem(ADMIN_NO_ADS_KEY, '1');
+    } else {
+      window.localStorage.removeItem(ADMIN_NO_ADS_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
+  if (enabled) {
+    void hideBanner();
+  }
+}
+
+/** 本地校验管理员口令（只做本地比对，不发服务器、不记日志） */
+export function verifyAdminPassword(input: string): boolean {
+  return input === ADMIN_PASSWORD;
+}
+
 export function isNativeApp(): boolean {
   if (typeof window === 'undefined') return false;
   try {
@@ -88,9 +126,10 @@ export async function initAdMob(): Promise<boolean> {
 let bannerCreated = false;
 let bannerVisible = false;
 
-/** 首页底部横幅（仅原生 App 内展示，网页端跳过） */
+/** 首页底部横幅（仅原生 App 内展示，网页端跳过；管理员免广告时不展示） */
 export async function showBanner(): Promise<void> {
   if (!isNativeApp() || bannerVisible) return;
+  if (isAdminNoAds()) return;
   const ok = await initAdMob();
   if (!ok) return;
   try {
@@ -133,6 +172,7 @@ export async function hideBanner(): Promise<void> {
  */
 export async function showInterstitial(): Promise<void> {
   if (!isNativeApp()) return;
+  if (isAdminNoAds()) return;
   const ok = await initAdMob();
   if (!ok) return;
   try {
@@ -276,6 +316,7 @@ let prerollInFlight: Promise<boolean> | null = null;
  * 广告加载或展示失败属于技术故障，放行播放（否则断网/无填充时无法看片）。
  */
 export async function playWithPrerollAd(): Promise<boolean> {
+  if (isAdminNoAds()) return true;
   if (!isNativeApp()) return true;
   if (prerollInFlight) return prerollInFlight;
   const run = (async (): Promise<boolean> => {
