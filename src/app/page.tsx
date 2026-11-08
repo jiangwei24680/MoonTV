@@ -22,6 +22,8 @@ import PageLayout from '@/components/PageLayout';
 import ScrollableRow from '@/components/ScrollableRow';
 import { useSite } from '@/components/SiteProvider';
 import VideoCard from '@/components/VideoCard';
+import AdBanner from '@/components/AdBanner';
+import { hideBanner, showBanner } from '@/lib/ads';
 
 function HomeClient() {
   const [activeTab, setActiveTab] = useState<'home' | 'favorites'>('home');
@@ -30,6 +32,14 @@ function HomeClient() {
   const [hotVarietyShows, setHotVarietyShows] = useState<DoubanItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { announcement } = useSite();
+
+  // App 内首页底部 AdMob 横幅（仅 Capacitor 原生环境生效，网页端跳过；离开首页时隐藏）
+  useEffect(() => {
+    showBanner();
+    return () => {
+      hideBanner();
+    };
+  }, []);
 
   const [showAnnouncement, setShowAnnouncement] = useState(false);
 
@@ -358,6 +368,7 @@ function HomeClient() {
           )}
         </div>
       </div>
+      <AdBanner />
       {announcement && showAnnouncement && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm dark:bg-black/70 p-4 transition-opacity duration-300 ${
