@@ -17,14 +17,31 @@ async function handleRequest(request) {
       });
     }
 
-    // 从请求路径中提取目标 URL
-    let actualUrlStr = decodeURIComponent(url.pathname.replace('/', ''));
+    // 从请求中提取目标 URL，支持两种写法：
+    // 1) /?url=<目标>（直播页在用）
+    // 2) /<目标>（旧写法，兼容保留）
+    const queryUrl = url.searchParams.get('url');
+    let actualUrlStr = queryUrl
+      ? queryUrl
+      : decodeURIComponent(url.pathname.replace('/', ''));
 
     // 判断用户输入的 URL 是否带有协议
     actualUrlStr = ensureProtocol(actualUrlStr, url.protocol);
 
-    // 保留查询参数
-    actualUrlStr += url.search;
+    // 只有 /<目标> 写法才需要把原查询参数拼回去；
+    // ?url= 写法里目标 URL 自身的查询参数已包含在 url 参数值中
+    if (!queryUrl) actualUrlStr += url.search;
+
+    // 分片/清单按类型定缓存策略（免费版可用 cf.cacheTtl）：
+    // .ts 分片内容不变，可长期缓存；.m3u8 清单直播时会变，只短暂缓存
+    const isTs = /\.ts(\?|$)/i.test(actualUrlStr);
+    const isM3u8 = /\.m3u8(\?|$)/i.test(actualUrlStr);
+    const fetchOptions = {};
+    if (isTs) {
+      fetchOptions.cf = { cacheTtl: 86400, cacheEverything: true };
+    } else if (isM3u8) {
+      fetchOptions.cf = { cacheTtl: 10, cacheEverything: true };
+    }
 
     // 创建新 Headers 对象，排除以 'cf-' 开头的请求头
     const newHeaders = filterHeaders(
@@ -40,8 +57,8 @@ async function handleRequest(request) {
       redirect: 'manual',
     });
 
-    // 发起对目标 URL 的请求
-    const response = await fetch(modifiedRequest);
+    // 发起对目标 URL 的请求（带上按类型定的边缘缓存参数）
+    const response = await fetch(modifiedRequest, fetchOptions);
     let body = response.body;
 
     // 处理重定向
@@ -65,8 +82,14 @@ async function handleRequest(request) {
       headers: response.headers,
     });
 
-    // 添加禁用缓存的头部
-    setNoCacheHeaders(modifiedResponse.headers);
+    // 缓存头：分片/清单按上面策略缓存，其余内容仍禁用缓存
+    if (isTs) {
+      modifiedResponse.headers.set('Cache-Control', 'public, max-age=86400');
+    } else if (isM3u8) {
+      modifiedResponse.headers.set('Cache-Control', 'public, max-age=10');
+    } else {
+      setNoCacheHeaders(modifiedResponse.headers);
+    }
 
     // 添加 CORS 头部，允许跨域访问
     setCorsHeaders(modifiedResponse.headers);
