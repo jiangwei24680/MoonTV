@@ -4,12 +4,14 @@
  * AdMob 广告封装（APK 用）
  *
  * - 只在 Capacitor 原生环境初始化，网页端所有函数直接返回，不报错。
- * - 下方三个 ID 目前是 Google 官方测试 ID（跑通流程用）：
+ * - 应用 ID 已是真实 ID（AdMob 账号美国发布商 pub-7387037413649666，
+ *   应用 MoonTV 已登记：ca-app-pub-7387037413649666~7723164968；
+ *   该 ID 在 native-updater/patch_manifest.py 里写入 AndroidManifest）。
+ * - 横幅 / 插屏广告单元仍是 Google 官方测试 ID（真实广告单元还没建）：
  *   横幅 ca-app-pub-3940256099942544/6300978111
  *   插屏 ca-app-pub-3940256099942544/1033173712
- *   应用 ID ca-app-pub-3940256099942544~3347511713（在 native-updater/patch_manifest.py 里写入 AndroidManifest）
- * - 正式上线：把 USE_TEST_ADS 改成 false，并把三个 ID 换成自己 AdMob 后台建的真实 ID；
- *   同时把 patch_manifest.py 里的应用 ID 也换成真实的，否则广告请求会被拒。
+ * - 真实广告单元建好后：把下面两个单元 ID 换成真实的，并把 USE_TEST_ADS 改成 false；
+ *   换单元 ID 时 patch_manifest.py 里的应用 ID 不用动（已是真实的）。
  */
 
 // true = 测试广告（展示时带 Test Ad 字样，不产生收益）；正式上线改成 false 并替换下方 ID
@@ -18,8 +20,8 @@ export const USE_TEST_ADS = true;
 // Google 官方测试广告单元 ID（Android）
 export const ADMOB_BANNER_ID = 'ca-app-pub-3940256099942544/6300978111';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-3940256099942544/1033173712';
-// Google 官方测试应用 ID（Android），写入 AndroidManifest 用，见 native-updater/patch_manifest.py
-export const ADMOB_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
+// 真实应用 ID（AdMob 后台 MoonTV 应用，发布商 pub-7387037413649666），写入 AndroidManifest 用，见 native-updater/patch_manifest.py
+export const ADMOB_APP_ID = 'ca-app-pub-7387037413649666~7723164968';
 
 // 横幅底部留白（dp）：避开手机端 56px 高的底部导航栏
 const BANNER_BOTTOM_MARGIN = 64;
