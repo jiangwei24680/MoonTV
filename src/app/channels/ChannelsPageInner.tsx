@@ -182,7 +182,7 @@ export default function ChannelsPageInner() {
       {/* 手机：头部48px + 底部导航56px；桌面：顶部64px */}
       <div className="px-4 sm:px-10 py-4 sm:py-6 flex flex-col h-[calc(100dvh-104px)] sm:h-[calc(100vh-64px)]">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 sm:mb-4">
-          MoonTV 直播
+          kyrinMedia 直播
         </h1>
         <div className="flex-1 min-h-0 flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-hidden">
           {/* 播放器：手机在上（固定16:9），桌面在右 */}

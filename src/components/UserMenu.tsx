@@ -662,7 +662,7 @@ export const UserMenu: React.FC = () => {
             onClick={handleVersionTap}
             className='mt-2 w-full text-center font-mono text-xs text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors'
           >
-            MoonTV v{CURRENT_VERSION}
+            kyrinMedia v{CURRENT_VERSION}
           </button>
         </div>
       </div>
