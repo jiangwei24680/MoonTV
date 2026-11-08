@@ -4,17 +4,35 @@
 
 import { AlertCircle, CheckCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 
 import { checkForUpdates, CURRENT_VERSION, UpdateStatus } from '@/lib/version';
 
+import AdminNoAdsModal from '@/components/AdminNoAds';
 import { useSite } from '@/components/SiteProvider';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
-// 版本显示组件
+// 版本显示组件（连点 5 下打开管理员免广告入口，与 UserMenu 一致）
 function VersionDisplay() {
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const [isAdminNoAdsOpen, setIsAdminNoAdsOpen] = useState(false);
+  const adminTapCountRef = useRef(0);
+  const adminTapLastRef = useRef(0);
+
+  // 管理员免广告隐藏入口：版本号连点 5 下（2 秒内）弹出密码框
+  const handleVersionTap = () => {
+    const now = Date.now();
+    if (now - adminTapLastRef.current > 2000) {
+      adminTapCountRef.current = 0;
+    }
+    adminTapLastRef.current = now;
+    adminTapCountRef.current += 1;
+    if (adminTapCountRef.current >= 5) {
+      adminTapCountRef.current = 0;
+      setIsAdminNoAdsOpen(true);
+    }
+  };
 
   useEffect(() => {
     const checkUpdate = async () => {
@@ -32,12 +50,11 @@ function VersionDisplay() {
   }, []);
 
   return (
-    <button
-      onClick={() =>
-        window.open('https://github.com/senshinya/MoonTV', '_blank')
-      }
-      className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 transition-colors cursor-pointer'
-    >
+    <>
+      <button
+        onClick={handleVersionTap}
+        className='absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 transition-colors cursor-pointer'
+      >
       <span className='font-mono'>v{CURRENT_VERSION}</span>
       {!isChecking && updateStatus !== UpdateStatus.FETCH_FAILED && (
         <div
@@ -63,7 +80,11 @@ function VersionDisplay() {
           )}
         </div>
       )}
-    </button>
+      </button>
+      {isAdminNoAdsOpen && (
+        <AdminNoAdsModal onClose={() => setIsAdminNoAdsOpen(false)} />
+      )}
+    </>
   );
 }
 
