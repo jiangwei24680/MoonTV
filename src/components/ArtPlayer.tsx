@@ -66,6 +66,10 @@ export default function ArtPlayer({
       backBufferLength: 30,
       maxBufferSize: 60 * 1000 * 1000,
       loader,
+      // 失败重试：源站不稳时多试几次再报错
+      manifestLoadingMaxRetry: 3,
+      levelLoadingMaxRetry: 6,
+      fragLoadingMaxRetry: 6,
       ...(isLive ? { lowLatencyMode: true, liveSyncDurationCount: 3 } : {}),
     };
 
@@ -80,6 +84,45 @@ export default function ArtPlayer({
       fullscreenWeb: true,
       airplay: true,
       hotkey: true,
+      // 一键跳过片头/片尾（仅点播；直播无总时长，不显示）
+      ...(isLive
+        ? {}
+        : {
+            controls: [
+              {
+                name: 'skipIntro',
+                position: 'right',
+                html: '跳过片头',
+                tooltip: '快进 85 秒',
+                click: function () {
+                  const video = playerRef.current
+                    ?.video as HTMLVideoElement | undefined;
+                  if (!video || !isFinite(video.duration)) return;
+                  video.currentTime = Math.min(
+                    video.duration - 1,
+                    video.currentTime + 85
+                  );
+                },
+              },
+              {
+                name: 'skipOutro',
+                position: 'right',
+                html: '跳到片尾',
+                tooltip: '跳到片尾前 90 秒',
+                click: function () {
+                  const video = playerRef.current
+                    ?.video as HTMLVideoElement | undefined;
+                  if (
+                    !video ||
+                    !isFinite(video.duration) ||
+                    video.duration <= 95
+                  )
+                    return;
+                  video.currentTime = Math.max(0, video.duration - 90);
+                },
+              },
+            ],
+          }),
       ...(type ? { type } : {}),
       customType: {
         m3u8(video: HTMLVideoElement, src: string) {
