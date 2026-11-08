@@ -318,6 +318,23 @@ export const UserMenu: React.FC = () => {
     }
   };
 
+  // 管理员免广告隐藏入口：版本号连点 5 下（2 秒内）弹出密码框。
+  // 注意：必须定义在 menuPanel 之前——menuPanel 里下拉菜单的版本号按钮也要用它，
+  // 若定义在后，JSX 求值时会命中 const 的暂时性死区而报错。
+  const handleVersionTap = () => {
+    const now = Date.now();
+    if (now - adminTapLastRef.current > 2000) {
+      adminTapCountRef.current = 0;
+    }
+    adminTapLastRef.current = now;
+    adminTapCountRef.current += 1;
+    if (adminTapCountRef.current >= 5) {
+      adminTapCountRef.current = 0;
+      setIsOpen(false);
+      setIsAdminNoAdsOpen(true);
+    }
+  };
+
   // 菜单面板内容
   const menuPanel = (
     <>
@@ -422,11 +439,9 @@ export const UserMenu: React.FC = () => {
             </button>
           )}
 
-          {/* 版本信息 */}
+          {/* 版本信息：连点 5 下打开管理员免广告入口（与设置页底部版本号一致） */}
           <button
-            onClick={() =>
-              window.open('https://github.com/senshinya/MoonTV', '_blank')
-            }
+            onClick={handleVersionTap}
             className='w-full px-3 py-2 text-center flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-xs'
           >
             <div className='flex items-center gap-1'>
@@ -450,20 +465,6 @@ export const UserMenu: React.FC = () => {
       </div>
     </>
   );
-
-  // 管理员免广告隐藏入口：设置页版本号连点 5 下（2 秒内）弹出密码框
-  const handleVersionTap = () => {
-    const now = Date.now();
-    if (now - adminTapLastRef.current > 2000) {
-      adminTapCountRef.current = 0;
-    }
-    adminTapLastRef.current = now;
-    adminTapCountRef.current += 1;
-    if (adminTapCountRef.current >= 5) {
-      adminTapCountRef.current = 0;
-      setIsAdminNoAdsOpen(true);
-    }
-  };
 
   // 设置面板内容
   const settingsPanel = (

@@ -179,3 +179,8 @@ div[data-media-provider] video {
 .capacitor-app .mobile-header-safe {
   padding-top: env(safe-area-inset-top);
 }
+
+/* 初次加载用涨水 logo 蒙层时，藏起 ArtPlayer 默认小转圈；中途重缓冲时恢复显示 */
+.player-initial-loading .art-loading {
+  display: none !important;
+}
