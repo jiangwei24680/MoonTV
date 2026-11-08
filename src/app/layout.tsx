@@ -53,6 +53,8 @@ export default async function RootLayout({
   let doubanProxy = process.env.NEXT_PUBLIC_DOUBAN_PROXY || '';
   let disableYellowFilter =
     process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true';
+  let adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || '';
+  let adsenseSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT || '';
   let customCategories =
     (RuntimeConfig as any).custom_category?.map((category: any) => ({
       name: 'name' in category ? category.name : '',
@@ -85,6 +87,8 @@ export default async function RootLayout({
     ENABLE_REGISTER: enableRegister,
     IMAGE_PROXY: imageProxy,
     DOUBAN_PROXY: doubanProxy,
+    ADSENSE_CLIENT: adsenseClient,
+    ADSENSE_SLOT: adsenseSlot,
     DISABLE_YELLOW_FILTER: disableYellowFilter,
     CUSTOM_CATEGORIES: customCategories,
   };
@@ -103,6 +107,13 @@ export default async function RootLayout({
             __html: `window.RUNTIME_CONFIG = ${JSON.stringify(runtimeConfig)};`,
           }}
         />
+        {adsenseClient ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+            crossOrigin='anonymous'
+          />
+        ) : null}
       </head>
       <body
         className={`${inter.className} min-h-screen bg-white text-gray-900 dark:bg-black dark:text-gray-200`}
