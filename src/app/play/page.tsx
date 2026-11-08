@@ -151,6 +151,13 @@ function PlayPageClient() {
 
   // 用于记录是否需要在播放器 ready 后跳转到指定进度
   const resumeTimeRef = useRef<number | null>(null);
+  // 续播选择：有进度时先让用户选“继续播放 / 重头播放”，选完再走贴片
+  const [resumeChoice, setResumeChoice] = useState<{
+    time: number;
+    total: number;
+  } | null>(null);
+  // 续播决定状态：pending=历史还没读完，waiting=等用户选，ready=可走贴片播片
+  const resumeGateRef = useRef<'pending' | 'waiting' | 'ready'>('pending');
   // 播放记录是否已读过一次（豆瓣入口 source/id 是搜索完成后才有，需等其就绪再读）
   const historyLoadedRef = useRef(false);
   // 上次使用的音量，默认 0.7
@@ -405,7 +412,7 @@ function PlayPageClient() {
     return Math.round(score * 100) / 100; // 保留两位小数
   };
 
-  // 更新视频地址（点播前贴片：每次点播先看广告，看完才放行；拒绝则不设置地址）
+  // 更新视频地址（先过续播选择，再走贴片广告，看完才放行；拒绝则不设置地址）
   const updateVideoUrl = async (
     detailData: SearchResult | null,
     episodeIndex: number
@@ -418,9 +425,16 @@ function PlayPageClient() {
       setVideoUrl('');
       return;
     }
+    // 续播选择还没定（历史未读完或等用户选），先不走贴片、不设地址；
+    // 决定作出后由 initFromHistory 或选择框处理函数直接再调一次
+    if (resumeGateRef.current !== 'ready') {
+      return;
+    }
     const newUrl = detailData?.episodes[episodeIndex] || '';
     if (newUrl !== videoUrl) {
-      const allowed = await playWithPrerollAd();
+      // 网页端 IMA 贴片挂到播放器外层容器上；原生端忽略该参数
+      const videoWrap = artRef.current?.parentElement ?? null;
+      const allowed = await playWithPrerollAd(videoWrap);
       if (!allowed) {
         setGateDenied(true);
         return;
@@ -433,6 +447,15 @@ function PlayPageClient() {
   // 用户取消贴片广告后，点重试入口重新触发
   const retryPlayback = () => {
     void updateVideoUrl(detail, currentEpisodeIndex);
+  };
+
+  // 续播选择：选完再走贴片；关掉选择框按“继续播放”处理
+  const handleResumeChoice = (resume: boolean) => {
+    const choice = resumeChoice;
+    setResumeChoice(null);
+    resumeTimeRef.current = resume && choice ? choice.time : 0;
+    resumeGateRef.current = 'ready';
+    void updateVideoUrl(detailRef.current, currentEpisodeIndexRef.current);
   };
 
   const ensureVideoSource = (video: HTMLVideoElement | null, url: string) => {
@@ -790,17 +813,43 @@ function PlayPageClient() {
         if (record) {
           const targetIndex = record.index - 1;
           const targetTime = record.play_time;
+          const totalTime = record.total_time || 0;
 
           // 更新当前选集索引
           if (targetIndex !== currentEpisodeIndex) {
             setCurrentEpisodeIndex(targetIndex);
           }
 
-          // 保存待恢复的播放进度，待播放器就绪后跳转
-          resumeTimeRef.current = targetTime;
+          // 进度极小（< 60 秒）或已看到接近结尾（>= 95%）：不出选择框，直接从头播
+          if (
+            targetTime < 60 ||
+            (totalTime > 0 && targetTime >= totalTime * 0.95)
+          ) {
+            resumeTimeRef.current = 0;
+            resumeGateRef.current = 'ready';
+            void updateVideoUrl(
+              detailRef.current,
+              currentEpisodeIndexRef.current,
+            );
+            return;
+          }
+
+          // 有实质进度：先让用户选“继续播放 / 重头播放”，选完再走贴片
+          resumeGateRef.current = 'waiting';
+          setResumeChoice({ time: targetTime, total: totalTime });
+        } else {
+          // 没有进度记录：直接播
+          resumeGateRef.current = 'ready';
+          void updateVideoUrl(
+            detailRef.current,
+            currentEpisodeIndexRef.current,
+          );
         }
       } catch (err) {
         console.error('读取播放记录失败:', err);
+        // 读记录失败也不要卡住播放
+        resumeGateRef.current = 'ready';
+        void updateVideoUrl(detailRef.current, currentEpisodeIndexRef.current);
       }
     };
 
@@ -1959,6 +2008,44 @@ function PlayPageClient() {
                     >
                       观看广告后开始播放
                     </button>
+                  </div>
+                )}
+
+                {/* 续播选择：有进度时先选“继续播放 / 重头播放”，再走贴片 */}
+                {resumeChoice && (
+                  <div className='absolute inset-0 z-[600] flex items-center justify-center rounded-xl bg-black/85 p-4'>
+                    <div className='w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900'>
+                      <div className='flex items-start justify-between gap-4'>
+                        <h3 className='text-lg font-bold text-gray-900 dark:text-white'>
+                          上次看到 {formatTime(resumeChoice.time)}
+                          {resumeChoice.total > 0
+                            ? ` / ${formatTime(resumeChoice.total)}`
+                            : ''}
+                        </h3>
+                        <button
+                          onClick={() => handleResumeChoice(true)}
+                          aria-label='关闭'
+                          className='shrink-0 rounded-lg px-2 py-1 text-lg leading-none text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <p className='mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300'>
+                        要从上次的进度继续看，还是从头开始？
+                      </p>
+                      <button
+                        onClick={() => handleResumeChoice(true)}
+                        className='mt-5 w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-green-700'
+                      >
+                        继续播放 {formatTime(resumeChoice.time)}
+                      </button>
+                      <button
+                        onClick={() => handleResumeChoice(false)}
+                        className='mt-2 w-full rounded-lg border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:border-zinc-700 dark:text-gray-200 dark:hover:bg-zinc-800'
+                      >
+                        重头播放
+                      </button>
+                    </div>
                   </div>
                 )}
 
