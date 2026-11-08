@@ -9,6 +9,7 @@ import { Heart } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 
+import { playWithPrerollAd } from '@/lib/ads';
 import { loadDanmuku, saveDanmuku } from '@/lib/danmuku.client';
 import {
   deleteFavorite,
@@ -141,6 +142,9 @@ function PlayPageClient() {
 
   // 视频播放地址
   const [videoUrl, setVideoUrl] = useState('');
+
+  // 贴片广告被拒（用户取消/提前关闭）后，在播放器位置显示重试入口
+  const [gateDenied, setGateDenied] = useState(false);
 
   // 总集数
   const totalEpisodes = detail?.episodes?.length || 0;
@@ -401,8 +405,8 @@ function PlayPageClient() {
     return Math.round(score * 100) / 100; // 保留两位小数
   };
 
-  // 更新视频地址
-  const updateVideoUrl = (
+  // 更新视频地址（点播前贴片：每次点播先看广告，看完才放行；拒绝则不设置地址）
+  const updateVideoUrl = async (
     detailData: SearchResult | null,
     episodeIndex: number
   ) => {
@@ -416,8 +420,19 @@ function PlayPageClient() {
     }
     const newUrl = detailData?.episodes[episodeIndex] || '';
     if (newUrl !== videoUrl) {
+      const allowed = await playWithPrerollAd();
+      if (!allowed) {
+        setGateDenied(true);
+        return;
+      }
+      setGateDenied(false);
       setVideoUrl(newUrl);
     }
+  };
+
+  // 用户取消贴片广告后，点重试入口重新触发
+  const retryPlayback = () => {
+    void updateVideoUrl(detail, currentEpisodeIndex);
   };
 
   const ensureVideoSource = (video: HTMLVideoElement | null, url: string) => {
@@ -1931,6 +1946,21 @@ function PlayPageClient() {
                   ref={artRef}
                   className='bg-black w-full h-full rounded-xl overflow-hidden shadow-lg'
                 ></div>
+
+                {/* 贴片广告被拒后，在播放器位置显示重试入口 */}
+                {gateDenied && (
+                  <div className='absolute inset-0 z-[600] flex flex-col items-center justify-center gap-4 rounded-xl bg-black/85'>
+                    <p className='px-6 text-center text-sm text-white/80'>
+                      观看一段广告后开始播放本集
+                    </p>
+                    <button
+                      onClick={retryPlayback}
+                      className='rounded-lg bg-green-600 px-6 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-green-700'
+                    >
+                      观看广告后开始播放
+                    </button>
+                  </div>
+                )}
 
                 {/* 换源加载蒙层 */}
                 {isVideoLoading && (
