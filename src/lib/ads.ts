@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 /**
  * AdMob 广告封装（APK 用）
  *
