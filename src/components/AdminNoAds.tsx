@@ -48,12 +48,12 @@ export default function AdminNoAdsModal({
         </p>
         {notice ? (
           <>
-            <p className='mt-3 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400'>
+            <p className='mt-3 rounded-md bg-sky-50 p-3 text-sm text-sky-700 dark:bg-sky-900/20 dark:text-sky-400'>
               {notice}
             </p>
             <button
               onClick={onClose}
-              className='mt-5 w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-green-700'
+              className='mt-5 w-full rounded-lg bg-sky-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-sky-700'
             >
               完成
             </button>
@@ -69,13 +69,13 @@ export default function AdminNoAdsModal({
               }}
               placeholder='请输入管理员口令'
               autoFocus
-              className='mt-4 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
+              className='mt-4 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
             />
             {error && <p className='mt-2 text-sm text-red-500'>{error}</p>}
             <button
               onClick={submit}
               disabled={!password}
-              className='mt-5 w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50'
+              className='mt-5 w-full rounded-lg bg-sky-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50'
             >
               确认
             </button>

@@ -78,7 +78,7 @@ export default function ArtPlayer({
       url,
       autoplay: true,
       volume: 0.7,
-      theme: '#22c55e',
+      theme: '#0EA5E9',
       playbackRate: true,
       fullscreen: true,
       fullscreenWeb: true,
@@ -292,7 +292,7 @@ export default function ArtPlayer({
               setError(null);
               setRetryKey((k) => k + 1);
             }}
-            className="px-4 py-2 bg-green-600 rounded-lg hover:bg-green-700"
+            className="px-4 py-2 bg-sky-600 rounded-lg hover:bg-sky-700"
           >
             重试
           </button>

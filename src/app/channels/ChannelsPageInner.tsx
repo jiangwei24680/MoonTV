@@ -247,7 +247,7 @@ export default function ChannelsPageInner() {
               onClick={() => switchCountry(c.code)}
               className={`flex-none px-3 py-1.5 text-sm rounded-full border ${
                 country === c.code
-                  ? 'bg-green-600 text-white border-green-600'
+                  ? 'bg-sky-600 text-white border-sky-600'
                   : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600'
               }`}
             >
@@ -291,7 +291,7 @@ export default function ChannelsPageInner() {
               />
               <button
                 onClick={addChannel}
-                className="flex-none px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="flex-none px-4 py-2 text-sm bg-sky-600 text-white rounded-lg hover:bg-sky-700"
               >
                 添加
               </button>
@@ -333,7 +333,7 @@ export default function ChannelsPageInner() {
                 <li
                   key={`${ch.url}-${idx}`}
                   className={`cursor-pointer px-2 py-1 rounded flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 ${
-                    currentChannel?.url === ch.url ? 'bg-green-100 dark:bg-green-800' : ''
+                    currentChannel?.url === ch.url ? 'bg-sky-100 dark:bg-sky-800' : ''
                   }`}
                   onClick={() => play(ch)}
                   title={search.trim() ? ch.group : undefined}

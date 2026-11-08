@@ -93,9 +93,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="apk-v${{ github.run_number }}"
-          cp android/app/build/outputs/apk/debug/app-debug.apk MoonTV.apk
-          gh release create "$TAG" MoonTV.apk \
-            --title "MoonTV APK $TAG" \
+          cp android/app/build/outputs/apk/debug/app-debug.apk kyrinMedia.apk
+          gh release create "$TAG" kyrinMedia.apk \
+            --title "kyrinMedia APK $TAG" \
             --notes "自动构建（${{ github.sha }})"
 
       - name: 回写 app-version.json（供 App 内更新检查）
@@ -107,7 +107,7 @@ jobs:
           info = {
               "versionCode": run_number,
               "versionName": f"1.0.{run_number}",
-              "apkUrl": f"https://github.com/jiangwei24680/MoonTV/releases/download/{tag}/MoonTV.apk",
+              "apkUrl": f"https://github.com/jiangwei24680/MoonTV/releases/download/{tag}/kyrinMedia.apk",
               "changelog": f"版本 {tag} 自动构建",
           }
           with open("public/app-version.json", "w") as f:
@@ -123,6 +123,6 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MoonTV-debug-apk
-          path: MoonTV.apk
+          name: kyrinMedia-debug-apk
+          path: kyrinMedia.apk
           if-no-files-found: error

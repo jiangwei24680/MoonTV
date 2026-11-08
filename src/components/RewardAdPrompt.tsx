@@ -49,7 +49,7 @@ export default function RewardAdPrompt() {
         </p>
         <button
           onClick={() => choose(true)}
-          className='mt-5 w-full rounded-lg bg-green-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-green-700'
+          className='mt-5 w-full rounded-lg bg-sky-600 px-4 py-3 text-sm font-medium text-white shadow-md transition-all hover:bg-sky-700'
         >
           观看广告
         </button>
