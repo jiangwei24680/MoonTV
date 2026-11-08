@@ -2,7 +2,8 @@
 1. 添加 REQUEST_INSTALL_PACKAGES 权限（应用内安装 APK 需要）
 2. 添加 FileProvider（Android 7+ 安装 APK 必须走 FileProvider）
 3. 添加 AdMob 应用 ID（Google Mobile Ads SDK 要求，否则 App 启动时初始化会崩溃；
-   目前是 Google 官方测试应用 ID，正式上线换成自己 AdMob 后台的应用 ID）
+   已是真实应用 ID（AdMob 后台 MoonTV 应用，发布商 pub-7387037413649666）；
+   注意：广告单元仍是测试 ID，见 src/lib/ads.ts）
 用法: python3 patch_manifest.py android/app/src/main/AndroidManifest.xml
 """
 import sys
@@ -60,7 +61,7 @@ def main():
         print("FileProvider exists")
 
     # 3. AdMob 应用 ID
-    admob_app_id = "ca-app-pub-3940256099942544~3347511713"  # Google 官方测试应用 ID，正式上线替换
+    admob_app_id = "ca-app-pub-7387037413649666~7723164968"  # 真实应用 ID（AdMob 后台 MoonTV 应用）
     has_admob = any(
         e.get(qname("name")) == "com.google.android.gms.ads.APPLICATION_ID"
         and e.get(qname("value")) == admob_app_id
