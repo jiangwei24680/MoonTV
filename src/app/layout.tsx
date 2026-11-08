@@ -9,10 +9,11 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import { getConfig } from '@/lib/config';
 import RuntimeConfig from '@/lib/runtime';
 
+import CapacitorInit from '../components/CapacitorInit';
 import { GlobalErrorIndicator } from '../components/GlobalErrorIndicator';
+import RewardAdPrompt from '../components/RewardAdPrompt';
 import { SiteProvider } from '../components/SiteProvider';
 import { ThemeProvider } from '../components/ThemeProvider';
-import CapacitorInit from '../components/CapacitorInit';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -126,6 +127,7 @@ export default async function RootLayout({
         >
           <SiteProvider siteName={siteName} announcement={announcement}>
             <CapacitorInit />
+            <RewardAdPrompt />
             {children}
             <GlobalErrorIndicator />
           </SiteProvider>
