@@ -2,6 +2,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import PageLayout from '@/components/PageLayout'
 import ArtPlayer from '@/components/ArtPlayer'
+import {
+  COUNTRIES,
+  DEFAULT_COUNTRY,
+  COUNTRY_LS_KEY,
+  FAST_GROUP,
+  FMM_SOURCE,
+  cacheKey,
+  countryByCode,
+  sortGroupNames,
+} from '@/lib/live-sources'
 
 interface Channel {
   name: string
@@ -12,13 +22,6 @@ interface Channel {
 
 /** m3u8 中转 Worker（moontvphp）：.php 这类浏览器直连会被 CORS 拦截的地址走它代理 */
 const M3U8_PROXY = 'https://moontvphp.hookjune.workers.dev'
-/** 频道缓存版本：playlist.m3u 有大改时把数字 +1，用户下次打开即刷新 */
-const CACHE_VERSION = 3
-const LS_KEY = `live-channels-v${CACHE_VERSION}`
-/** 中国频道源（iptv-org 按国家分类，远小于全库） */
-const CN_SOURCE = 'https://iptv-org.github.io/iptv/countries/cn.m3u'
-/** fanmingming 央视卫视源（华数/移动 OTT：47 央视 + 53 卫视，国内稳定） */
-const FMM_SOURCE = 'https://raw.githubusercontent.com/fanmingming/live/main/tv/m3u/itv.m3u'
 
 export default function ChannelsPageInner() {
   const [channelsByGroup, setChannelsByGroup] = useState<Record<string, Channel[]>>({})
@@ -28,13 +31,30 @@ export default function ChannelsPageInner() {
   const [currentChannel, setCurrentChannel] = useState<Channel | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [country, setCountry] = useState(DEFAULT_COUNTRY)
+  const [countryReady, setCountryReady] = useState(false)
+
+  // 恢复上次选的国家（挂载时读一次，避免 SSR 水合不一致）
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(COUNTRY_LS_KEY)
+      if (saved && COUNTRIES.some((c) => c.code === saved)) setCountry(saved)
+    } catch {
+      /* 忽略 */
+    }
+    setCountryReady(true)
+  }, [])
 
   useEffect(() => {
+    if (!countryReady) return
     let cancelled = false
+    const cfg = countryByCode(country)
+    const key = cacheKey(country)
+    setLoading(true)
 
-    // 先读缓存秒开，再后台刷新
+    // 先读本国缓存秒开，再后台刷新
     try {
-      const cached = localStorage.getItem(LS_KEY)
+      const cached = localStorage.getItem(key)
       if (cached) {
         setGrouped(JSON.parse(cached) as Channel[])
         setLoading(false)
@@ -43,42 +63,56 @@ export default function ChannelsPageInner() {
       /* 缓存损坏则重新拉取 */
     }
 
-    // 本地与远程各自独立请求，互不拖累
-    Promise.allSettled([
-      fetch('/channels/playlist.m3u').then((r) => {
-        if (!r.ok) throw new Error(`local ${r.status}`)
-        return r.text()
-      }),
-      fetch(CN_SOURCE).then((r) => {
-        if (!r.ok) throw new Error(`remote ${r.status}`)
-        return r.text()
-      }),
-      fetch(FMM_SOURCE).then((r) => {
-        if (!r.ok) throw new Error(`fmm ${r.status}`)
-        return r.text()
-      }),
-    ]).then(([localRes, remoteRes, fmmRes]) => {
-      if (cancelled) return
-      const texts: string[] = []
-      if (localRes.status === 'fulfilled') {
-        texts.push(localRes.value)
-      } else {
-        console.warn('本地 playlist 加载失败:', localRes.reason)
+    // 各源各自独立请求，互不拖累；FAST 源先解析，去重时优先归入 FAST 专区
+    const jobs: Promise<{ text: string; groupOverride?: string }>[] = []
+    if (cfg.fast) {
+      for (const f of cfg.fast) {
+        jobs.push(
+          fetch(f.url).then((r) => {
+            if (!r.ok) throw new Error(`fast ${f.label} ${r.status}`)
+            return r.text().then((text) => ({ text, groupOverride: FAST_GROUP }))
+          }),
+        )
       }
-      if (remoteRes.status === 'fulfilled') {
-        texts.push(remoteRes.value)
-      } else {
-        console.warn('远程频道源加载失败:', remoteRes.reason)
-      }
-      if (fmmRes.status === 'fulfilled') {
-        texts.push(fmmRes.value)
-      } else {
-        console.warn('fanmingming 频道源加载失败:', fmmRes.reason)
-      }
+    }
+    if (cfg.localPlaylist) {
+      jobs.push(
+        fetch('/channels/playlist.m3u').then((r) => {
+          if (!r.ok) throw new Error(`local ${r.status}`)
+          return r.text().then((text) => ({ text }))
+        }),
+      )
+    }
+    for (const url of cfg.sources) {
+      jobs.push(
+        fetch(url).then((r) => {
+          if (!r.ok) throw new Error(`remote ${r.status}`)
+          return r.text().then((text) => ({ text }))
+        }),
+      )
+    }
+    if (cfg.fanmingming) {
+      jobs.push(
+        fetch(FMM_SOURCE).then((r) => {
+          if (!r.ok) throw new Error(`fmm ${r.status}`)
+          return r.text().then((text) => ({ text }))
+        }),
+      )
+    }
 
-      if (texts.length > 0) {
-        const parsed = parseM3u(texts.join('\n'))
-        // 按播放地址去重（本地与远程常有重叠）
+    Promise.allSettled(jobs).then((results) => {
+      if (cancelled) return
+      const parsed: Channel[] = []
+      results.forEach((res) => {
+        if (res.status === 'fulfilled') {
+          parsed.push(...parseM3u(res.value.text, res.value.groupOverride))
+        } else {
+          console.warn('频道源加载失败:', res.reason)
+        }
+      })
+
+      if (parsed.length > 0) {
+        // 按播放地址去重（各源常有重叠）
         const seen = new Set<string>()
         const deduped = parsed.filter((ch) => {
           if (seen.has(ch.url)) return false
@@ -87,12 +121,12 @@ export default function ChannelsPageInner() {
         })
         setGrouped(deduped)
         try {
-          localStorage.setItem(LS_KEY, JSON.stringify(deduped))
+          localStorage.setItem(key, JSON.stringify(deduped))
         } catch {
           /* 配额满则跳过缓存 */
         }
         setErrorMessage(null)
-      } else if (!localStorage.getItem(LS_KEY)) {
+      } else if (!localStorage.getItem(key)) {
         setErrorMessage('频道列表加载失败，请检查网络后重试')
       }
       setLoading(false)
@@ -101,7 +135,7 @@ export default function ChannelsPageInner() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [country, countryReady])
 
   const setGrouped = (channels: Channel[]) => {
     const grouped: Record<string, Channel[]> = {}
@@ -110,11 +144,14 @@ export default function ChannelsPageInner() {
       if (!grouped[group]) grouped[group] = []
       grouped[group].push(ch)
     }
-    setChannelsByGroup(grouped)
-    setSelectedGroup((prev) => (prev && grouped[prev] ? prev : Object.keys(grouped)[0] || null))
+    // 分组按固定顺序排（News → Sports → … → General → FAST 专区 → 其他）
+    const ordered: Record<string, Channel[]> = {}
+    for (const g of sortGroupNames(Object.keys(grouped))) ordered[g] = grouped[g]
+    setChannelsByGroup(ordered)
+    setSelectedGroup((prev) => (prev && ordered[prev] ? prev : Object.keys(ordered)[0] || null))
   }
 
-  const parseM3u = (text: string): Channel[] => {
+  const parseM3u = (text: string, groupOverride?: string): Channel[] => {
     const lines = text.trim().split(/\r?\n/)
     const result: Channel[] = []
     let current: Partial<Channel> = {}
@@ -129,7 +166,7 @@ export default function ChannelsPageInner() {
 
         current.name = nameMatch?.[1] || commaName || '自定义频道'
         current.logo = logoMatch?.[1]
-        current.group = groupMatch?.[1]
+        current.group = groupOverride || groupMatch?.[1]
       } else if (trimmed && !trimmed.startsWith('#')) {
         current.url = trimmed
         if (current.name && current.url) result.push(current as Channel)
@@ -150,6 +187,24 @@ export default function ChannelsPageInner() {
     }
     return channelsByGroup[selectedGroup || ''] || []
   }, [search, channelsByGroup, selectedGroup])
+
+  const totalChannels = useMemo(
+    () => Object.values(channelsByGroup).reduce((n, list) => n + list.length, 0),
+    [channelsByGroup],
+  )
+
+  const switchCountry = (code: string) => {
+    if (code === country) return
+    try {
+      localStorage.setItem(COUNTRY_LS_KEY, code)
+    } catch {
+      /* 忽略 */
+    }
+    setCountry(code)
+    setSearch('')
+    setCurrentChannel(null)
+    setSelectedGroup(null)
+  }
 
   const play = (channel: Channel) => {
     setErrorMessage(null)
@@ -173,7 +228,7 @@ export default function ChannelsPageInner() {
     setChannelsByGroup({})
     setSelectedGroup(null)
     setCurrentChannel(null)
-    localStorage.removeItem(LS_KEY)
+    localStorage.removeItem(cacheKey(country))
     setErrorMessage(null)
   }
 
@@ -184,6 +239,28 @@ export default function ChannelsPageInner() {
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 sm:mb-4">
           kyrinMedia 直播
         </h1>
+        {/* 国家选择器：国旗 + 国家名，横向滑动，默认中国，选择记在 localStorage */}
+        <div className="flex gap-2 overflow-x-auto pb-1 mb-2 flex-none">
+          {COUNTRIES.map((c) => (
+            <button
+              key={c.code}
+              onClick={() => switchCountry(c.code)}
+              className={`flex-none px-3 py-1.5 text-sm rounded-full border ${
+                country === c.code
+                  ? 'bg-green-600 text-white border-green-600'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600'
+              }`}
+            >
+              {c.flag} {c.name}
+            </button>
+          ))}
+        </div>
+        {totalChannels > 0 && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex-none">
+            {countryByCode(country).name} · 共 {totalChannels} 个频道
+            {country === 'us' ? ' · 美国 FAST 专区需海外网络' : ''}
+          </p>
+        )}
         <div className="flex-1 min-h-0 flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-hidden">
           {/* 播放器：手机在上（固定16:9），桌面在右 */}
           <div className="order-1 sm:order-2 flex-none sm:flex-1 flex flex-col min-h-0 sm:h-full sm:overflow-hidden">
