@@ -3,11 +3,13 @@
 'use client';
 
 import Artplayer from 'artplayer';
+import artplayerPluginDanmuku from 'artplayer-plugin-danmuku';
 import Hls from 'hls.js';
 import { Heart } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 
+import { loadDanmuku, saveDanmuku } from '@/lib/danmuku.client';
 import {
   deleteFavorite,
   deletePlayRecord,
@@ -145,6 +147,8 @@ function PlayPageClient() {
 
   // 用于记录是否需要在播放器 ready 后跳转到指定进度
   const resumeTimeRef = useRef<number | null>(null);
+  // 播放记录是否已读过一次（豆瓣入口 source/id 是搜索完成后才有，需等其就绪再读）
+  const historyLoadedRef = useRef(false);
   // 上次使用的音量，默认 0.7
   const lastVolumeRef = useRef<number>(0.7);
   // 上次使用的播放速率，默认 1.0
@@ -754,11 +758,14 @@ function PlayPageClient() {
     initAll();
   }, []);
 
-  // 播放记录处理
+  // 播放记录处理：source/id 就绪后读一次记录续播。
+  // 注意豆瓣入口进页面时 URL 里没有 source/id，要等搜索完成、source/id
+  // 被赋值后才读得到记录，所以不能只在挂载时跑一次。
   useEffect(() => {
-    // 仅在初次挂载时检查播放记录
+    if (historyLoadedRef.current) return;
     const initFromHistory = async () => {
       if (!currentSource || !currentId) return;
+      historyLoadedRef.current = true;
 
       try {
         const allRecords = await getAllPlayRecords();
@@ -783,7 +790,7 @@ function PlayPageClient() {
     };
 
     initFromHistory();
-  }, []);
+  }, [currentSource, currentId]);
 
   // 跳过片头片尾配置处理
   useEffect(() => {
@@ -1220,6 +1227,18 @@ function PlayPageClient() {
           videoUrl
         );
       }
+      // 换集后重载该集的本地弹幕（switch 不重建播放器，需手动换弹幕源）
+      try {
+        const danmukuPlugin =
+          artPlayerRef.current?.plugins?.artplayerPluginDanmuku;
+        if (danmukuPlugin) {
+          danmukuPlugin.load(
+            loadDanmuku(currentSource, currentId, currentEpisodeIndex)
+          );
+        }
+      } catch {
+        /* 弹幕重载失败不影响播放 */
+      }
       return;
     }
 
@@ -1265,6 +1284,78 @@ function PlayPageClient() {
         airplay: true,
         theme: '#22c55e',
         lang: 'zh-cn',
+        // 一键跳过片头/片尾 + 本地弹幕（仅点播；直播无总时长，不显示）
+        ...(searchParams.get('type') === 'live'
+          ? {}
+          : {
+              controls: [
+                {
+                  name: 'skipIntro',
+                  position: 'right',
+                  html: '跳过片头',
+                  tooltip: '快进 85 秒',
+                  click: function () {
+                    const video = artPlayerRef.current
+                      ?.video as HTMLVideoElement | undefined;
+                    if (!video || !isFinite(video.duration)) return;
+                    video.currentTime = Math.min(
+                      video.duration - 1,
+                      video.currentTime + 85
+                    );
+                  },
+                },
+                {
+                  name: 'skipOutro',
+                  position: 'right',
+                  html: '跳到片尾',
+                  tooltip: '跳到片尾前 90 秒',
+                  click: function () {
+                    const video = artPlayerRef.current
+                      ?.video as HTMLVideoElement | undefined;
+                    if (
+                      !video ||
+                      !isFinite(video.duration) ||
+                      video.duration <= 95
+                    )
+                      return;
+                    video.currentTime = Math.max(0, video.duration - 90);
+                  },
+                },
+              ],
+              plugins: [
+                artplayerPluginDanmuku({
+                  danmuku: loadDanmuku(
+                    currentSource,
+                    currentId,
+                    currentEpisodeIndex
+                  ),
+                  speed: 5,
+                  opacity: 0.85,
+                  fontSize: 16,
+                  color: '#ffffff',
+                  antiOverlap: true,
+                  emitter: true,
+                  maxLength: 100,
+                  beforeEmit: (danmu) => {
+                    saveDanmuku(
+                      currentSourceRef.current,
+                      currentIdRef.current,
+                      currentEpisodeIndexRef.current,
+                      {
+                        text: danmu.text,
+                        time:
+                          danmu.time ??
+                          artPlayerRef.current?.currentTime ??
+                          0,
+                        color: danmu.color,
+                        mode: danmu.mode,
+                      }
+                    );
+                    return true;
+                  },
+                }),
+              ],
+            }),
         hotkey: false,
         fastForward: true,
         autoOrientation: true,
@@ -1283,15 +1374,21 @@ function PlayPageClient() {
             if (video.hls) {
               video.hls.destroy();
             }
+            const isLivePlay = searchParams.get('type') === 'live';
             const hls = new Hls({
               debug: false, // 关闭日志
               enableWorker: true, // WebWorker 解码，降低主线程压力
-              lowLatencyMode: true, // 开启低延迟 LL-HLS
+              lowLatencyMode: isLivePlay, // 低延迟只对直播开启，点播关闭以减少卡顿
 
               /* 缓冲/内存相关 */
-              maxBufferLength: 30, // 前向缓冲最大 30s，过大容易导致高延迟
+              maxBufferLength: isLivePlay ? 30 : 60, // 点播前向缓冲 60s 抗抖动；直播 30s 保低延迟
               backBufferLength: 30, // 仅保留 30s 已播放内容，避免内存占用
               maxBufferSize: 60 * 1000 * 1000, // 约 60MB，超出后触发清理
+
+              /* 失败重试：源站不稳时多试几次再报错 */
+              manifestLoadingMaxRetry: 3,
+              levelLoadingMaxRetry: 6,
+              fragLoadingMaxRetry: 6,
 
               /* 自定义loader */
               loader: blockAdEnabledRef.current
@@ -1464,6 +1561,12 @@ function PlayPageClient() {
             }
             artPlayerRef.current.currentTime = target;
             console.log('成功恢复播放进度到:', resumeTimeRef.current);
+            // 提示用户已续播（延迟一点，避免被下面 setTimeout(0) 的清空 notice 覆盖）
+            setTimeout(() => {
+              if (artPlayerRef.current) {
+                artPlayerRef.current.notice.show = `已从上次进度 ${formatTime(target)} 继续播放`;
+              }
+            }, 300);
           } catch (err) {
             console.warn('恢复播放进度失败:', err);
           }
