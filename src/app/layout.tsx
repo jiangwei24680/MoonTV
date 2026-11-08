@@ -19,7 +19,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 // 动态生成 metadata，支持配置更新后的标题变化
 export async function generateMetadata(): Promise<Metadata> {
-  let siteName = process.env.SITE_NAME || 'kyrinMedia';
+  let siteName = process.env.SITE_NAME || 'MoonTV';
   if (
     process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'd1' &&
     process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'upstash'
@@ -45,7 +45,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let siteName = process.env.SITE_NAME || 'kyrinMedia';
+  let siteName = process.env.SITE_NAME || 'MoonTV';
   let announcement =
     process.env.ANNOUNCEMENT ||
     '本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。';
@@ -56,6 +56,8 @@ export default async function RootLayout({
     process.env.NEXT_PUBLIC_DISABLE_YELLOW_FILTER === 'true';
   const adsenseClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT || '';
   const adsenseSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT || '';
+  // 网页端点播前贴片用的 Ad Manager 视频广告 tag（IMA）；未配置时前端用 Google 官方测试 tag
+  const imaAdTagUrl = process.env.NEXT_PUBLIC_IMA_AD_TAG_URL || '';
   let customCategories =
     (RuntimeConfig as any).custom_category?.map((category: any) => ({
       name: 'name' in category ? category.name : '',
@@ -90,6 +92,7 @@ export default async function RootLayout({
     DOUBAN_PROXY: doubanProxy,
     ADSENSE_CLIENT: adsenseClient,
     ADSENSE_SLOT: adsenseSlot,
+    IMA_AD_TAG_URL: imaAdTagUrl,
     DISABLE_YELLOW_FILTER: disableYellowFilter,
     CUSTOM_CATEGORIES: customCategories,
   };
