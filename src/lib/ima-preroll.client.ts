@@ -73,6 +73,7 @@ function loadImaSdk(): Promise<boolean> {
  */
 export async function playImaPreroll(
   container: HTMLElement | null,
+  opts?: { mutedAutoplay?: boolean },
 ): Promise<ImaPrerollResult> {
   if (!container || typeof window === 'undefined') return 'failed';
   const sdkOk = await loadImaSdk();
@@ -199,7 +200,8 @@ export async function playImaPreroll(
       adsRequest.nonLinearAdSlotWidth = container.clientWidth || 640;
       adsRequest.nonLinearAdSlotHeight = 150;
       adsRequest.setAdWillAutoPlay(true);
-      adsRequest.setAdWillPlayMuted(false);
+      // 开屏广告在打开时没有用户手势，只能静音自动播放；点播贴片在点击手势里，可带声音
+      adsRequest.setAdWillPlayMuted(opts?.mutedAutoplay ? true : false);
       adsLoader.requestAds(adsRequest);
     } catch (err) {
       console.warn('[ima] 贴片初始化失败，放行播放', err);
