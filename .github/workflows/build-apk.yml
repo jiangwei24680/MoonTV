@@ -1,3 +1,4 @@
+# 2026-11-18 手动触发：AdMob 换真实单元后重打 APK
 name: Build Android APK
 
 # App 壳直接加载线上站，只有套壳相关文件变化时才需要重新打 APK
