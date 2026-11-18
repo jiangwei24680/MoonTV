@@ -9,14 +9,13 @@ import { playImaPreroll } from '@/lib/ima-preroll.client';
  * - 应用 ID 已是真实 ID（AdMob 账号美国发布商 pub-7387037413649666，
  *   应用 kyrinMedia 已登记：ca-app-pub-7387037413649666~7723164968；
  *   该 ID 在 native-updater/patch_manifest.py 里写入 AndroidManifest）。
- * - 横幅 / 插屏广告单元仍是 Google 官方测试 ID（真实广告单元还没建）：
- *   横幅 ca-app-pub-3940256099942544/6300978111
- *   插屏 ca-app-pub-3940256099942544/1033173712
+ * - 横幅 / 插屏广告单元已是真实 ID（2026-11-18 AdMob 账号获批后建）：
+ *   横幅 ca-app-pub-7387037413649666/7583877822
+ *   插屏 ca-app-pub-7387037413649666/1091842852
  * - 点播前贴片用插件 @capacitor-community/admob 自带的激励插屏
  *   prepareRewardInterstitialAd / showRewardInterstitialAd（已核实支持），
- *   测试单元 ID 来自 Google 官方文档：
- *   developers.google.com/admob/android/next-gen/rewarded-interstitial
- *   激励插屏 ca-app-pub-3940256099942544/5354046379
+ *   激励插屏真实 ID：
+ *   激励插屏 ca-app-pub-7387037413649666/6270796156
  * - 贴片规则：每次点播（打开播放页、切集）都先弹全屏激励插屏，看完才开始播放。
  *   弹之前先出提示页（“观看一段广告后开始播放本集”，按钮 [观看广告] / [取消]），
  *   用户点取消或提前关闭广告 → 不播放；看完广告（以获得奖励回调为准）→ 开始播放。
@@ -24,18 +23,18 @@ import { playImaPreroll } from '@/lib/ima-preroll.client';
  *   原生 App：广告加载或展示失败时不放行（必须弹出来才给看；断网/无填充时
  *   无法看片，管理员通道不受影响）。网页端走 IMA 贴片（见 ima-preroll.client），
  *   失败时放行；电视端直接放行（AdMob 不支持 Android TV）。
- * - 真实广告单元建好后：把下面三个单元 ID 换成真实的，并把 USE_TEST_ADS 改成 false；
- *   换单元 ID 时 patch_manifest.py 里的应用 ID 不用动（已是真实的）。
+ * - 2026-11-18 已换成真实单元 ID，USE_TEST_ADS 已改 false；
+ *   patch_manifest.py 里的应用 ID 不用动（已是真实的）。
  */
 
 // true = 测试广告（展示时带 Test Ad 字样，不产生收益）；正式上线改成 false 并替换下方 ID
-export const USE_TEST_ADS = true;
+export const USE_TEST_ADS = false;
 
-// Google 官方测试广告单元 ID（Android）
-export const ADMOB_BANNER_ID = 'ca-app-pub-3940256099942544/6300978111';
-export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-3940256099942544/1033173712';
+// 真实广告单元 ID（AdMob 后台 kyrinMedia，2026-11-18 建）
+export const ADMOB_BANNER_ID = 'ca-app-pub-7387037413649666/7583877822';
+export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-7387037413649666/1091842852';
 export const ADMOB_REWARDED_INTERSTITIAL_ID =
-  'ca-app-pub-3940256099942544/5354046379';
+  'ca-app-pub-7387037413649666/6270796156';
 // 真实应用 ID（AdMob 后台 kyrinMedia 应用，发布商 pub-7387037413649666），写入 AndroidManifest 用，见 native-updater/patch_manifest.py
 export const ADMOB_APP_ID = 'ca-app-pub-7387037413649666~7723164968';
 
