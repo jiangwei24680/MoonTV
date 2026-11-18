@@ -105,6 +105,8 @@ export default async function RootLayout({
           name='viewport'
           content='width=device-width, initial-scale=1.0, viewport-fit=cover'
         />
+        {/* AdSense 网站验证（发布商 pub-7387037413649666） */}
+        <meta name='google-adsense-account' content='ca-pub-7387037413649666' />
         {/* 将配置序列化后直接写入脚本，浏览器端可通过 window.RUNTIME_CONFIG 获取 */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script
