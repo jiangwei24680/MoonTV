@@ -25,14 +25,43 @@ export function isAppEnvironment(): boolean {
  * 由用户在用户菜单点击"检查 App 更新"时调用。
  */
 export async function checkAppUpdate(): Promise<void> {
+  await runUpdateCheck(false);
+}
+
+// 启动自动检查只跑一次（CapacitorInit 的 effect 在 App 冷启动时触发一次）
+let autoCheckDone = false;
+
+/**
+ * 启动时自动检查更新（CapacitorInit 调用）：无更新或失败时静默，
+ * 只有发现新版时才弹现有那套“发现新版本 vX，是否立即更新？”提示，
+ * 确认后走同一套授权 + downloadAndInstall 流程。
+ * 非 Play 安装的应用安卓不允许静默安装，下载完一定会弹系统安装界面让用户点一下“安装”。
+ */
+export async function checkAppUpdateOnLaunch(): Promise<void> {
+  if (autoCheckDone) return;
+  autoCheckDone = true;
+  await runUpdateCheck(true);
+}
+
+/**
+ * 更新检查主流程。
+ * quiet=true（启动自动检查）：无更新/失败静默返回，只有发现新版才弹提示；
+ * quiet=false（手动检查）：全程弹提示，与原来一致。
+ */
+async function runUpdateCheck(quiet: boolean): Promise<void> {
   const updater = getUpdater();
   if (!updater) return;
 
-  Swal.fire({
-    title: '正在检查更新…',
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-  });
+  if (!quiet) {
+    Swal.fire({
+      title: '正在检查更新…',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+  }
+
+  // 用户已确认更新后才置 true：quiet 模式下确认前的失败静默，确认后的失败仍要提示
+  let confirmed = false;
 
   try {
     const { versionCode } = await updater.getVersionCode();
@@ -41,7 +70,9 @@ export async function checkAppUpdate(): Promise<void> {
     const info = (await res.json()) as AppVersionInfo;
 
     if (!info.apkUrl || info.versionCode <= versionCode) {
-      Swal.fire({ icon: 'success', title: '已是最新版本', timer: 1500, showConfirmButton: false });
+      if (!quiet) {
+        Swal.fire({ icon: 'success', title: '已是最新版本', timer: 1500, showConfirmButton: false });
+      }
       return;
     }
 
@@ -56,6 +87,7 @@ export async function checkAppUpdate(): Promise<void> {
       cancelButtonText: '稍后',
     });
     if (!isConfirmed) return;
+    confirmed = true;
 
     // Android 8+ 需要"安装未知应用"授权
     try {
@@ -87,6 +119,7 @@ export async function checkAppUpdate(): Promise<void> {
     await updater.downloadAndInstall({ url: info.apkUrl });
     Swal.close();
   } catch (e: any) {
+    if (quiet && !confirmed) return;
     const msg = typeof e?.message === 'string' ? e.message : '';
     if (msg.includes('NEED_INSTALL_PERMISSION')) {
       Swal.fire({ icon: 'warning', title: '需要授权', text: '请先允许本应用"安装未知应用"。' });
