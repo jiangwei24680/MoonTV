@@ -1,3 +1,14 @@
-# 禁止所有搜索引擎爬取
+# kyrinMedia robots.txt
+# 允许搜索引擎与 Google AdSense 审核爬虫访问站内公开内容页；
+# 仅屏蔽接口、管理后台与登录页。
+User-agent: Mediapartners-Google
+Allow: /
+
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /login
+Disallow: /warning
+
+Sitemap: https://moontv.hookjune.qzz.io/sitemap.xml
