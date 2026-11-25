@@ -2,7 +2,7 @@
 
 'use client';
 
-import { Clover, Film, Home, Menu, Search, Star, Tv, Airplay } from 'lucide-react';
+import { Airplay, Clover, Film, Home, Menu, Newspaper, Search, Star, Tv } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -144,6 +144,11 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
       icon: Airplay,
       label: '直播',
       href: '/channels',
+    },
+    {
+      icon: Newspaper,
+      label: '影单',
+      href: '/articles',
     },
   ]);
 
