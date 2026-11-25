@@ -12,14 +12,17 @@ import { playImaPreroll } from '@/lib/ima-preroll.client';
  * - 横幅 / 插屏广告单元已是真实 ID（2026-11-18 AdMob 账号获批后建）：
  *   横幅 ca-app-pub-7387037413649666/7583877822
  *   插屏 ca-app-pub-7387037413649666/1091842852
- * - 点播前贴片用插件 @capacitor-community/admob 自带的激励插屏
- *   prepareRewardInterstitialAd / showRewardInterstitialAd（已核实支持），
- *   激励插屏真实 ID：
- *   激励插屏 ca-app-pub-7387037413649666/6270796156
- * - 贴片规则：每次点播（打开播放页、切集）都先弹全屏激励插屏，看完才开始播放。
- *   弹之前先出提示页（“观看一段广告后开始播放本集”，按钮 [观看广告] / [取消]），
- *   用户点取消或提前关闭广告 → 不播放；看完广告（以获得奖励回调为准）→ 开始播放。
- *   广告实际时长、几秒后可关闭由 AdMob 决定，我们控制不了精确时长。
+ * - 点播前贴片用插件 @capacitor-community/admob 自带的普通插屏
+ *   prepareInterstitial / showInterstitial（2026-11-25 起由激励插屏改来，
+ *   原因：激励插屏要先弹“观看广告 / 取消”前置确认页、且必须看完才放行，
+ *   点两道确认太烦；普通插屏 5 秒后就能点叉关掉）。
+ *   激励插屏真实 ID（ca-app-pub-7387037413649666/6270796156）保留备用，
+ *   当前贴片不再用它。
+ * - 贴片规则：每次点播（打开播放页、切集）都先弹全屏普通插屏，
+ *   用户任何时候点叉关掉都算过关，随后开始播放；只有加载/展示失败才不放行。
+ *   注意：原生层 showInterstitial 的 promise 在广告展示出来时就 resolve，
+ *   不能拿它当“看完”信号，必须等 Dismissed 事件才放行；
+ *   AdMob 全屏广告没有程序自动关闭，关闭按钮是谷歌 SDK 画的，App 关不掉。
  *   原生 App：广告加载或展示失败时不放行（必须弹出来才给看；断网/无填充时
  *   无法看片，管理员通道不受影响）。网页端走 IMA 贴片（见 ima-preroll.client），
  *   失败时放行；电视端直接放行（AdMob 不支持 Android TV）。
@@ -33,6 +36,7 @@ export const USE_TEST_ADS = false;
 // 真实广告单元 ID（AdMob 后台 kyrinMedia，2026-11-18 建）
 export const ADMOB_BANNER_ID = 'ca-app-pub-7387037413649666/7583877822';
 export const ADMOB_INTERSTITIAL_ID = 'ca-app-pub-7387037413649666/1091842852';
+// 激励插屏真实 ID（2026-11-25 起贴片改普通插屏，该单元停用、ID 保留备用，不删除）
 export const ADMOB_REWARDED_INTERSTITIAL_ID =
   'ca-app-pub-7387037413649666/6270796156';
 // 真实应用 ID（AdMob 后台 kyrinMedia 应用，发布商 pub-7387037413649666），写入 AndroidManifest 用，见 native-updater/patch_manifest.py
@@ -41,8 +45,8 @@ export const ADMOB_APP_ID = 'ca-app-pub-7387037413649666~7723164968';
 // 横幅底部留白（dp）：避开手机端 56px 高的底部导航栏
 const BANNER_BOTTOM_MARGIN = 64;
 
-// 广告展示安全超时：防止展示回调丢失时拖住播放
-const RI_SHOW_TIMEOUT_MS = 180 * 1000;
+// 插屏展示安全超时：防止展示回调丢失时拖住播放
+const INTERSTITIAL_SHOW_TIMEOUT_MS = 180 * 1000;
 
 // ---------------------------------------------------------------------------
 // 管理员免广告：本地口令校验（仅防普通用户；写在客户端代码里的口令防不住反编译）
@@ -190,145 +194,77 @@ export async function hideBanner(): Promise<void> {
 }
 
 /**
- * 插屏广告调用入口（预留，当前不在任何用户操作中途调用）。
- * 调用后先预加载再展示；未初始化或加载失败时静默跳过。
+ * 普通插屏（点播前贴片用）：预加载 → 展示 → 等用户点叉关闭（Dismissed 事件）才算过关。
+ * 返回 true = 广告已展示且用户已关闭（任何时候点叉都算过关，随后开始播放）；
+ * 返回 false = 初始化/加载/展示失败（原生端失败不放行）。
+ * 注意：原生层 showInterstitial 的 promise 在广告展示出来时就 resolve，
+ * 绝不能拿它当“看完”信号；AdMob 全屏广告也无法由 App 程序自动关闭，
+ * 关闭按钮是谷歌 SDK 画的，只能等用户点叉（普通插屏 5 秒后可关）。
  */
-export async function showInterstitial(): Promise<void> {
-  if (!isNativeApp()) return;
-  if (isAdminNoAds()) return;
+export async function showInterstitial(): Promise<boolean> {
+  if (!isNativeApp()) return false;
+  if (isAdminNoAds()) return true;
   const ok = await initAdMob();
-  if (!ok) return;
+  if (!ok) return false;
+
+  let dismissedHandle: { remove: () => Promise<void> } | null = null;
+  let failedHandle: { remove: () => Promise<void> } | null = null;
+
   try {
-    const { AdMob } = await import('@capacitor-community/admob');
+    const { AdMob, InterstitialAdPluginEvents } = await import(
+      '@capacitor-community/admob'
+    );
     await AdMob.prepareInterstitial({
       adId: ADMOB_INTERSTITIAL_ID,
       isTesting: USE_TEST_ADS,
     });
-    await AdMob.showInterstitial();
+
+    return await new Promise<boolean>((resolve) => {
+      let settled = false;
+      const cleanup = () => {
+        void dismissedHandle?.remove().catch(() => undefined);
+        void failedHandle?.remove().catch(() => undefined);
+      };
+      const finish = (value: boolean) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        cleanup();
+        resolve(value);
+      };
+      // 安全超时：防止展示回调丢失时拖住播放
+      const timer = setTimeout(
+        () => finish(false),
+        INTERSTITIAL_SHOW_TIMEOUT_MS,
+      );
+      void AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => {
+        finish(true);
+      }).then((h) => {
+        dismissedHandle = h;
+      });
+      void AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => {
+        finish(false);
+      }).then((h) => {
+        failedHandle = h;
+      });
+      // show 的 promise 在广告展示出来时即 resolve，不代表用户已关闭，
+      // 所以这里只处理 reject（展示失败），不拿 resolve 当过关信号
+      void AdMob.showInterstitial().then(
+        () => {
+          /* 已展示，等 Dismissed 事件 */
+        },
+        () => finish(false),
+      );
+    });
   } catch (err) {
     console.warn('[ads] 插屏展示失败', err);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 点播前贴片：每次点播先弹全屏激励插屏，看完才开始播放
-// ---------------------------------------------------------------------------
-
-/** 合规前置页回调：由 RewardAdPrompt 组件注册，返回用户是否接受看广告 */
-type RewardPromptHandler = () => Promise<boolean>;
-let rewardPromptHandler: RewardPromptHandler | null = null;
-
-export function setRewardPromptHandler(
-  handler: RewardPromptHandler | null,
-): void {
-  rewardPromptHandler = handler;
-}
-
-async function requestRewardPrompt(): Promise<boolean> {
-  if (!rewardPromptHandler) return false;
-  try {
-    return await rewardPromptHandler();
-  } catch {
     return false;
   }
 }
 
-let rewardedReady = false;
-let rewardedPreparePromise: Promise<boolean> | null = null;
-
-/** 预加载激励插屏（失败静默返回 false，不抛错） */
-async function prepareRewardedInterstitial(): Promise<boolean> {
-  if (rewardedReady) return true;
-  if (rewardedPreparePromise) return rewardedPreparePromise;
-  rewardedPreparePromise = (async () => {
-    try {
-      const { AdMob } = await import('@capacitor-community/admob');
-      await AdMob.prepareRewardInterstitialAd({
-        adId: ADMOB_REWARDED_INTERSTITIAL_ID,
-        isTesting: USE_TEST_ADS,
-      });
-      rewardedReady = true;
-      return true;
-    } catch (err) {
-      console.warn('[ads] 激励插屏预加载失败', err);
-      return false;
-    } finally {
-      rewardedPreparePromise = null;
-    }
-  })();
-  return rewardedPreparePromise;
-}
-
-type RewardedInterstitialResult = 'granted' | 'closed' | 'failed';
-
-/**
- * 展示已预加载的激励插屏。
- * 以“获得奖励”回调为准：show 的 promise resolve 或 Rewarded 事件任一先到
- * 即算看完（granted）；用户提前关闭且未获奖励为 closed；展示失败为 failed。
- */
-async function showRewardedInterstitial(): Promise<RewardedInterstitialResult> {
-  const { AdMob, RewardInterstitialAdPluginEvents } = await import(
-    '@capacitor-community/admob'
-  );
-  let granted = false;
-  let settled = false;
-  let rewardedHandle: { remove: () => Promise<void> } | null = null;
-  let dismissedHandle: { remove: () => Promise<void> } | null = null;
-  let failedHandle: { remove: () => Promise<void> } | null = null;
-
-  const cleanup = () => {
-    rewardedReady = false;
-    void rewardedHandle?.remove().catch(() => undefined);
-    void dismissedHandle?.remove().catch(() => undefined);
-    void failedHandle?.remove().catch(() => undefined);
-  };
-
-  return new Promise<RewardedInterstitialResult>((resolve) => {
-    const finish = (value: RewardedInterstitialResult) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      cleanup();
-      resolve(value);
-    };
-    // 安全超时：防止展示回调丢失时拖住播放
-    const timer = setTimeout(
-      () => finish(granted ? 'granted' : 'failed'),
-      RI_SHOW_TIMEOUT_MS,
-    );
-    void AdMob.addListener(
-      RewardInterstitialAdPluginEvents.Rewarded,
-      () => {
-        granted = true;
-      },
-    ).then((h) => {
-      rewardedHandle = h;
-    });
-    void AdMob.addListener(
-      RewardInterstitialAdPluginEvents.Dismissed,
-      () => {
-        finish(granted ? 'granted' : 'closed');
-      },
-    ).then((h) => {
-      dismissedHandle = h;
-    });
-    void AdMob.addListener(
-      RewardInterstitialAdPluginEvents.FailedToShow,
-      () => {
-        finish('failed');
-      },
-    ).then((h) => {
-      failedHandle = h;
-    });
-    void AdMob.showRewardInterstitialAd().then(
-      () => {
-        granted = true;
-        finish('granted');
-      },
-      () => finish('failed'),
-    );
-  });
-}
+// ---------------------------------------------------------------------------
+// 点播前贴片：每次点播先弹全屏普通插屏，用户点叉关闭即放行
+// ---------------------------------------------------------------------------
 
 let prerollInFlight: Promise<boolean> | null = null;
 
@@ -336,11 +272,11 @@ let prerollInFlight: Promise<boolean> | null = null;
  * 点播前贴片主入口：每次点播（打开播放页、切集、自动连播）都先过广告关。
  * - 管理员免广告：直接放行。
  * - 电视端（isTV）：直接放行（AdMob 不支持 Android TV，没有广告可弹）。
- * - 原生 App：弹全屏激励插屏，看完才放行；加载/展示失败时不放行。
+ * - 原生 App：弹全屏普通插屏，用户点叉关闭即放行；加载/展示失败时不放行。
  * - 网页端：走 IMA HTML5 贴片（Ad Manager 视频广告）；广告播完放行，
  *   请求失败或无 tag 时放行（不要堵死网页用户，等真实 tag 配好再严格）。
  * 参数 videoWrap：网页端 IMA 贴片的挂载容器（播放器外层 relative 容器）；
- * 原生端忽略。返回 true = 可以开始播放；false = 用户取消或提前关闭，不播放。
+ * 原生端忽略。返回 true = 可以开始播放；false = 广告加载/展示失败，不播放。
  */
 export async function playWithPrerollAd(
   videoWrap?: HTMLElement | null,
@@ -361,22 +297,14 @@ export async function playWithPrerollAd(
       }
       return true;
     }
-    // 原生端：激励插屏，失败不放行
+    // 原生端：普通插屏，用户点叉关闭即放行；加载/展示失败不放行
     try {
-      const ok = await initAdMob();
-      if (!ok) return false;
-      const prepared = await prepareRewardedInterstitial();
-      if (!prepared) return false;
-      // 合规前置页：说明看完广告才开始播放，用户可取消
-      const accepted = await requestRewardPrompt();
-      if (!accepted) return false;
-      const result = await showRewardedInterstitial();
-      if (result === 'granted') return true;
-      if (result === 'failed') {
-        console.warn('[ads] 激励插屏展示失败，不放行');
+      const shown = await showInterstitial();
+      if (!shown) {
+        console.warn('[ads] 插屏未展示出来，不放行');
         return false;
       }
-      return false;
+      return true;
     } catch (err) {
       console.warn('[ads] 贴片广告失败，不放行', err);
       return false;
