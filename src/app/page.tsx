@@ -365,13 +365,50 @@ function HomeClient() {
                       ))}
                 </ScrollableRow>
               </section>
+
+              {/* 站点介绍：给访客与搜索引擎的文字内容 */}
+              <section className='mb-8 rounded-xl bg-gray-50 p-5 dark:bg-gray-900'>
+                <h2 className='mb-3 text-xl font-bold text-gray-800 dark:text-gray-200'>
+                  关于 kyrinMedia
+                </h2>
+                <p className='text-sm leading-relaxed text-gray-600 dark:text-gray-400'>
+                  kyrinMedia
+                  是一个免费的影视聚合站：热门电影、热门剧集、热门综艺一站搜索，点开海报就能找播放源；喜欢的片子可以收藏，看到一半下次接着看；站内还有多个国家与地区的电视直播频道。不知道看什么的时候，可以去
+                  <Link href='/articles' className='text-sky-600 dark:text-sky-400'>
+                    影单推荐
+                  </Link>
+                  按豆瓣评分挑片，或者看
+                  <Link href='/guide' className='text-sky-600 dark:text-sky-400'>
+                    使用指南
+                  </Link>
+                  了解收藏、续播与换源的办法。本站不存储任何视频资源，播放内容来自第三方网站，详情见
+                  <Link href='/about' className='text-sky-600 dark:text-sky-400'>
+                    关于我们
+                  </Link>
+                  。
+                </p>
+              </section>
             </>
           )}
         </div>
       </div>
       <AdBanner />
-      {/* 页脚：版本号（连点 5 下打开管理员免广告入口，访客也能用） */}
+      {/* 页脚：内容页入口与版本号（连点 5 下打开管理员免广告入口，访客也能用） */}
       <footer className='mt-2 pb-6 text-center'>
+        <nav className='mb-3 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500'>
+          <Link href='/about' className='hover:text-gray-600 dark:hover:text-gray-300'>
+            关于我们
+          </Link>
+          <Link href='/guide' className='hover:text-gray-600 dark:hover:text-gray-300'>
+            使用指南
+          </Link>
+          <Link href='/articles' className='hover:text-gray-600 dark:hover:text-gray-300'>
+            影单推荐
+          </Link>
+          <Link href='/privacy' className='hover:text-gray-600 dark:hover:text-gray-300'>
+            隐私政策
+          </Link>
+        </nav>
         <AdminVersionTap className='font-mono text-xs text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors' />
       </footer>
       {announcement && showAnnouncement && (
