@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import { BackButton } from './BackButton';
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
@@ -19,8 +21,11 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
       {/* 主要布局容器 */}
       <div className='flex md:grid md:grid-cols-[auto_1fr] w-full min-h-screen md:min-h-auto'>
         {/* 侧边栏 - 桌面端显示，移动端隐藏 */}
+        {/* Suspense 包裹：Sidebar 用了 useSearchParams，没有边界时整页预渲染会退化成空壳，爬虫看不到正文 */}
         <div className='hidden md:block'>
-          <Sidebar activePath={activePath} />
+          <Suspense fallback={<div className='w-64' />}>
+            <Sidebar activePath={activePath} />
+          </Suspense>
         </div>
 
         {/* 主内容区域 */}
@@ -52,7 +57,9 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
 
       {/* 移动端底部导航 */}
       <div className='md:hidden'>
-        <MobileBottomNav activePath={activePath} />
+        <Suspense fallback={null}>
+          <MobileBottomNav activePath={activePath} />
+        </Suspense>
       </div>
     </div>
   );
