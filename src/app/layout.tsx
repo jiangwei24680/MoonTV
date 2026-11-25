@@ -31,7 +31,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: siteName,
-    description: '影视聚合',
+    description:
+      'kyrinMedia 是一个免费的影视聚合站：热门电影、剧集、综艺一站搜索，支持收藏、继续观看与全球电视直播，每月更新影单推荐。',
     manifest: '/manifest.json',
   };
 }
