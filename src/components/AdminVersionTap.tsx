@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
+import { getVersionBadgeState } from '@/lib/appUpdater';
 import { CURRENT_VERSION } from '@/lib/version';
 
 import AdminNoAdsModal from '@/components/AdminNoAds';
@@ -17,8 +18,25 @@ export default function AdminVersionTap({
   className?: string;
 }) {
   const [isAdminNoAdsOpen, setIsAdminNoAdsOpen] = useState(false);
+  const [versionName, setVersionName] = useState('');
   const adminTapCountRef = useRef(0);
   const adminTapLastRef = useRef(0);
+
+  // 显示自己的版本号（app-version.json 的 versionName，如 1.0.18），
+  // 不再显示构建时间戳；失败时回落到 CURRENT_VERSION。
+  useEffect(() => {
+    let cancelled = false;
+    getVersionBadgeState()
+      .then((badge) => {
+        if (!cancelled && badge.versionName) setVersionName(badge.versionName);
+      })
+      .catch(() => {
+        /* 忽略，回落显示 */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleVersionTap = () => {
     const now = Date.now();
@@ -36,7 +54,7 @@ export default function AdminVersionTap({
   return (
     <>
       <button onClick={handleVersionTap} className={className}>
-        kyrinMedia v{CURRENT_VERSION}
+        kyrinMedia v{versionName || CURRENT_VERSION}
       </button>
       {isAdminNoAdsOpen && (
         <AdminNoAdsModal onClose={() => setIsAdminNoAdsOpen(false)} />
