@@ -3,6 +3,7 @@
 'use client';
 
 import { Clover, Film, Home, Search, Star, Tv, Airplay } from 'lucide-react';
+import { useLanguage } from '@/components/LanguageProvider';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -15,6 +16,7 @@ interface MobileBottomNavProps {
 }
 
 const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
+  const { t } = useLanguage();
   const pathname = usePathname();
 
   // 当前激活路径：优先使用传入的 activePath，否则回退到浏览器地址
@@ -106,7 +108,7 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
                       : 'text-gray-600 dark:text-gray-300'
                   }
                 >
-                  {item.label}
+                  {t(item.label)}
                 </span>
               </Link>
             </li>
