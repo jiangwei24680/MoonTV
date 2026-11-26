@@ -38,14 +38,17 @@ import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
 
 import PageLayout from '@/components/PageLayout';
 
+import { useLanguage } from '@/components/LanguageProvider';
+import { tStatic } from '@/lib/i18n';
+
 // 统一弹窗方法（必须在首次使用前定义）
 const showError = (message: string) =>
-  Swal.fire({ icon: 'error', title: '错误', text: message });
+  Swal.fire({ icon: 'error', title: tStatic('错误'), text: message });
 
 const showSuccess = (message: string) =>
   Swal.fire({
     icon: 'success',
-    title: '成功',
+    title: tStatic('成功'),
     text: message,
     timer: 2000,
     showConfirmButton: false,
@@ -127,6 +130,7 @@ interface UserConfigProps {
 }
 
 const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
+  const { t } = useLanguage();
   const [userSettings, setUserSettings] = useState({
     enableRegistration: false,
   });
@@ -177,12 +181,14 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `操作失败: ${res.status}`);
+        throw new Error(
+          data.error || t('操作失败: {status}', { status: res.status })
+        );
       }
 
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : t('操作失败'));
       // revert toggle UI
       setUserSettings((prev) => ({ ...prev, enableRegistration: !value }));
     }
@@ -230,12 +236,12 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
   const handleDeleteUser = async (username: string) => {
     const { isConfirmed } = await Swal.fire({
-      title: '确认删除用户',
-      text: `删除用户 ${username} 将同时删除其搜索历史、播放记录和收藏夹，此操作不可恢复！`,
+      title: t('确认删除用户'),
+      text: t('删除用户 {username} 将同时删除其搜索历史、播放记录和收藏夹，此操作不可恢复！', { username }),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: '确认删除',
-      cancelButtonText: '取消',
+      confirmButtonText: t('确认删除'),
+      cancelButtonText: t('取消'),
       confirmButtonColor: '#dc2626',
     });
 
@@ -270,20 +276,22 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || `操作失败: ${res.status}`);
+        throw new Error(
+          data.error || t('操作失败: {status}', { status: res.status })
+        );
       }
 
       // 成功后刷新配置（无需整页刷新）
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : t('操作失败'));
     }
   };
 
   if (!config) {
     return (
       <div className='text-center text-gray-500 dark:text-gray-400'>
-        加载中...
+        {t('加载中...')}
       </div>
     );
   }
@@ -293,14 +301,14 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
       {/* 用户统计 */}
       <div>
         <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
-          用户统计
+          {t('用户统计')}
         </h4>
         <div className='p-4 bg-sky-50 dark:bg-sky-900/20 rounded-lg border border-sky-200 dark:border-sky-800'>
           <div className='text-2xl font-bold text-sky-800 dark:text-sky-300'>
             {config.UserConfig.Users.length}
           </div>
           <div className='text-sm text-sky-600 dark:text-sky-400'>
-            总用户数
+            {t('总用户数')}
           </div>
         </div>
       </div>
@@ -308,7 +316,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
       {/* 注册设置 */}
       <div>
         <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>
-          注册设置
+          {t('注册设置')}
         </h4>
         <div className='flex items-center justify-between'>
           <label
@@ -316,15 +324,15 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
               isD1Storage || isUpstashStorage ? 'opacity-50' : ''
             }`}
           >
-            允许新用户注册
+            {t('允许新用户注册')}
             {isD1Storage && (
               <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-                (D1 环境下请通过环境变量修改)
+                {t('(D1 环境下请通过环境变量修改)')}
               </span>
             )}
             {isUpstashStorage && (
               <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-                (Upstash 环境下请通过环境变量修改)
+                {t('(Upstash 环境下请通过环境变量修改)')}
               </span>
             )}
           </label>
@@ -360,7 +368,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
       <div>
         <div className='flex items-center justify-between mb-3'>
           <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-            用户列表
+            {t('用户列表')}
           </h4>
           <button
             onClick={() => {
@@ -372,7 +380,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
             }}
             className='px-3 py-1 bg-sky-600 hover:bg-sky-700 text-white text-sm rounded-lg transition-colors'
           >
-            {showAddUserForm ? '取消' : '添加用户'}
+            {showAddUserForm ? t('取消') : t('添加用户')}
           </button>
         </div>
 
@@ -382,7 +390,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
             <div className='flex flex-col sm:flex-row gap-4 sm:gap-3'>
               <input
                 type='text'
-                placeholder='用户名'
+                placeholder={t('用户名')}
                 value={newUser.username}
                 onChange={(e) =>
                   setNewUser((prev) => ({ ...prev, username: e.target.value }))
@@ -391,7 +399,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
               />
               <input
                 type='password'
-                placeholder='密码'
+                placeholder={t('密码')}
                 value={newUser.password}
                 onChange={(e) =>
                   setNewUser((prev) => ({ ...prev, password: e.target.value }))
@@ -403,7 +411,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                 disabled={!newUser.username || !newUser.password}
                 className='w-full sm:w-auto px-4 py-2 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 text-white rounded-lg transition-colors'
               >
-                添加
+                {t('添加')}
               </button>
             </div>
           </div>
@@ -413,19 +421,19 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
         {showChangePasswordForm && (
           <div className='mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700'>
             <h5 className='text-sm font-medium text-blue-800 dark:text-blue-300 mb-3'>
-              修改用户密码
+              {t('修改用户密码')}
             </h5>
             <div className='flex flex-col sm:flex-row gap-4 sm:gap-3'>
               <input
                 type='text'
-                placeholder='用户名'
+                placeholder={t('用户名')}
                 value={changePasswordUser.username}
                 disabled
                 className='flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 cursor-not-allowed'
               />
               <input
                 type='password'
-                placeholder='新密码'
+                placeholder={t('新密码')}
                 value={changePasswordUser.password}
                 onChange={(e) =>
                   setChangePasswordUser((prev) => ({
@@ -440,7 +448,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                 disabled={!changePasswordUser.password}
                 className='w-full sm:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition-colors'
               >
-                修改密码
+                {t('修改密码')}
               </button>
               <button
                 onClick={() => {
@@ -449,7 +457,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                 }}
                 className='w-full sm:w-auto px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors'
               >
-                取消
+                {t('取消')}
               </button>
             </div>
           </div>
@@ -464,25 +472,25 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'
                 >
-                  用户名
+                  {t('用户名')}
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'
                 >
-                  角色
+                  {t('角色')}
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'
                 >
-                  状态
+                  {t('状态')}
                 </th>
                 <th
                   scope='col'
                   className='px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'
                 >
-                  操作
+                  {t('操作')}
                 </th>
               </tr>
             </thead>
@@ -539,10 +547,10 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                             }`}
                           >
                             {user.role === 'owner'
-                              ? '站长'
+                              ? t('站长')
                               : user.role === 'admin'
-                              ? '管理员'
-                              : '普通用户'}
+                              ? t('管理员')
+                              : t('普通用户')}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
@@ -553,7 +561,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                 : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300'
                             }`}
                           >
-                            {!user.banned ? '正常' : '已封禁'}
+                            {!user.banned ? t('正常') : t('已封禁')}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
@@ -565,7 +573,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                               }
                               className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/40 dark:hover:bg-blue-900/60 dark:text-blue-200 transition-colors'
                             >
-                              修改密码
+                              {t('修改密码')}
                             </button>
                           )}
                           {canOperate && (
@@ -576,7 +584,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                   onClick={() => handleSetAdmin(user.username)}
                                   className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/40 dark:hover:bg-purple-900/60 dark:text-purple-200 transition-colors'
                                 >
-                                  设为管理
+                                  {t('设为管理')}
                                 </button>
                               )}
                               {user.role === 'admin' && (
@@ -586,7 +594,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                   }
                                   className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700/40 dark:hover:bg-gray-700/60 dark:text-gray-200 transition-colors'
                                 >
-                                  取消管理
+                                  {t('取消管理')}
                                 </button>
                               )}
                               {user.role !== 'owner' &&
@@ -595,7 +603,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                     onClick={() => handleBanUser(user.username)}
                                     className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/40 dark:hover:bg-red-900/60 dark:text-red-300 transition-colors'
                                   >
-                                    封禁
+                                    {t('封禁')}
                                   </button>
                                 ) : (
                                   <button
@@ -604,7 +612,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                     }
                                     className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800 hover:bg-sky-200 dark:bg-sky-900/40 dark:hover:bg-sky-900/60 dark:text-sky-300 transition-colors'
                                   >
-                                    解封
+                                    {t('解封')}
                                   </button>
                                 ))}
                             </>
@@ -615,7 +623,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                               onClick={() => handleDeleteUser(user.username)}
                               className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 transition-colors'
                             >
-                              删除用户
+                              {t('删除用户')}
                             </button>
                           )}
                         </td>
@@ -640,6 +648,7 @@ const VideoSourceConfig = ({
   config: AdminConfig | null;
   refreshConfig: () => Promise<void>;
 }) => {
+  const { t } = useLanguage();
   const [sources, setSources] = useState<DataSource[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [orderChanged, setOrderChanged] = useState(false);
@@ -687,13 +696,15 @@ const VideoSourceConfig = ({
 
       if (!resp.ok) {
         const data = await resp.json().catch(() => ({}));
-        throw new Error(data.error || `操作失败: ${resp.status}`);
+        throw new Error(
+          data.error || t('操作失败: {status}', { status: resp.status })
+        );
       }
 
       // 成功后刷新配置
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : t('操作失败'));
       throw err; // 向上抛出方便调用处判断
     }
   };
@@ -808,7 +819,7 @@ const VideoSourceConfig = ({
                 : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300'
             }`}
           >
-            {!source.disabled ? '启用中' : '已禁用'}
+            {!source.disabled ? t('启用中') : t('已禁用')}
           </span>
         </td>
         <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
@@ -820,14 +831,14 @@ const VideoSourceConfig = ({
                 : 'bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300 hover:bg-sky-200 dark:hover:bg-sky-900/60'
             } transition-colors`}
           >
-            {!source.disabled ? '禁用' : '启用'}
+            {!source.disabled ? t('禁用') : t('启用')}
           </button>
           {source.from !== 'config' && (
             <button
               onClick={() => handleDelete(source.key)}
               className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700/40 dark:hover:bg-gray-700/60 dark:text-gray-200 transition-colors'
             >
-              删除
+              {t('删除')}
             </button>
           )}
         </td>
@@ -838,7 +849,7 @@ const VideoSourceConfig = ({
   if (!config) {
     return (
       <div className='text-center text-gray-500 dark:text-gray-400'>
-        加载中...
+        {t('加载中...')}
       </div>
     );
   }
@@ -848,13 +859,13 @@ const VideoSourceConfig = ({
       {/* 添加视频源表单 */}
       <div className='flex items-center justify-between'>
         <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-          视频源列表
+          {t('视频源列表')}
         </h4>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className='px-3 py-1 bg-sky-600 hover:bg-sky-700 text-white text-sm rounded-lg transition-colors'
         >
-          {showAddForm ? '取消' : '添加视频源'}
+          {showAddForm ? t('取消') : t('添加视频源')}
         </button>
       </div>
 
@@ -863,7 +874,7 @@ const VideoSourceConfig = ({
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <input
               type='text'
-              placeholder='名称'
+              placeholder={t('名称')}
               value={newSource.name}
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, name: e.target.value }))
@@ -881,7 +892,7 @@ const VideoSourceConfig = ({
             />
             <input
               type='text'
-              placeholder='API 地址'
+              placeholder={t('API 地址')}
               value={newSource.api}
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, api: e.target.value }))
@@ -890,7 +901,7 @@ const VideoSourceConfig = ({
             />
             <input
               type='text'
-              placeholder='Detail 地址（选填）'
+              placeholder={t('Detail 地址（选填）')}
               value={newSource.detail}
               onChange={(e) =>
                 setNewSource((prev) => ({ ...prev, detail: e.target.value }))
@@ -904,7 +915,7 @@ const VideoSourceConfig = ({
               disabled={!newSource.name || !newSource.key || !newSource.api}
               className='w-full sm:w-auto px-4 py-2 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 text-white rounded-lg transition-colors'
             >
-              添加
+              {t('添加')}
             </button>
           </div>
         </div>
@@ -917,22 +928,22 @@ const VideoSourceConfig = ({
             <tr>
               <th className='w-8' />
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                名称
+                {t('名称')}
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
                 Key
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                API 地址
+                {t('API 地址')}
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                Detail 地址
+                {t('Detail 地址')}
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                状态
+                {t('状态')}
               </th>
               <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                操作
+                {t('操作')}
               </th>
             </tr>
           </thead>
@@ -964,7 +975,7 @@ const VideoSourceConfig = ({
             onClick={handleSaveOrder}
             className='px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
           >
-            保存排序
+            {t('保存排序')}
           </button>
         </div>
       )}
@@ -980,6 +991,7 @@ const CategoryConfig = ({
   config: AdminConfig | null;
   refreshConfig: () => Promise<void>;
 }) => {
+  const { t } = useLanguage();
   const [categories, setCategories] = useState<CustomCategory[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [orderChanged, setOrderChanged] = useState(false);
@@ -1034,13 +1046,15 @@ const CategoryConfig = ({
 
       if (!resp.ok) {
         const data = await resp.json().catch(() => ({}));
-        throw new Error(data.error || `操作失败: ${resp.status}`);
+        throw new Error(
+          data.error || t('操作失败: {status}', { status: resp.status })
+        );
       }
 
       // 成功后刷新配置
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : t('操作失败'));
       throw err; // 向上抛出方便调用处判断
     }
   };
@@ -1148,7 +1162,7 @@ const CategoryConfig = ({
                 : 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300'
             }`}
           >
-            {category.type === 'movie' ? '电影' : '电视剧'}
+            {category.type === 'movie' ? t('电影') : t('电视剧')}
           </span>
         </td>
         <td
@@ -1165,7 +1179,7 @@ const CategoryConfig = ({
                 : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300'
             }`}
           >
-            {!category.disabled ? '启用中' : '已禁用'}
+            {!category.disabled ? t('启用中') : t('已禁用')}
           </span>
         </td>
         <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
@@ -1184,14 +1198,14 @@ const CategoryConfig = ({
                 : 'bg-sky-100 dark:bg-sky-900/40 text-sky-800 dark:text-sky-300 hover:bg-sky-200 dark:hover:bg-sky-900/60'
             } transition-colors`}
           >
-            {!category.disabled ? '禁用' : '启用'}
+            {!category.disabled ? t('禁用') : t('启用')}
           </button>
           {category.from !== 'config' && !isD1Storage && !isUpstashStorage && (
             <button
               onClick={() => handleDelete(category.query, category.type)}
               className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700/40 dark:hover:bg-gray-700/60 dark:text-gray-200 transition-colors'
             >
-              删除
+              {t('删除')}
             </button>
           )}
         </td>
@@ -1202,7 +1216,7 @@ const CategoryConfig = ({
   if (!config) {
     return (
       <div className='text-center text-gray-500 dark:text-gray-400'>
-        加载中...
+        {t('加载中...')}
       </div>
     );
   }
@@ -1212,15 +1226,15 @@ const CategoryConfig = ({
       {/* 添加分类表单 */}
       <div className='flex items-center justify-between'>
         <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-          自定义分类列表
+          {t('自定义分类列表')}
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下请通过配置文件修改)
+              {t('(D1 环境下请通过配置文件修改)')}
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下请通过配置文件修改)
+              {t('(Upstash 环境下请通过配置文件修改)')}
             </span>
           )}
         </h4>
@@ -1235,7 +1249,7 @@ const CategoryConfig = ({
               : 'bg-sky-600 hover:bg-sky-700 text-white'
           }`}
         >
-          {showAddForm ? '取消' : '添加分类'}
+          {showAddForm ? t('取消') : t('添加分类')}
         </button>
       </div>
 
@@ -1244,7 +1258,7 @@ const CategoryConfig = ({
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
             <input
               type='text'
-              placeholder='分类名称'
+              placeholder={t('分类名称')}
               value={newCategory.name}
               onChange={(e) =>
                 setNewCategory((prev) => ({ ...prev, name: e.target.value }))
@@ -1261,12 +1275,12 @@ const CategoryConfig = ({
               }
               className='px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100'
             >
-              <option value='movie'>电影</option>
-              <option value='tv'>电视剧</option>
+              <option value='movie'>{t('电影')}</option>
+              <option value='tv'>{t('电视剧')}</option>
             </select>
             <input
               type='text'
-              placeholder='搜索关键词'
+              placeholder={t('搜索关键词')}
               value={newCategory.query}
               onChange={(e) =>
                 setNewCategory((prev) => ({ ...prev, query: e.target.value }))
@@ -1280,7 +1294,7 @@ const CategoryConfig = ({
               disabled={!newCategory.name || !newCategory.query}
               className='w-full sm:w-auto px-4 py-2 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 text-white rounded-lg transition-colors'
             >
-              添加
+              {t('添加')}
             </button>
           </div>
         </div>
@@ -1293,19 +1307,19 @@ const CategoryConfig = ({
             <tr>
               <th className='w-8' />
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                分类名称
+                {t('分类名称')}
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                类型
+                {t('类型')}
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                搜索关键词
+                {t('搜索关键词')}
               </th>
               <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                状态
+                {t('状态')}
               </th>
               <th className='px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                操作
+                {t('操作')}
               </th>
             </tr>
           </thead>
@@ -1340,7 +1354,7 @@ const CategoryConfig = ({
             onClick={handleSaveOrder}
             className='px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors'
           >
-            保存排序
+            {t('保存排序')}
           </button>
         </div>
       )}
@@ -1350,6 +1364,7 @@ const CategoryConfig = ({
 
 // 新增站点配置组件
 const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
+  const { t } = useLanguage();
   const [siteSettings, setSiteSettings] = useState<SiteConfig>({
     SiteName: '',
     Announcement: '',
@@ -1393,12 +1408,14 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
 
       if (!resp.ok) {
         const data = await resp.json().catch(() => ({}));
-        throw new Error(data.error || `保存失败: ${resp.status}`);
+        throw new Error(
+          data.error || t('保存失败: {status}', { status: resp.status })
+        );
       }
 
-      showSuccess('保存成功, 请刷新页面');
+      showSuccess(t('保存成功, 请刷新页面'));
     } catch (err) {
-      showError(err instanceof Error ? err.message : '保存失败');
+      showError(err instanceof Error ? err.message : t('保存失败'));
     } finally {
       setSaving(false);
     }
@@ -1407,7 +1424,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
   if (!config) {
     return (
       <div className='text-center text-gray-500 dark:text-gray-400'>
-        加载中...
+        {t('加载中...')}
       </div>
     );
   }
@@ -1421,15 +1438,15 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
             isD1Storage || isUpstashStorage ? 'opacity-50' : ''
           }`}
         >
-          站点名称
+          {t('站点名称')}
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下请通过环境变量修改)
+              {t('(D1 环境下请通过环境变量修改)')}
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下请通过环境变量修改)
+              {t('(Upstash 环境下请通过环境变量修改)')}
             </span>
           )}
         </label>
@@ -1457,15 +1474,15 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
             isD1Storage || isUpstashStorage ? 'opacity-50' : ''
           }`}
         >
-          站点公告
+          {t('站点公告')}
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下请通过环境变量修改)
+              {t('(D1 环境下请通过环境变量修改)')}
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下请通过环境变量修改)
+              {t('(Upstash 环境下请通过环境变量修改)')}
             </span>
           )}
         </label>
@@ -1492,7 +1509,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
       {/* 搜索接口可拉取最大页数 */}
       <div>
         <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-          搜索接口可拉取最大页数
+          {t('搜索接口可拉取最大页数')}
         </label>
         <input
           type='number'
@@ -1511,7 +1528,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
       {/* 站点接口缓存时间 */}
       <div>
         <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-          站点接口缓存时间（秒）
+          {t('站点接口缓存时间（秒）')}
         </label>
         <input
           type='number'
@@ -1534,21 +1551,21 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
             isD1Storage || isUpstashStorage ? 'opacity-50' : ''
           }`}
         >
-          图片代理前缀
+          {t('图片代理前缀')}
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下请通过环境变量修改)
+              {t('(D1 环境下请通过环境变量修改)')}
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下请通过环境变量修改)
+              {t('(Upstash 环境下请通过环境变量修改)')}
             </span>
           )}
         </label>
         <input
           type='text'
-          placeholder='例如: https://imageproxy.example.com/?url='
+          placeholder={t('例如: https://imageproxy.example.com/?url=')}
           value={siteSettings.ImageProxy}
           onChange={(e) =>
             !isD1Storage &&
@@ -1566,7 +1583,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           }`}
         />
         <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-          用于代理图片访问，解决跨域或访问限制问题。留空则不使用代理。
+          {t('用于代理图片访问，解决跨域或访问限制问题。留空则不使用代理。')}
         </p>
       </div>
 
@@ -1577,21 +1594,21 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
             isD1Storage || isUpstashStorage ? 'opacity-50' : ''
           }`}
         >
-          豆瓣代理地址
+          {t('豆瓣代理地址')}
           {isD1Storage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (D1 环境下请通过环境变量修改)
+              {t('(D1 环境下请通过环境变量修改)')}
             </span>
           )}
           {isUpstashStorage && (
             <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-              (Upstash 环境下请通过环境变量修改)
+              {t('(Upstash 环境下请通过环境变量修改)')}
             </span>
           )}
         </label>
         <input
           type='text'
-          placeholder='例如: https://proxy.example.com/fetch?url='
+          placeholder={t('例如: https://proxy.example.com/fetch?url=')}
           value={siteSettings.DoubanProxy}
           onChange={(e) =>
             !isD1Storage &&
@@ -1609,7 +1626,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           }`}
         />
         <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-          用于代理豆瓣数据访问，解决跨域或访问限制问题。留空则使用服务端API。
+          {t('用于代理豆瓣数据访问，解决跨域或访问限制问题。留空则使用服务端API。')}
         </p>
       </div>
 
@@ -1621,15 +1638,15 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
               isD1Storage || isUpstashStorage ? 'opacity-50' : ''
             }`}
           >
-            禁用黄色过滤器
+            {t('禁用黄色过滤器')}
             {isD1Storage && (
               <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-                (D1 环境下请通过环境变量修改)
+                {t('(D1 环境下请通过环境变量修改)')}
               </span>
             )}
             {isUpstashStorage && (
               <span className='ml-2 text-xs text-gray-500 dark:text-gray-400'>
-                (Upstash 环境下请通过环境变量修改)
+                {t('(Upstash 环境下请通过环境变量修改)')}
               </span>
             )}
           </label>
@@ -1664,7 +1681,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           </button>
         </div>
         <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
-          禁用黄色内容的过滤功能，允许显示所有内容。
+          {t('禁用黄色内容的过滤功能，允许显示所有内容。')}
         </p>
       </div>
 
@@ -1679,7 +1696,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
               : 'bg-sky-600 hover:bg-sky-700'
           } text-white rounded-lg transition-colors`}
         >
-          {saving ? '保存中…' : '保存'}
+          {saving ? t('保存中…') : t('保存')}
         </button>
       </div>
     </div>
@@ -1687,6 +1704,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
 };
 
 function AdminPageClient() {
+  const { t } = useLanguage();
   const [config, setConfig] = useState<AdminConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1710,14 +1728,14 @@ function AdminPageClient() {
 
       if (!response.ok) {
         const data = (await response.json()) as any;
-        throw new Error(`获取配置失败: ${data.error}`);
+        throw new Error(t('获取配置失败: {error}', { error: data.error }));
       }
 
       const data = (await response.json()) as AdminConfigResult;
       setConfig(data.Config);
       setRole(data.Role);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '获取配置失败';
+      const msg = err instanceof Error ? err.message : tStatic('获取配置失败');
       showError(msg);
       setError(msg);
     } finally {
@@ -1743,23 +1761,23 @@ function AdminPageClient() {
   // 新增: 重置配置处理函数
   const handleResetConfig = async () => {
     const { isConfirmed } = await Swal.fire({
-      title: '确认重置配置',
-      text: '此操作将重置用户封禁和管理员设置、自定义视频源，站点配置将重置为默认值，是否继续？',
+      title: t('确认重置配置'),
+      text: t('此操作将重置用户封禁和管理员设置、自定义视频源，站点配置将重置为默认值，是否继续？'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
+      confirmButtonText: t('确认'),
+      cancelButtonText: t('取消'),
     });
     if (!isConfirmed) return;
 
     try {
       const response = await fetch(`/api/admin/reset`);
       if (!response.ok) {
-        throw new Error(`重置失败: ${response.status}`);
+        throw new Error(t('重置失败: {status}', { status: response.status }));
       }
-      showSuccess('重置成功，请刷新页面！');
+      showSuccess(t('重置成功，请刷新页面！'));
     } catch (err) {
-      showError(err instanceof Error ? err.message : '重置失败');
+      showError(err instanceof Error ? err.message : t('重置失败'));
     }
   };
 
@@ -1769,7 +1787,7 @@ function AdminPageClient() {
         <div className='px-2 sm:px-10 py-4 sm:py-8'>
           <div className='max-w-[95%] mx-auto'>
             <h1 className='text-2xl font-bold text-gray-900 dark:text-gray-100 mb-8'>
-              管理员设置
+              {t('管理员设置')}
             </h1>
             <div className='space-y-4'>
               {Array.from({ length: 3 }).map((_, index) => (
@@ -1797,21 +1815,21 @@ function AdminPageClient() {
           {/* 标题 + 重置配置按钮 */}
           <div className='flex items-center gap-2 mb-8'>
             <h1 className='text-2xl font-bold text-gray-900 dark:text-gray-100'>
-              管理员设置
+              {t('管理员设置')}
             </h1>
             {config && role === 'owner' && (
               <button
                 onClick={handleResetConfig}
                 className='px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-md transition-colors'
               >
-                重置配置
+                {t('重置配置')}
               </button>
             )}
           </div>
 
           {/* 站点配置标签 */}
           <CollapsibleTab
-            title='站点配置'
+            title={t('站点配置')}
             icon={
               <Settings
                 size={20}
@@ -1827,7 +1845,7 @@ function AdminPageClient() {
           <div className='space-y-4'>
             {/* 用户配置标签 */}
             <CollapsibleTab
-              title='用户配置'
+              title={t('用户配置')}
               icon={
                 <Users size={20} className='text-gray-600 dark:text-gray-400' />
               }
@@ -1843,7 +1861,7 @@ function AdminPageClient() {
 
             {/* 视频源配置标签 */}
             <CollapsibleTab
-              title='视频源配置'
+              title={t('视频源配置')}
               icon={
                 <Video size={20} className='text-gray-600 dark:text-gray-400' />
               }
@@ -1855,7 +1873,7 @@ function AdminPageClient() {
 
             {/* 分类配置标签 */}
             <CollapsibleTab
-              title='分类配置'
+              title={t('分类配置')}
               icon={
                 <FolderOpen
                   size={20}
