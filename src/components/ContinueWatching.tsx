@@ -10,6 +10,7 @@ import {
   subscribeToDataUpdates,
 } from '@/lib/db.client';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import ScrollableRow from '@/components/ScrollableRow';
 import VideoCard from '@/components/VideoCard';
 
@@ -18,6 +19,7 @@ interface ContinueWatchingProps {
 }
 
 export default function ContinueWatching({ className }: ContinueWatchingProps) {
+  const { t } = useLanguage();
   const [playRecords, setPlayRecords] = useState<
     (PlayRecord & { key: string })[]
   >([]);
@@ -89,7 +91,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
     <section className={`mb-8 ${className || ''}`}>
       <div className='mb-4 flex items-center justify-between'>
         <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-          继续观看
+          {t('继续观看')}
         </h2>
         {!loading && playRecords.length > 0 && (
           <button
@@ -99,7 +101,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
               setPlayRecords([]);
             }}
           >
-            清空
+            {t('清空')}
           </button>
         )}
       </div>
