@@ -11,6 +11,7 @@ import RuntimeConfig from '@/lib/runtime';
 
 import CapacitorInit from '../components/CapacitorInit';
 import { GlobalErrorIndicator } from '../components/GlobalErrorIndicator';
+import { LanguageProvider } from '../components/LanguageProvider';
 import { SiteProvider } from '../components/SiteProvider';
 import { ThemeProvider } from '../components/ThemeProvider';
 
@@ -130,11 +131,13 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SiteProvider siteName={siteName} announcement={announcement}>
-            <CapacitorInit />
-            {children}
-            <GlobalErrorIndicator />
-          </SiteProvider>
+          <LanguageProvider>
+            <SiteProvider siteName={siteName} announcement={announcement}>
+              <CapacitorInit />
+              {children}
+              <GlobalErrorIndicator />
+            </SiteProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>
