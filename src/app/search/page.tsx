@@ -15,10 +15,12 @@ import {
 import { SearchResult } from '@/lib/types';
 import { yellowWords } from '@/lib/yellow';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import PageLayout from '@/components/PageLayout';
 import VideoCard from '@/components/VideoCard';
 
 function SearchPageClient() {
+  const { t } = useLanguage();
   // 搜索历史
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   // 返回顶部按钮显示状态
@@ -256,7 +258,7 @@ function SearchPageClient() {
                 type='text'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder='搜索电影、电视剧...'
+                placeholder={t('搜索电影、电视剧...')}
                 className='w-full h-12 rounded-lg bg-gray-50/80 py-3 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white border border-gray-200/50 shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:bg-gray-700 dark:border-gray-700'
               />
             </div>
@@ -274,12 +276,12 @@ function SearchPageClient() {
               {/* 标题 + 聚合开关 */}
               <div className='mb-8 flex items-center justify-between'>
                 <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-                  搜索结果
+                  {t('搜索结果')}
                 </h2>
                 {/* 聚合开关 */}
                 <label className='flex items-center gap-2 cursor-pointer select-none'>
                   <span className='text-sm text-gray-700 dark:text-gray-300'>
-                    聚合
+                    {t('聚合')}
                   </span>
                   <div className='relative'>
                     <input
@@ -341,7 +343,7 @@ function SearchPageClient() {
                     ))}
                 {searchResults.length === 0 && (
                   <div className='col-span-full text-center text-gray-500 py-8 dark:text-gray-400'>
-                    未找到相关结果
+                    {t('未找到相关结果')}
                   </div>
                 )}
               </div>
@@ -350,7 +352,7 @@ function SearchPageClient() {
             // 搜索历史
             <section className='mb-12'>
               <h2 className='mb-4 text-xl font-bold text-gray-800 text-left dark:text-gray-200'>
-                搜索历史
+                {t('搜索历史')}
                 {searchHistory.length > 0 && (
                   <button
                     onClick={() => {
@@ -358,7 +360,7 @@ function SearchPageClient() {
                     }}
                     className='ml-3 text-sm text-gray-500 hover:text-red-500 transition-colors dark:text-gray-400 dark:hover:text-red-500'
                   >
-                    清空
+                    {t('清空')}
                   </button>
                 )}
               </h2>
@@ -378,7 +380,7 @@ function SearchPageClient() {
                     </button>
                     {/* 删除按钮 */}
                     <button
-                      aria-label='删除搜索历史'
+                      aria-label={t('删除搜索历史')}
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
@@ -404,7 +406,7 @@ function SearchPageClient() {
             ? 'opacity-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 translate-y-4 pointer-events-none'
         }`}
-        aria-label='返回顶部'
+        aria-label={t('返回顶部')}
       >
         <ChevronUp className='w-6 h-6 transition-transform group-hover:scale-110' />
       </button>
