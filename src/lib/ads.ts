@@ -151,7 +151,7 @@ export async function initAdMob(): Promise<boolean> {
 let bannerCreated = false;
 let bannerVisible = false;
 
-/** 首页底部横幅（仅原生 App 内展示，网页端跳过；管理员免广告时不展示） */
+/** 底部横幅常驻（仅原生 App 内展示，网页端跳过；管理员免广告时不展示；切页不隐藏） */
 export async function showBanner(): Promise<void> {
   if (!isNativeApp() || bannerVisible) return;
   if (isAdminNoAds()) return;
@@ -179,7 +179,7 @@ export async function showBanner(): Promise<void> {
   }
 }
 
-/** 隐藏横幅（离开首页时调用） */
+/** 隐藏横幅（仅管理员免广告时调用） */
 export async function hideBanner(): Promise<void> {
   if (!isNativeApp() || !bannerVisible) return;
   try {
