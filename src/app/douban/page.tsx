@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getDoubanCategories, getDoubanList } from '@/lib/douban.client';
 import { DoubanItem, DoubanResult } from '@/lib/types';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import DoubanCardSkeleton from '@/components/DoubanCardSkeleton';
 import DoubanCustomSelector from '@/components/DoubanCustomSelector';
 import DoubanSelector from '@/components/DoubanSelector';
@@ -16,6 +17,7 @@ import PageLayout from '@/components/PageLayout';
 import VideoCard from '@/components/VideoCard';
 
 function DoubanPageClient() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [doubanData, setDoubanData] = useState<DoubanItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -370,12 +372,12 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
   const getPageTitle = () => {
     // 根据 type 生成标题
     return type === 'movie'
-      ? '电影'
+      ? t('电影')
       : type === 'tv'
-      ? '电视剧'
+      ? t('电视剧')
       : type === 'show'
-      ? '综艺'
-      : '自定义';
+      ? t('综艺')
+      : t('自定义');
   };
  
   const getActivePath = () => {
@@ -398,7 +400,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
               {getPageTitle()}
             </h1>
             <p className='text-sm sm:text-base text-gray-600 dark:text-gray-400'>
-              来自豆瓣的精选内容
+              {t('来自豆瓣的精选内容')}
             </p>
           </div>
 
@@ -464,7 +466,7 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
               {isLoadingMore && (
                 <div className='flex items-center gap-2'>
                   <div className='animate-spin rounded-full h-6 w-6 border-b-2 border-sky-500'></div>
-                  <span className='text-gray-600'>加载中...</span>
+                  <span className='text-gray-600'>{t('加载中...')}</span>
                 </div>
               )}
             </div>
@@ -472,12 +474,12 @@ const [secondarySelection, setSecondarySelection] = useState<string>(() => {
 
           {/* 没有更多数据提示 */}
           {!hasMore && doubanData.length > 0 && (
-            <div className='text-center text-gray-500 py-8'>已加载全部内容</div>
+            <div className='text-center text-gray-500 py-8'>{t('已加载全部内容')}</div>
           )}
 
           {/* 空状态 */}
           {!loading && doubanData.length === 0 && (
-            <div className='text-center text-gray-500 py-8'>暂无相关内容</div>
+            <div className='text-center text-gray-500 py-8'>{t('暂无相关内容')}</div>
           )}
         </div>
       </div>
