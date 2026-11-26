@@ -3,6 +3,8 @@ import Artplayer from 'artplayer';
 import Hls, { HlsConfig } from 'hls.js';
 import { useEffect, useRef, useState } from 'react';
 
+import { useLanguage } from '@/components/LanguageProvider';
+
 interface Props {
   url: string;
   title?: string;
@@ -18,6 +20,7 @@ export default function ArtPlayer({
   blockAd = true,
   type,
 }: Props) {
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const playerRef = useRef<Artplayer | null>(null);
@@ -92,8 +95,8 @@ export default function ArtPlayer({
               {
                 name: 'skipIntro',
                 position: 'right',
-                html: '跳过片头',
-                tooltip: '快进 85 秒',
+                html: t('跳过片头'),
+                tooltip: t('快进 85 秒'),
                 click: function () {
                   const video = playerRef.current
                     ?.video as HTMLVideoElement | undefined;
@@ -107,8 +110,8 @@ export default function ArtPlayer({
               {
                 name: 'skipOutro',
                 position: 'right',
-                html: '跳到片尾',
-                tooltip: '跳到片尾前 90 秒',
+                html: t('跳到片尾'),
+                tooltip: t('跳到片尾前 90 秒'),
                 click: function () {
                   const video = playerRef.current
                     ?.video as HTMLVideoElement | undefined;
@@ -132,8 +135,8 @@ export default function ArtPlayer({
             if (!data.fatal) return;
             setError(
               data.type === Hls.ErrorTypes.NETWORK_ERROR
-                ? '网络错误，直播源连接失败'
-                : '播放出错，该频道可能已失效'
+                ? t('网络错误，直播源连接失败')
+                : t('播放出错，该频道可能已失效')
             );
             try {
               hls.destroy();
@@ -179,8 +182,8 @@ export default function ArtPlayer({
     const getVideo = () => getPlayer()?.video as HTMLVideoElement | undefined;
 
     const onTouchStart = (e: TouchEvent) => {
-      const t = e.touches[0];
-      startX = t.clientX; startY = t.clientY; startT = Date.now();
+      const touch = e.touches[0];
+      startX = touch.clientX; startY = touch.clientY; startT = Date.now();
       moving = false; longPressActive = false;
       // 长按 350ms -> 2倍速
       longPressTimer = setTimeout(() => {
@@ -188,13 +191,13 @@ export default function ArtPlayer({
         if (p && !p.video.paused) {
           longPressActive = true;
           p.playbackRate = 2;
-          showTip('2x 加速中…');
+          showTip(t('2x 加速中…'));
         }
       }, 350);
     };
     const onTouchMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      const dx = t.clientX - startX, dy = t.clientY - startY;
+      const touch = e.touches[0];
+      const dx = touch.clientX - startX, dy = touch.clientY - startY;
       if (Math.abs(dx) > SEEK_PX || Math.abs(dy) > SEEK_PX) {
         moving = true;
         if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
@@ -208,20 +211,20 @@ export default function ArtPlayer({
         const secs = Math.round(dx / 50) * 10;
         if (secs !== 0) {
           v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + secs));
-          showTip(`${secs > 0 ? '快进' : '快退'} ${Math.abs(secs)} 秒`);
-          startX = t.clientX; // 跟手
+          showTip(t(secs > 0 ? '快进 {n} 秒' : '快退 {n} 秒', { n: Math.abs(secs) }));
+          startX = touch.clientX; // 跟手
         }
       } else {
         // 垂直滑动：右侧音量
-        const isRight = t.clientX > rect.left + rect.width / 2;
+        const isRight = touch.clientX > rect.left + rect.width / 2;
         if (isRight) {
           const delta = -dy / 200; // 上滑增大
           const vol = Math.max(0, Math.min(1, (v.volume || 0) + delta));
           v.volume = vol;
-          showTip(`音量 ${Math.round(vol * 100)}%`);
-          startY = t.clientY;
+          showTip(t('音量 {n}%', { n: Math.round(vol * 100) }));
+          startY = touch.clientY;
         } else {
-          showTip('亮度调节仅 App 内可用');
+          showTip(t('亮度调节仅 App 内可用'));
         }
       }
       e.preventDefault();
@@ -247,10 +250,10 @@ export default function ArtPlayer({
         if (!v) return;
         if (relX < 0.3) {
           v.currentTime = Math.max(0, v.currentTime - 10);
-          showTip('快退 10 秒');
+          showTip(t('快退 10 秒'));
         } else if (relX > 0.7) {
           v.currentTime = Math.min(v.duration || 0, v.currentTime + 10);
-          showTip('快进 10 秒');
+          showTip(t('快进 10 秒'));
         } else {
           const p = getPlayer();
           if (p) p.toggle();
@@ -294,7 +297,7 @@ export default function ArtPlayer({
             }}
             className="px-4 py-2 bg-sky-600 rounded-lg hover:bg-sky-700"
           >
-            重试
+            {t('重试')}
           </button>
         </div>
       )}
