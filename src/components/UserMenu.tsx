@@ -7,9 +7,16 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { checkAppUpdate, isAppEnvironment } from '@/lib/appUpdater';
+import {
+  checkAppUpdate,
+  getVersionBadgeState,
+  isAppEnvironment,
+  type VersionBadgeState,
+} from '@/lib/appUpdater';
 import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
-import { checkForUpdates, CURRENT_VERSION, UpdateStatus } from '@/lib/version';
+import { CURRENT_VERSION } from '@/lib/version';
+
+import { useLanguage } from '@/components/LanguageProvider';
 
 import AdminNoAdsModal from '@/components/AdminNoAds';
 
@@ -20,6 +27,7 @@ interface AuthInfo {
 
 export const UserMenu: React.FC = () => {
   const router = useRouter();
+  const { t, lang, setLang } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -41,8 +49,9 @@ export const UserMenu: React.FC = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
 
-  // 版本检查相关状态
-  const [updateStatus, setUpdateStatus] = useState<UpdateStatus | null>(null);
+  // 版本检查相关状态：查自己的 app-version.json，不再查上游 MoonTV
+  const [versionBadge, setVersionBadge] =
+    useState<VersionBadgeState | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
   // 管理员免广告隐藏入口状态（设置页版本号连点 5 下打开）
@@ -117,12 +126,12 @@ export const UserMenu: React.FC = () => {
     }
   }, []);
 
-  // 版本检查
+  // 版本检查：查自己的 app-version.json（登录页同款逻辑）
   useEffect(() => {
     const checkUpdate = async () => {
       try {
-        const status = await checkForUpdates();
-        setUpdateStatus(status);
+        const badge = await getVersionBadgeState();
+        setVersionBadge(badge);
       } catch (error) {
         console.warn('版本检查失败:', error);
       } finally {
@@ -177,12 +186,12 @@ export const UserMenu: React.FC = () => {
 
     // 验证密码
     if (!newPassword) {
-      setPasswordError('新密码不得为空');
+      setPasswordError(t('新密码不得为空'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError('两次输入的密码不一致');
+      setPasswordError(t('两次输入的密码不一致'));
       return;
     }
 
@@ -202,7 +211,7 @@ export const UserMenu: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setPasswordError(data.error || '修改密码失败');
+        setPasswordError(data.error || t('修改密码失败'));
         return;
       }
 
@@ -210,7 +219,7 @@ export const UserMenu: React.FC = () => {
       setIsChangePasswordOpen(false);
       await handleLogout();
     } catch (error) {
-      setPasswordError('网络错误，请稍后重试');
+      setPasswordError(t('网络错误，请稍后重试'));
     } finally {
       setPasswordLoading(false);
     }
@@ -279,6 +288,7 @@ export const UserMenu: React.FC = () => {
     setEnableDoubanProxy(!!defaultDoubanProxy);
     setEnableImageProxy(!!defaultImageProxy);
     setImageProxyUrl(defaultImageProxy);
+    setLang('zh');
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('defaultAggregateSearch', JSON.stringify(true));
@@ -308,11 +318,11 @@ export const UserMenu: React.FC = () => {
   const getRoleText = (role?: string) => {
     switch (role) {
       case 'owner':
-        return '站长';
+        return t('站长');
       case 'admin':
-        return '管理员';
+        return t('管理员');
       case 'user':
-        return '用户';
+        return t('用户');
       default:
         return '';
     }
@@ -351,7 +361,7 @@ export const UserMenu: React.FC = () => {
           <div className='space-y-1'>
             <div className='flex items-center justify-between'>
               <span className='text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider'>
-                当前用户
+                {t('当前用户')}
               </span>
               <span
                 className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
@@ -370,8 +380,8 @@ export const UserMenu: React.FC = () => {
                 {authInfo?.username || 'default'}
               </div>
               <div className='text-[10px] text-gray-400 dark:text-gray-500'>
-                数据存储：
-                {storageType === 'localstorage' ? '本地' : storageType}
+                {t('数据存储：')}
+                {storageType === 'localstorage' ? t('本地') : storageType}
               </div>
             </div>
           </div>
@@ -385,7 +395,7 @@ export const UserMenu: React.FC = () => {
             className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
           >
             <Settings className='w-4 h-4 text-gray-500 dark:text-gray-400' />
-            <span className='font-medium'>设置</span>
+            <span className='font-medium'>{t('设置')}</span>
           </button>
 
           {/* 管理面板按钮 */}
@@ -395,7 +405,7 @@ export const UserMenu: React.FC = () => {
               className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
             >
               <Shield className='w-4 h-4 text-gray-500 dark:text-gray-400' />
-              <span className='font-medium'>管理面板</span>
+              <span className='font-medium'>{t('管理面板')}</span>
             </button>
           )}
 
@@ -406,7 +416,7 @@ export const UserMenu: React.FC = () => {
               className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
             >
               <KeyRound className='w-4 h-4 text-gray-500 dark:text-gray-400' />
-              <span className='font-medium'>修改密码</span>
+              <span className='font-medium'>{t('修改密码')}</span>
             </button>
           )}
 
@@ -419,7 +429,7 @@ export const UserMenu: React.FC = () => {
             className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm'
           >
             <LogOut className='w-4 h-4' />
-            <span className='font-medium'>登出</span>
+            <span className='font-medium'>{t('登出')}</span>
           </button>
 
           {/* 分割线 */}
@@ -435,7 +445,7 @@ export const UserMenu: React.FC = () => {
               className='w-full px-3 py-2 text-left flex items-center gap-2.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm'
             >
               <Download className='w-4 h-4 text-gray-500 dark:text-gray-400' />
-              <span className='font-medium'>检查 App 更新</span>
+              <span className='font-medium'>{t('检查 App 更新')}</span>
             </button>
           )}
 
@@ -445,17 +455,16 @@ export const UserMenu: React.FC = () => {
             className='w-full px-3 py-2 text-center flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors text-xs'
           >
             <div className='flex items-center gap-1'>
-              <span className='font-mono'>v{CURRENT_VERSION}</span>
+              <span className='font-mono'>
+                v{versionBadge?.versionName || CURRENT_VERSION}
+              </span>
               {!isChecking &&
-                updateStatus &&
-                updateStatus !== UpdateStatus.FETCH_FAILED && (
+                versionBadge &&
+                !versionBadge.failed &&
+                versionBadge.hasUpdate !== null && (
                   <div
                     className={`w-2 h-2 rounded-full -translate-y-2 ${
-                      updateStatus === UpdateStatus.HAS_UPDATE
-                        ? 'bg-yellow-500'
-                        : updateStatus === UpdateStatus.NO_UPDATE
-                        ? 'bg-sky-400'
-                        : ''
+                      versionBadge.hasUpdate ? 'bg-yellow-500' : 'bg-sky-400'
                     }`}
                   ></div>
                 )}
@@ -481,14 +490,14 @@ export const UserMenu: React.FC = () => {
         <div className='flex items-center justify-between mb-6'>
           <div className='flex items-center gap-3'>
             <h3 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-              本地设置
+              {t('本地设置')}
             </h3>
             <button
               onClick={handleResetSettings}
               className='px-2 py-1 text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border border-red-200 hover:border-red-300 dark:border-red-800 dark:hover:border-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors'
-              title='重置为默认设置'
+              title={t('重置为默认设置')}
             >
-              重置
+              {t('重置')}
             </button>
           </div>
           <button
@@ -502,14 +511,48 @@ export const UserMenu: React.FC = () => {
 
         {/* 设置项 */}
         <div className='space-y-6'>
+          {/* 界面语言 */}
+          <div className='flex items-center justify-between'>
+            <div>
+              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                {t('界面语言')}
+              </h4>
+              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                {t('切换界面语言，立即生效')}
+              </p>
+            </div>
+            <div className='flex rounded-md border border-gray-300 dark:border-gray-600 overflow-hidden text-sm shrink-0'>
+              <button
+                onClick={() => setLang('zh')}
+                className={`px-3 py-1.5 transition-colors ${
+                  lang === 'zh'
+                    ? 'bg-sky-500 text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                中文
+              </button>
+              <button
+                onClick={() => setLang('en')}
+                className={`px-3 py-1.5 transition-colors ${
+                  lang === 'en'
+                    ? 'bg-sky-500 text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                English
+              </button>
+            </div>
+          </div>
+
           {/* 默认聚合搜索结果 */}
           <div className='flex items-center justify-between'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                默认聚合搜索结果
+                {t('默认聚合搜索结果')}
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                搜索时默认按标题和年份聚合显示结果
+                {t('搜索时默认按标题和年份聚合显示结果')}
               </p>
             </div>
             <label className='flex items-center cursor-pointer'>
@@ -530,10 +573,10 @@ export const UserMenu: React.FC = () => {
           <div className='flex items-center justify-between'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                启用优选和测速
+                {t('启用优选和测速')}
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                如出现播放器劫持问题可关闭
+                {t('如出现播放器劫持问题可关闭')}
               </p>
             </div>
             <label className='flex items-center cursor-pointer'>
@@ -557,10 +600,10 @@ export const UserMenu: React.FC = () => {
           <div className='flex items-center justify-between'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                启用豆瓣代理
+                {t('启用豆瓣代理')}
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                启用后，豆瓣数据将通过代理服务器获取
+                {t('启用后，豆瓣数据将通过代理服务器获取')}
               </p>
             </div>
             <label className='flex items-center cursor-pointer'>
@@ -581,10 +624,10 @@ export const UserMenu: React.FC = () => {
           <div className='space-y-3'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                豆瓣代理地址
+                {t('豆瓣代理地址')}
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                仅在启用豆瓣代理时生效，留空则使用服务器 API
+                {t('仅在启用豆瓣代理时生效，留空则使用服务器 API')}
               </p>
             </div>
             <input
@@ -608,10 +651,10 @@ export const UserMenu: React.FC = () => {
           <div className='flex items-center justify-between'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                启用图片代理
+                {t('启用图片代理')}
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                启用后，所有图片加载将通过代理服务器
+                {t('启用后，所有图片加载将通过代理服务器')}
               </p>
             </div>
             <label className='flex items-center cursor-pointer'>
@@ -632,10 +675,10 @@ export const UserMenu: React.FC = () => {
           <div className='space-y-3'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                图片代理地址
+                {t('图片代理地址')}
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                仅在启用图片代理时生效
+                {t('仅在启用图片代理时生效')}
               </p>
             </div>
             <input
@@ -656,14 +699,14 @@ export const UserMenu: React.FC = () => {
         {/* 底部说明 */}
         <div className='mt-6 pt-4 border-t border-gray-200 dark:border-gray-700'>
           <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
-            这些设置保存在本地浏览器中
+            {t('这些设置保存在本地浏览器中')}
           </p>
           {/* 版本号：连点 5 下打开管理员免广告入口 */}
           <button
             onClick={handleVersionTap}
             className='mt-2 w-full text-center font-mono text-xs text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors'
           >
-            kyrinMedia v{CURRENT_VERSION}
+            kyrinMedia v{versionBadge?.versionName || CURRENT_VERSION}
           </button>
         </div>
       </div>
@@ -684,7 +727,7 @@ export const UserMenu: React.FC = () => {
         {/* 标题栏 */}
         <div className='flex items-center justify-between mb-6'>
           <h3 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-            修改密码
+            {t('修改密码')}
           </h3>
           <button
             onClick={handleCloseChangePassword}
@@ -700,12 +743,12 @@ export const UserMenu: React.FC = () => {
           {/* 新密码输入 */}
           <div>
             <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-              新密码
+              {t('新密码')}
             </label>
             <input
               type='password'
               className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
-              placeholder='请输入新密码'
+              placeholder={t('请输入新密码')}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               disabled={passwordLoading}
@@ -715,12 +758,12 @@ export const UserMenu: React.FC = () => {
           {/* 确认密码输入 */}
           <div>
             <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
-              确认密码
+              {t('确认密码')}
             </label>
             <input
               type='password'
               className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
-              placeholder='请再次输入新密码'
+              placeholder={t('请再次输入新密码')}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={passwordLoading}
@@ -742,21 +785,21 @@ export const UserMenu: React.FC = () => {
             className='flex-1 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors'
             disabled={passwordLoading}
           >
-            取消
+            {t('取消')}
           </button>
           <button
             onClick={handleSubmitChangePassword}
             className='flex-1 px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-600 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
             disabled={passwordLoading || !newPassword || !confirmPassword}
           >
-            {passwordLoading ? '修改中...' : '确认修改'}
+            {passwordLoading ? t('修改中...') : t('确认修改')}
           </button>
         </div>
 
         {/* 底部说明 */}
         <div className='mt-4 pt-4 border-t border-gray-200 dark:border-gray-700'>
           <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
-            修改密码后需要重新登录
+            {t('修改密码后需要重新登录')}
           </p>
         </div>
       </div>
@@ -773,7 +816,7 @@ export const UserMenu: React.FC = () => {
         >
           <User className='w-full h-full' />
         </button>
-        {updateStatus === UpdateStatus.HAS_UPDATE && (
+        {versionBadge?.hasUpdate === true && (
           <div className='absolute top-[2px] right-[2px] w-2 h-2 bg-yellow-500 rounded-full'></div>
         )}
       </div>
