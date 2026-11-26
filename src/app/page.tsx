@@ -6,7 +6,7 @@ import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense, useEffect, useState } from 'react';
 
-import { hideBanner, showBanner } from '@/lib/ads';
+import { showBanner } from '@/lib/ads';
 // 客户端收藏 API
 import {
   clearAllFavorites,
@@ -34,12 +34,11 @@ function HomeClient() {
   const [loading, setLoading] = useState(true);
   const { announcement } = useSite();
 
-  // App 内首页底部 AdMob 横幅（仅 Capacitor 原生环境生效，网页端跳过；离开首页时隐藏）
+  // App 内底部 AdMob 横幅常驻：仅 Capacitor 原生环境生效，网页端跳过；切页也不隐藏
+  // （2026-11-26 用户要求：底部横幅一直都有）；首次展示由 CapacitorInit 在启动时做，
+  // 这里再调一次是兜底（showBanner 内部有 bannerVisible 幂等保护，重复调用无害）
   useEffect(() => {
     showBanner();
-    return () => {
-      hideBanner();
-    };
   }, []);
 
   const [showAnnouncement, setShowAnnouncement] = useState(false);
