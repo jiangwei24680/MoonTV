@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import { isAdminNoAds, isTV } from '@/lib/ads';
 import { playImaPreroll } from '@/lib/ima-preroll.client';
 
@@ -18,6 +19,7 @@ const SKIP_AFTER_MS = 5000;
 const TIMEOUT_MS = 30000;
 
 export default function AppOpenAd() {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [canSkip, setCanSkip] = useState(false);
   const [countdown, setCountdown] = useState(SKIP_AFTER_MS / 1000);
@@ -74,14 +76,16 @@ export default function AppOpenAd() {
   return (
     <div className='fixed inset-0 z-[9999] flex flex-col bg-black'>
       <div className='flex items-center justify-between px-4 py-3 text-xs text-white/70'>
-        <span>广告</span>
+        <span>{t('广告')}</span>
         <button
           type='button'
           disabled={!canSkip}
           onClick={closeAd}
           className='rounded-full bg-white/20 px-3 py-1 text-white disabled:opacity-50'
         >
-          {canSkip ? '跳过广告' : `${countdown}s 后可跳过`}
+          {canSkip
+            ? t('跳过广告')
+            : t('{n}s 后可跳过', { n: countdown })}
         </button>
       </div>
       <div ref={containerRef} className='relative min-h-0 flex-1' />
