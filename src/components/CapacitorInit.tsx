@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 
+import { showBanner } from '@/lib/ads';
 import { checkAppUpdateOnLaunch } from '@/lib/appUpdater';
 
 /**
@@ -16,6 +17,8 @@ export default function CapacitorInit() {
     if (!cap) return;
     // 标记 App 环境，CSS 用 .capacitor-app 做安全区适配
     document.documentElement.classList.add('capacitor-app');
+    // 底部 AdMob 横幅常驻：启动即展示，切页不隐藏（2026-11-26 用户要求一直都有）
+    void showBanner();
     // 启动自动检查更新：等首页先出来再查，有新版才弹“发现新版本”提示
     const updateTimer = window.setTimeout(() => {
       void checkAppUpdateOnLaunch();
