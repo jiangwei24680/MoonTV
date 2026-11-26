@@ -10,6 +10,8 @@ import React, {
 } from 'react';
 
 import { SearchResult } from '@/lib/types';
+
+import { useLanguage } from '@/components/LanguageProvider';
 import { getVideoResolutionFromM3u8, processImageUrl } from '@/lib/utils';
 
 // 定义视频信息类型
@@ -60,6 +62,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
   precomputedVideoInfo,
 }) => {
   const router = useRouter();
+  const { t } = useLanguage();
   const pageCount = Math.ceil(totalEpisodes / episodesPerPage);
 
   // 存储每个源的视频信息
@@ -316,7 +319,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
               }
             `.trim()}
           >
-            选集
+            {t('选集')}
           </div>
         )}
         <div
@@ -329,7 +332,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             }
           `.trim()}
         >
-          换源
+          {t('换源')}
         </div>
       </div>
 
@@ -426,7 +429,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
             <div className='flex items-center justify-center py-8'>
               <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-sky-500'></div>
               <span className='ml-2 text-sm text-gray-600 dark:text-gray-300'>
-                搜索中...
+                {t('搜索中...')}
               </span>
             </div>
           )}
@@ -449,7 +452,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                 <div className='text-center'>
                   <div className='text-gray-400 text-2xl mb-2'>📺</div>
                   <p className='text-sm text-gray-600 dark:text-gray-300'>
-                    暂无可用的换源
+                    {t('暂无可用的换源')}
                   </p>
                 </div>
               </div>
@@ -527,7 +530,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                                 if (videoInfo.hasError) {
                                   return (
                                     <div className='bg-gray-500/10 dark:bg-gray-400/20 text-red-600 dark:text-red-400 px-1.5 py-0 rounded text-xs flex-shrink-0 min-w-[50px] text-center'>
-                                      检测失败
+                                      {t('检测失败')}
                                     </div>
                                   );
                                 } else {
@@ -565,7 +568,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                             </span>
                             {source.episodes.length > 1 && (
                               <span className='text-xs text-gray-500 dark:text-gray-400 font-medium'>
-                                {source.episodes.length} 集
+                                {t('{n} 集', { n: source.episodes.length })}
                               </span>
                             )}
                           </div>
@@ -590,7 +593,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                                 } else {
                                   return (
                                     <div className='text-red-500/90 dark:text-red-400 font-medium text-xs'>
-                                      无测速数据
+                                      {t('无测速数据')}
                                     </div>
                                   ); // 占位div
                                 }
@@ -612,7 +615,7 @@ const EpisodeSelector: React.FC<EpisodeSelectorProps> = ({
                     }}
                     className='w-full text-center text-xs text-gray-500 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors py-2'
                   >
-                    影片匹配有误？点击去搜索
+                    {t('影片匹配有误？点击去搜索')}
                   </button>
                 </div>
               </div>
