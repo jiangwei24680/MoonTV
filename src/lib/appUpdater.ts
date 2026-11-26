@@ -3,11 +3,64 @@
 
 import Swal from 'sweetalert2';
 
+import { tStatic } from '@/lib/i18n';
+
 export interface AppVersionInfo {
   versionCode: number;
   versionName: string;
   apkUrl: string;
   changelog: string;
+}
+
+/**
+ * 备用下载地址（jsDelivr gh 镜像，已验证与站内包同一文件、同一大小）：
+ * 主地址（本站 Pages）下载失败时自动换备用再试一次。
+ * 注意：jsDelivr 的 @main 分支缓存可能滞后于新版本推送，备用只是第二选择。
+ */
+export const FALLBACK_APK_URL =
+  'https://cdn.jsdelivr.net/gh/jiangwei24680/MoonTV@main/public/kyrinMedia.apk';
+
+/** 拉他自己的 app-version.json（仓库 public/app-version.json，随 Pages 部署更新）。 */
+export async function fetchLatestAppVersion(): Promise<AppVersionInfo> {
+  const res = await fetch('/app-version.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error('版本信息获取失败');
+  return (await res.json()) as AppVersionInfo;
+}
+
+export interface VersionBadgeState {
+  versionName: string; // 如 1.0.18
+  versionCode: number;
+  /** 有新版=true；已是最新=false；网页端无已安装版本可比=null */
+  hasUpdate: boolean | null;
+  failed: boolean;
+}
+
+/**
+ * 登录页/菜单里的版本徽标用：查自己的 app-version.json，
+ * 不再查上游 senshinya/MoonTV 的 VERSION.txt。
+ */
+export async function getVersionBadgeState(): Promise<VersionBadgeState> {
+  try {
+    const info = await fetchLatestAppVersion();
+    const updater = getUpdater();
+    if (!updater) {
+      return {
+        versionName: info.versionName,
+        versionCode: info.versionCode,
+        hasUpdate: null,
+        failed: false,
+      };
+    }
+    const { versionCode } = await updater.getVersionCode();
+    return {
+      versionName: info.versionName,
+      versionCode: info.versionCode,
+      hasUpdate: info.versionCode > versionCode,
+      failed: false,
+    };
+  } catch {
+    return { versionName: '', versionCode: 0, hasUpdate: null, failed: true };
+  }
 }
 
 function getUpdater(): any | null {
@@ -54,7 +107,7 @@ async function runUpdateCheck(quiet: boolean): Promise<void> {
 
   if (!quiet) {
     Swal.fire({
-      title: '正在检查更新…',
+      title: tStatic('正在检查更新…'),
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
@@ -65,26 +118,29 @@ async function runUpdateCheck(quiet: boolean): Promise<void> {
 
   try {
     const { versionCode } = await updater.getVersionCode();
-    const res = await fetch('/app-version.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('版本信息获取失败');
-    const info = (await res.json()) as AppVersionInfo;
+    const info = await fetchLatestAppVersion();
 
     if (!info.apkUrl || info.versionCode <= versionCode) {
       if (!quiet) {
-        Swal.fire({ icon: 'success', title: '已是最新版本', timer: 1500, showConfirmButton: false });
+        Swal.fire({
+          icon: 'success',
+          title: tStatic('已是最新版本'),
+          timer: 1500,
+          showConfirmButton: false,
+        });
       }
       return;
     }
 
     const { isConfirmed } = await Swal.fire({
       icon: 'info',
-      title: `发现新版本 v${info.versionName}`,
+      title: tStatic('发现新版本 v{version}', { version: info.versionName }),
       html: info.changelog
         ? `<div style="text-align:left;white-space:pre-wrap">${info.changelog}</div>`
-        : '是否立即更新？',
+        : tStatic('是否立即更新？'),
       showCancelButton: true,
-      confirmButtonText: '立即更新',
-      cancelButtonText: '稍后',
+      confirmButtonText: tStatic('立即更新'),
+      cancelButtonText: tStatic('稍后'),
     });
     if (!isConfirmed) return;
     confirmed = true;
@@ -95,11 +151,13 @@ async function runUpdateCheck(quiet: boolean): Promise<void> {
       if (!canInstall) {
         const go = await Swal.fire({
           icon: 'warning',
-          title: '需要授权',
-          text: '请在系统设置中允许本应用"安装未知应用"，然后重新点击更新。',
+          title: tStatic('需要授权'),
+          text: tStatic(
+            '请在系统设置中允许本应用"安装未知应用"，然后重新点击更新。'
+          ),
           showCancelButton: true,
-          confirmButtonText: '去设置',
-          cancelButtonText: '取消',
+          confirmButtonText: tStatic('去设置'),
+          cancelButtonText: tStatic('取消'),
         });
         if (go.isConfirmed) {
           await updater.openInstallSettings();
@@ -111,20 +169,38 @@ async function runUpdateCheck(quiet: boolean): Promise<void> {
     }
 
     Swal.fire({
-      title: '正在下载更新包…',
-      text: '下载完成后会自动弹出安装界面',
+      title: tStatic('正在下载更新包…'),
+      text: tStatic('下载完成后会自动弹出安装界面'),
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
-    await updater.downloadAndInstall({ url: info.apkUrl });
+    try {
+      await updater.downloadAndInstall({ url: info.apkUrl });
+    } catch (downloadErr) {
+      // 主地址（本站 Pages，国内不用代理）失败，换 jsDelivr 备用地址再试一次
+      Swal.fire({
+        title: tStatic('正在尝试备用下载地址…'),
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+      await updater.downloadAndInstall({ url: FALLBACK_APK_URL });
+    }
     Swal.close();
   } catch (e: any) {
     if (quiet && !confirmed) return;
     const msg = typeof e?.message === 'string' ? e.message : '';
     if (msg.includes('NEED_INSTALL_PERMISSION')) {
-      Swal.fire({ icon: 'warning', title: '需要授权', text: '请先允许本应用"安装未知应用"。' });
+      Swal.fire({
+        icon: 'warning',
+        title: tStatic('需要授权'),
+        text: tStatic('请先允许本应用"安装未知应用"。'),
+      });
     } else {
-      Swal.fire({ icon: 'error', title: '检查更新失败', text: msg || '请检查网络后重试' });
+      Swal.fire({
+        icon: 'error',
+        title: tStatic('检查更新失败'),
+        text: msg || tStatic('请检查网络后重试'),
+      });
     }
   }
 }
