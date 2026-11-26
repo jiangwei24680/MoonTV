@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useLanguage } from '@/components/LanguageProvider';
+
 interface ErrorInfo {
   id: string;
   message: string;
@@ -9,6 +11,7 @@ interface ErrorInfo {
 }
 
 export function GlobalErrorIndicator() {
+  const { t } = useLanguage();
   const [currentError, setCurrentError] = useState<ErrorInfo | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isReplacing, setIsReplacing] = useState(false);
@@ -72,7 +75,7 @@ export function GlobalErrorIndicator() {
         <button
           onClick={handleClose}
           className='text-white hover:text-red-100 transition-colors flex-shrink-0'
-          aria-label='关闭错误提示'
+          aria-label={t('关闭错误提示')}
         >
           <svg
             className='w-5 h-5'
