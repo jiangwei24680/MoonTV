@@ -4,6 +4,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 
+import { useLanguage } from '@/components/LanguageProvider';
+
 interface CustomCategory {
   name: string;
   type: 'movie' | 'tv';
@@ -25,6 +27,7 @@ const DoubanCustomSelector: React.FC<DoubanCustomSelectorProps> = ({
   onPrimaryChange,
   onSecondaryChange,
 }) => {
+  const { t } = useLanguage();
   // 为不同的选择器创建独立的refs和状态
   const primaryContainerRef = useRef<HTMLDivElement>(null);
   const primaryButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -53,10 +56,10 @@ const DoubanCustomSelector: React.FC<DoubanCustomSelectorProps> = ({
       return 0;
     });
     return sortedTypes.map((type) => ({
-      label: type === 'movie' ? '电影' : '剧集',
+      label: type === 'movie' ? t('电影') : t('剧集'),
       value: type,
     }));
-  }, [customCategories]);
+  }, [customCategories, t]);
 
   // 根据选中的一级选项生成二级选择器选项
   const secondaryOptions = React.useMemo(() => {
@@ -282,7 +285,7 @@ const DoubanCustomSelector: React.FC<DoubanCustomSelectorProps> = ({
         {/* 一级选择器 */}
         <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
           <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
-            类型
+            {t('类型')}
           </span>
           <div className='overflow-x-auto'>
             {renderCapsuleSelector(
@@ -298,7 +301,7 @@ const DoubanCustomSelector: React.FC<DoubanCustomSelectorProps> = ({
         {secondaryOptions.length > 0 && (
           <div className='flex flex-col sm:flex-row sm:items-center gap-2'>
             <span className='text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 min-w-[48px]'>
-              片单
+              {t('片单')}
             </span>
             <div ref={secondaryScrollContainerRef} className='overflow-x-auto'>
               {renderCapsuleSelector(
