@@ -14,6 +14,7 @@ import {
   useState,
 } from 'react';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import { useSite } from './SiteProvider';
 
 interface SidebarContextType {
@@ -54,6 +55,7 @@ declare global {
 }
 
 const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
+  const { t } = useLanguage();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -217,7 +219,7 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
                 </div>
                 {!isCollapsed && (
                   <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
-                    首页
+                    {t('首页')}
                   </span>
                 )}
               </Link>
@@ -238,7 +240,7 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
                 </div>
                 {!isCollapsed && (
                   <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
-                    搜索
+                    {t('搜索')}
                   </span>
                 )}
               </Link>
@@ -275,7 +277,7 @@ const Sidebar = ({ onToggle, activePath = '/' }: SidebarProps) => {
                       </div>
                       {!isCollapsed && (
                         <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
-                          {item.label}
+                          {t(item.label)}
                         </span>
                       )}
                     </Link>
