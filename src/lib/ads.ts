@@ -12,20 +12,18 @@ import { playImaPreroll } from '@/lib/ima-preroll.client';
  * - 横幅 / 插屏广告单元已是真实 ID（2026-11-18 AdMob 账号获批后建）：
  *   横幅 ca-app-pub-7387037413649666/7583877822
  *   插屏 ca-app-pub-7387037413649666/1091842852
- * - 点播前贴片用插件 @capacitor-community/admob 自带的普通插屏
- *   prepareInterstitial / showInterstitial（2026-11-25 起由激励插屏改来，
- *   原因：激励插屏要先弹“观看广告 / 取消”前置确认页、且必须看完才放行，
- *   点两道确认太烦；普通插屏 5 秒后就能点叉关掉）。
- *   激励插屏真实 ID（ca-app-pub-7387037413649666/6270796156）保留备用，
- *   当前贴片不再用它。
- * - 贴片规则：每次点播（打开播放页、切集）都先弹全屏普通插屏，
- *   用户任何时候点叉关掉都算过关，随后开始播放；只有加载/展示失败才不放行。
- *   注意：原生层 showInterstitial 的 promise 在广告展示出来时就 resolve，
- *   不能拿它当“看完”信号，必须等 Dismissed 事件才放行；
- *   AdMob 全屏广告没有程序自动关闭，关闭按钮是谷歌 SDK 画的，App 关不掉。
- *   原生 App：广告加载或展示失败时不放行（必须弹出来才给看；断网/无填充时
- *   无法看片，管理员通道不受影响）。网页端走 IMA 贴片（见 ima-preroll.client），
- *   失败时放行；电视端直接放行（AdMob 不支持 Android TV）。
+ * - 点播前贴片：网页端与原生 App 统一走 IMA HTML5 贴片（见 ima-preroll.client），
+ *   在 WebView 播放器容器内播，广告播完（或被跳过）自动放行出片。
+ *   2026-11-26 之前原生 App 用 AdMob 全屏插屏（prepareInterstitial /
+ *   showInterstitial），但 AdMob 全屏广告没有程序自动关闭，关闭按钮是谷歌
+ *   SDK 画的，只能等用户点叉；实测（v15）广告看完后界面不退出、无退出口，
+ *   用户被卡住。改走 IMA 后“看完自动出片”，失败/超时也放行，绝不堵播放。
+ *   注意：当前 IMA 用 Google 官方测试 tag（无收益），等 AdSense 获批、配好
+ *   真实 VAST tag 后再产生收益；底部横幅仍是真实单元（7583877822），照常计费。
+ *   AdMob 插屏单元（1091842852）与激励插屏（6270796156）保留备用，
+ *   showInterstitial 函数留作备用，当前贴片不再用它。
+ * - 贴片规则：每次点播（打开播放页、切集）都先播 IMA 贴片，播完自动出片；
+ *   加载/请求失败或无广告时直接放行。电视端直接放行（AdMob 不支持 Android TV）。
  * - 2026-11-18 已换成真实单元 ID，USE_TEST_ADS 已改 false；
  *   patch_manifest.py 里的应用 ID 不用动（已是真实的）。
  */
@@ -194,12 +192,12 @@ export async function hideBanner(): Promise<void> {
 }
 
 /**
- * 普通插屏（点播前贴片用）：预加载 → 展示 → 等用户点叉关闭（Dismissed 事件）才算过关。
- * 返回 true = 广告已展示且用户已关闭（任何时候点叉都算过关，随后开始播放）；
- * 返回 false = 初始化/加载/展示失败（原生端失败不放行）。
+ * 普通插屏（备用，当前贴片不再用）：预加载 → 展示 → 等用户点叉关闭（Dismissed
+ * 事件）才算过关。2026-11-26 起贴片改走 IMA（见 playWithPrerollAd），原因：
+ * AdMob 全屏广告无法由程序自动关闭，实测 v15 广告看完后界面不退出、用户被卡住。
+ * 返回 true = 广告已展示且用户已关闭；返回 false = 初始化/加载/展示失败。
  * 注意：原生层 showInterstitial 的 promise 在广告展示出来时就 resolve，
- * 绝不能拿它当“看完”信号；AdMob 全屏广告也无法由 App 程序自动关闭，
- * 关闭按钮是谷歌 SDK 画的，只能等用户点叉（普通插屏 5 秒后可关）。
+ * 绝不能拿它当“看完”信号；关闭按钮是谷歌 SDK 画的，只能等用户点叉。
  */
 export async function showInterstitial(): Promise<boolean> {
   if (!isNativeApp()) return false;
@@ -263,7 +261,7 @@ export async function showInterstitial(): Promise<boolean> {
 }
 
 // ---------------------------------------------------------------------------
-// 点播前贴片：每次点播先弹全屏普通插屏，用户点叉关闭即放行
+// 点播前贴片：网页端与原生 App 统一走 IMA 贴片，播完自动出片
 // ---------------------------------------------------------------------------
 
 let prerollInFlight: Promise<boolean> | null = null;
@@ -272,11 +270,13 @@ let prerollInFlight: Promise<boolean> | null = null;
  * 点播前贴片主入口：每次点播（打开播放页、切集、自动连播）都先过广告关。
  * - 管理员免广告：直接放行。
  * - 电视端（isTV）：直接放行（AdMob 不支持 Android TV，没有广告可弹）。
- * - 原生 App：弹全屏普通插屏，用户点叉关闭即放行；加载/展示失败时不放行。
- * - 网页端：走 IMA HTML5 贴片（Ad Manager 视频广告）；广告播完放行，
- *   请求失败或无 tag 时放行（不要堵死网页用户，等真实 tag 配好再严格）。
- * 参数 videoWrap：网页端 IMA 贴片的挂载容器（播放器外层 relative 容器）；
- * 原生端忽略。返回 true = 可以开始播放；false = 广告加载/展示失败，不播放。
+ * - 网页端与原生 App：统一走 IMA HTML5 贴片（Ad Manager 视频广告），
+ *   在播放器容器内播，广告播完（或被跳过）自动放行出片；请求失败、无广告、
+ *   超时时也放行，绝不堵死播放（等真实 tag 配好再收紧）。
+ *   原生 App 之前用 AdMob 全屏插屏，因 SDK 不给程序关闭、实测看完卡住，
+ *   2026-11-26 起改走 IMA；底部横幅仍是 AdMob 真实单元，不受影响。
+ * 参数 videoWrap：IMA 贴片的挂载容器（播放器外层 relative 容器）。
+ * 返回 true = 可以开始播放（失败也放行）。
  */
 export async function playWithPrerollAd(
   videoWrap?: HTMLElement | null,
@@ -285,30 +285,17 @@ export async function playWithPrerollAd(
   if (isTV()) return true;
   if (prerollInFlight) return prerollInFlight;
   const run = (async (): Promise<boolean> => {
-    // 网页端：IMA 贴片，失败放行
-    if (!isNativeApp()) {
-      try {
-        const result = await playImaPreroll(videoWrap ?? null);
-        if (result === 'failed') {
-          console.warn('[ads] 网页贴片未播出，放行播放');
-        }
-      } catch (err) {
-        console.warn('[ads] 网页贴片失败，放行播放', err);
-      }
-      return true;
-    }
-    // 原生端：普通插屏，用户点叉关闭即放行；加载/展示失败不放行
+    // 网页端与原生 App 统一走 IMA 贴片：播完自动出片；失败/超时也放行。
+    // 不再用 AdMob 全屏插屏——SDK 不给程序关闭，实测看完卡住无退出口。
     try {
-      const shown = await showInterstitial();
-      if (!shown) {
-        console.warn('[ads] 插屏未展示出来，不放行');
-        return false;
+      const result = await playImaPreroll(videoWrap ?? null);
+      if (result === 'failed') {
+        console.warn('[ads] 贴片未播出，放行播放');
       }
-      return true;
     } catch (err) {
-      console.warn('[ads] 贴片广告失败，不放行', err);
-      return false;
+      console.warn('[ads] 贴片失败，放行播放', err);
     }
+    return true;
   })();
   prerollInFlight = run;
   try {
