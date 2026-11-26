@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import PageLayout from '@/components/PageLayout';
 
 /**
@@ -17,6 +20,7 @@ export default function ContentPage({
   description?: string;
   children: ReactNode;
 }) {
+  const { t } = useLanguage();
   return (
     <Suspense
       fallback={
@@ -45,14 +49,14 @@ export default function ContentPage({
           </div>
           <footer className='mt-10 border-t border-gray-200 pt-6 text-sm dark:border-gray-800'>
             <p className='mb-3 font-semibold text-gray-800 dark:text-gray-200'>
-              站内内容
+              {t('站内内容')}
             </p>
             <nav className='flex flex-wrap gap-x-5 gap-y-2 text-sky-600 dark:text-sky-400'>
-              <Link href='/about'>关于 kyrinMedia</Link>
-              <Link href='/guide'>使用指南</Link>
-              <Link href='/articles'>影单推荐</Link>
-              <Link href='/privacy'>隐私政策</Link>
-              <Link href='/'>返回首页</Link>
+              <Link href='/about'>{t('关于 kyrinMedia')}</Link>
+              <Link href='/guide'>{t('使用指南')}</Link>
+              <Link href='/articles'>{t('影单推荐')}</Link>
+              <Link href='/privacy'>{t('隐私政策')}</Link>
+              <Link href='/'>{t('返回首页')}</Link>
             </nav>
           </footer>
         </article>
