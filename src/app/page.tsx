@@ -17,6 +17,7 @@ import {
 import { getDoubanCategories } from '@/lib/douban.client';
 import { DoubanItem } from '@/lib/types';
 
+import { useLanguage } from '@/components/LanguageProvider';
 import AdBanner from '@/components/AdBanner';
 import AdminVersionTap from '@/components/AdminVersionTap';
 import CapsuleSwitch from '@/components/CapsuleSwitch';
@@ -27,6 +28,7 @@ import { useSite } from '@/components/SiteProvider';
 import VideoCard from '@/components/VideoCard';
 
 function HomeClient() {
+  const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<'home' | 'favorites'>('home');
   const [hotMovies, setHotMovies] = useState<DoubanItem[]>([]);
   const [hotTvShows, setHotTvShows] = useState<DoubanItem[]>([]);
@@ -171,8 +173,8 @@ function HomeClient() {
         <div className='mb-8 flex justify-center'>
           <CapsuleSwitch
             options={[
-              { label: '首页', value: 'home' },
-              { label: '收藏夹', value: 'favorites' },
+              { label: t('首页'), value: 'home' },
+              { label: t('收藏夹'), value: 'favorites' },
             ]}
             active={activeTab}
             onChange={(value) => setActiveTab(value as 'home' | 'favorites')}
@@ -185,7 +187,7 @@ function HomeClient() {
             <section className='mb-8'>
               <div className='mb-4 flex items-center justify-between'>
                 <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-                  我的收藏
+                  {t('我的收藏')}
                 </h2>
                 {favoriteItems.length > 0 && (
                   <button
@@ -195,7 +197,7 @@ function HomeClient() {
                       setFavoriteItems([]);
                     }}
                   >
-                    清空
+                    {t('清空')}
                   </button>
                 )}
               </div>
@@ -212,7 +214,7 @@ function HomeClient() {
                 ))}
                 {favoriteItems.length === 0 && (
                   <div className='col-span-full text-center text-gray-500 py-8 dark:text-gray-400'>
-                    暂无收藏内容
+                    {t('暂无收藏内容')}
                   </div>
                 )}
               </div>
@@ -227,13 +229,13 @@ function HomeClient() {
               <section className='mb-8'>
                 <div className='mb-4 flex items-center justify-between'>
                   <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-                    热门电影
+                    {t('热门电影')}
                   </h2>
                   <Link
                     href='/douban?type=movie'
                     className='flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                   >
-                    查看更多
+                    {t('查看更多')}
                     <ChevronRight className='w-4 h-4 ml-1' />
                   </Link>
                 </div>
@@ -275,13 +277,13 @@ function HomeClient() {
               <section className='mb-8'>
                 <div className='mb-4 flex items-center justify-between'>
                   <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-                    热门剧集
+                    {t('热门剧集')}
                   </h2>
                   <Link
                     href='/douban?type=tv'
                     className='flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                   >
-                    查看更多
+                    {t('查看更多')}
                     <ChevronRight className='w-4 h-4 ml-1' />
                   </Link>
                 </div>
@@ -322,13 +324,13 @@ function HomeClient() {
               <section className='mb-8'>
                 <div className='mb-4 flex items-center justify-between'>
                   <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-                    热门综艺
+                    {t('热门综艺')}
                   </h2>
                   <Link
                     href='/douban?type=show'
                     className='flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                   >
-                    查看更多
+                    {t('查看更多')}
                     <ChevronRight className='w-4 h-4 ml-1' />
                   </Link>
                 </div>
@@ -368,23 +370,23 @@ function HomeClient() {
               {/* 站点介绍：给访客与搜索引擎的文字内容 */}
               <section className='mb-8 rounded-xl bg-gray-50 p-5 dark:bg-gray-900'>
                 <h2 className='mb-3 text-xl font-bold text-gray-800 dark:text-gray-200'>
-                  关于 kyrinMedia
+                  {t('关于 kyrinMedia')}
                 </h2>
                 <p className='text-sm leading-relaxed text-gray-600 dark:text-gray-400'>
                   kyrinMedia
-                  是一个免费的影视聚合站：热门电影、热门剧集、热门综艺一站搜索，点开海报就能找播放源；喜欢的片子可以收藏，看到一半下次接着看；站内还有多个国家与地区的电视直播频道。不知道看什么的时候，可以去
+                  {t('是一个免费的影视聚合站：热门电影、热门剧集、热门综艺一站搜索，点开海报就能找播放源；喜欢的片子可以收藏，看到一半下次接着看；站内还有多个国家与地区的电视直播频道。不知道看什么的时候，可以去')}
                   <Link href='/articles' className='text-sky-600 dark:text-sky-400'>
-                    影单推荐
+                    {t('影单推荐')}
                   </Link>
-                  按豆瓣评分挑片，或者看
+                  {t('按豆瓣评分挑片，或者看')}
                   <Link href='/guide' className='text-sky-600 dark:text-sky-400'>
-                    使用指南
+                    {t('使用指南')}
                   </Link>
-                  了解收藏、续播与换源的办法。本站不存储任何视频资源，播放内容来自第三方网站，详情见
+                  {t('了解收藏、续播与换源的办法。本站不存储任何视频资源，播放内容来自第三方网站，详情见')}
                   <Link href='/about' className='text-sky-600 dark:text-sky-400'>
-                    关于我们
+                    {t('关于我们')}
                   </Link>
-                  。
+                  {lang === 'en' ? '.' : '。'}
                 </p>
               </section>
             </>
@@ -396,16 +398,16 @@ function HomeClient() {
       <footer className='mt-2 pb-6 text-center'>
         <nav className='mb-3 flex flex-wrap justify-center gap-x-5 gap-y-1 text-xs text-gray-400 dark:text-gray-500'>
           <Link href='/about' className='hover:text-gray-600 dark:hover:text-gray-300'>
-            关于我们
+            {t('关于我们')}
           </Link>
           <Link href='/guide' className='hover:text-gray-600 dark:hover:text-gray-300'>
-            使用指南
+            {t('使用指南')}
           </Link>
           <Link href='/articles' className='hover:text-gray-600 dark:hover:text-gray-300'>
-            影单推荐
+            {t('影单推荐')}
           </Link>
           <Link href='/privacy' className='hover:text-gray-600 dark:hover:text-gray-300'>
-            隐私政策
+            {t('隐私政策')}
           </Link>
         </nav>
         <AdminVersionTap className='font-mono text-xs text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 transition-colors' />
@@ -419,19 +421,19 @@ function HomeClient() {
           <div className='w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900 transform transition-all duration-300 hover:shadow-2xl'>
             <div className='flex justify-between items-start mb-4'>
               <h3 className='text-2xl font-bold tracking-tight text-gray-800 dark:text-white border-b border-sky-500 pb-1'>
-                提示
+                {t('提示')}
               </h3>
               <button
                 onClick={() => handleCloseAnnouncement(announcement)}
                 className='text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-white transition-colors'
-                aria-label='关闭'
+                aria-label={t('关闭')}
               ></button>
             </div>
             <div className='mb-6'>
               <div className='relative overflow-hidden rounded-lg mb-4 bg-sky-50 dark:bg-sky-900/20'>
                 <div className='absolute inset-y-0 left-0 w-1.5 bg-sky-500 dark:bg-sky-400'></div>
                 <p className='ml-4 text-gray-600 dark:text-gray-300 leading-relaxed'>
-                  {announcement}
+                  {t(announcement)}
                 </p>
               </div>
             </div>
@@ -439,7 +441,7 @@ function HomeClient() {
               onClick={() => handleCloseAnnouncement(announcement)}
               className='w-full rounded-lg bg-gradient-to-r from-sky-600 to-sky-700 px-4 py-3 text-white font-medium shadow-md hover:shadow-lg hover:from-sky-700 hover:to-sky-800 dark:from-sky-600 dark:to-sky-700 dark:hover:from-sky-700 dark:hover:to-sky-800 transition-all duration-300 transform hover:-translate-y-0.5'
             >
-              我知道了
+              {t('我知道了')}
             </button>
           </div>
         </div>
