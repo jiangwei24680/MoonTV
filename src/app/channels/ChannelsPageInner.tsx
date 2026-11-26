@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
+import { useLanguage } from '@/components/LanguageProvider'
 import PageLayout from '@/components/PageLayout'
 import ArtPlayer from '@/components/ArtPlayer'
 import {
@@ -24,6 +25,7 @@ interface Channel {
 const M3U8_PROXY = 'https://moontvphp.hookjune.workers.dev'
 
 export default function ChannelsPageInner() {
+  const { t } = useLanguage()
   const [channelsByGroup, setChannelsByGroup] = useState<Record<string, Channel[]>>({})
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
   const [inputUrl, setInputUrl] = useState('')
@@ -127,7 +129,7 @@ export default function ChannelsPageInner() {
         }
         setErrorMessage(null)
       } else if (!localStorage.getItem(key)) {
-        setErrorMessage('频道列表加载失败，请检查网络后重试')
+        setErrorMessage(t('频道列表加载失败，请检查网络后重试'))
       }
       setLoading(false)
     })
@@ -237,7 +239,7 @@ export default function ChannelsPageInner() {
       {/* 手机：头部48px + 底部导航56px；桌面：顶部64px */}
       <div className="px-4 sm:px-10 py-4 sm:py-6 flex flex-col h-[calc(100dvh-104px)] sm:h-[calc(100vh-64px)]">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-200 mb-3 sm:mb-4">
-          kyrinMedia 直播
+          kyrinMedia {t('直播')}
         </h1>
         {/* 国家选择器：国旗 + 国家名，横向滑动，默认中国，选择记在 localStorage */}
         <div className="flex gap-2 overflow-x-auto pb-1 mb-2 flex-none">
@@ -257,8 +259,8 @@ export default function ChannelsPageInner() {
         </div>
         {totalChannels > 0 && (
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 flex-none">
-            {countryByCode(country).name} · 共 {totalChannels} 个频道
-            {country === 'us' ? ' · 美国 FAST 专区需海外网络' : ''}
+            {countryByCode(country).name} · {t('共 {n} 个频道', { n: totalChannels })}
+            {country === 'us' ? t(' · 美国 FAST 专区需海外网络') : ''}
           </p>
         )}
         <div className="flex-1 min-h-0 flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-hidden">
@@ -269,13 +271,13 @@ export default function ChannelsPageInner() {
                 <ArtPlayer url={currentChannel.url} isLive={true} type="m3u8" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white/70 text-sm">
-                  请选择一个频道开始播放
+                  {t('请选择一个频道开始播放')}
                 </div>
               )}
             </div>
             {currentChannel && (
               <p className="mt-1.5 text-sm text-gray-600 dark:text-gray-300 px-1 truncate">
-                正在播放：{currentChannel.name}
+                {t('正在播放：')}{currentChannel.name}
               </p>
             )}
             {errorMessage && (
@@ -284,7 +286,7 @@ export default function ChannelsPageInner() {
             <div className="flex gap-2 mt-2">
               <input
                 type="url"
-                placeholder="输入直播 .m3u8 或 .php 地址"
+                placeholder={t('输入直播 .m3u8 或 .php 地址')}
                 value={inputUrl}
                 onChange={(e) => setInputUrl(e.target.value)}
                 className="flex-1 min-w-0 px-3 py-2 text-sm border rounded-lg dark:bg-gray-800 dark:text-white"
@@ -293,7 +295,7 @@ export default function ChannelsPageInner() {
                 onClick={addChannel}
                 className="flex-none px-4 py-2 text-sm bg-sky-600 text-white rounded-lg hover:bg-sky-700"
               >
-                添加
+                {t('添加')}
               </button>
             </div>
           </div>
@@ -303,7 +305,7 @@ export default function ChannelsPageInner() {
             <div className="px-2 py-2 border-b space-y-2">
               <input
                 type="search"
-                placeholder="搜索频道…"
+                placeholder={t('搜索频道…')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full text-sm px-2 py-1 rounded border dark:bg-gray-800 dark:text-white"
@@ -316,18 +318,18 @@ export default function ChannelsPageInner() {
                 >
                   {Object.keys(channelsByGroup).map((group) => (
                     <option key={group} value={group}>
-                      {group} ({channelsByGroup[group].length})
+                      {t(group)} ({channelsByGroup[group].length})
                     </option>
                   ))}
                 </select>
                 <button onClick={clearAll} className="text-xs text-red-500 hover:underline">
-                  清空
+                  {t('清空')}
                 </button>
               </div>
             </div>
             <ul className="flex-1 min-h-0 overflow-y-auto px-2 py-2 space-y-2">
               {loading && visibleChannels.length === 0 && (
-                <li className="text-sm text-gray-500 text-center py-8">频道加载中…</li>
+                <li className="text-sm text-gray-500 text-center py-8">{t('频道加载中…')}</li>
               )}
               {visibleChannels.map((ch, idx) => (
                 <li
@@ -336,7 +338,7 @@ export default function ChannelsPageInner() {
                     currentChannel?.url === ch.url ? 'bg-sky-100 dark:bg-sky-800' : ''
                   }`}
                   onClick={() => play(ch)}
-                  title={search.trim() ? ch.group : undefined}
+                  title={search.trim() ? (ch.group ? t(ch.group) : undefined) : undefined}
                 >
                   {ch.logo && (
                     <img src={ch.logo} alt="logo" className="w-5 h-5 object-contain rounded" />
@@ -346,7 +348,7 @@ export default function ChannelsPageInner() {
               ))}
               {!loading && visibleChannels.length === 0 && (
                 <li className="text-sm text-gray-500 text-center py-8">
-                  {search.trim() ? '没有找到匹配的频道' : '暂无频道'}
+                  {search.trim() ? t('没有找到匹配的频道') : t('暂无频道')}
                 </li>
               )}
             </ul>
