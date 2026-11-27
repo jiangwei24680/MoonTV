@@ -180,6 +180,16 @@ div[data-media-provider] video {
   padding-top: env(safe-area-inset-top);
 }
 
+/* App 内原生横幅常驻：给横幅留出固定高度，底部导航上移到横幅上方（2026-11-27 修横幅盖住导航） */
+.capacitor-app {
+  /* 自适应横幅手机上约 50dp；广告加载后 SizeChanged 事件会把精确高度写进这个变量 */
+  --admob-banner-height: 50px;
+  /* 导航与内容底部要给横幅留出的总高度 = 横幅高 + 底部安全区 */
+  --admob-banner-reserve: calc(
+    var(--admob-banner-height) + env(safe-area-inset-bottom)
+  );
+}
+
 /* 初次加载用涨水 logo 蒙层时，藏起 ArtPlayer 默认小转圈；中途重缓冲时恢复显示 */
 .player-initial-loading .art-loading {
   display: none !important;

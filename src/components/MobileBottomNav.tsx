@@ -79,8 +79,8 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
     <nav
       className='md:hidden fixed left-0 right-0 z-[600] bg-white/90 backdrop-blur-xl border-t border-gray-200/50 overflow-hidden dark:bg-gray-900/80 dark:border-gray-700/50'
       style={{
-        /* 紧贴视口底部，同时在内部留出安全区高度 */
-        bottom: 0,
+        /* 贴在横幅上方：App 内给原生横幅留了 --admob-banner-reserve 的高度，网页端回落 0px 贴底 */
+        bottom: 'var(--admob-banner-reserve, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom)',
         minHeight: 'calc(3.5rem + env(safe-area-inset-bottom))',
       }}

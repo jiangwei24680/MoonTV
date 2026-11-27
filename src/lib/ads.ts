@@ -40,8 +40,12 @@ export const ADMOB_REWARDED_INTERSTITIAL_ID =
 // 真实应用 ID（AdMob 后台 kyrinMedia 应用，发布商 pub-7387037413649666），写入 AndroidManifest 用，见 native-updater/patch_manifest.py
 export const ADMOB_APP_ID = 'ca-app-pub-7387037413649666~7723164968';
 
-// 横幅底部留白（dp）：避开手机端 56px 高的底部导航栏
-const BANNER_BOTTOM_MARGIN = 64;
+// 横幅底部边距（dp）：0 = 横幅贴紧屏幕底边。
+// 之前是 64（想把横幅顶到 56px 高的底部导航上方），但插件 7.2.0 在 Android 15+
+// 有 insets 监听，会把底部 margin 改写成只剩系统手势条高度（约 20dp），横幅贴底
+// 盖住了导航；所以 margin 不可靠，改由网页布局自己给横幅留位置（见 globals.css
+// 的 --admob-banner-reserve），横幅贴底即可。
+const BANNER_BOTTOM_MARGIN = 0;
 
 // 插屏展示安全超时：防止展示回调丢失时拖住播放
 const INTERSTITIAL_SHOW_TIMEOUT_MS = 180 * 1000;
@@ -150,6 +154,21 @@ export async function initAdMob(): Promise<boolean> {
 
 let bannerCreated = false;
 let bannerVisible = false;
+let bannerSizeListenerRegistered = false;
+
+/** 把横幅实际高度写进 CSS 变量，供底部导航/内容区留出位置（height 单位 dp，WebView 里与 CSS px 等值） */
+function syncBannerHeightVar(height: number): void {
+  if (typeof document === 'undefined') return;
+  try {
+    const px = Math.max(0, Math.round(height || 0));
+    document.documentElement.style.setProperty(
+      '--admob-banner-height',
+      `${px}px`,
+    );
+  } catch {
+    /* ignore */
+  }
+}
 
 /** 底部横幅常驻（仅原生 App 内展示，网页端跳过；管理员免广告时不展示；切页不隐藏） */
 export async function showBanner(): Promise<void> {
@@ -158,9 +177,8 @@ export async function showBanner(): Promise<void> {
   const ok = await initAdMob();
   if (!ok) return;
   try {
-    const { AdMob, BannerAdSize, BannerAdPosition } = await import(
-      '@capacitor-community/admob'
-    );
+    const { AdMob, BannerAdSize, BannerAdPosition, BannerAdPluginEvents } =
+      await import('@capacitor-community/admob');
     if (bannerCreated) {
       await AdMob.resumeBanner();
     } else {
@@ -172,6 +190,21 @@ export async function showBanner(): Promise<void> {
         isTesting: USE_TEST_ADS,
       });
       bannerCreated = true;
+      // 横幅加载成功后插件发 bannerAdSizeChanged（带真实高，dp）；加载失败发 height 0。
+      // 监听一次即可：导航/内容区据此留出精确高度，广告没加载出来时用 CSS 里的 50px 兜底。
+      if (!bannerSizeListenerRegistered) {
+        bannerSizeListenerRegistered = true;
+        try {
+          await AdMob.addListener(
+            BannerAdPluginEvents.SizeChanged,
+            (info: { height?: number }) => {
+              syncBannerHeightVar(info?.height ?? 0);
+            },
+          );
+        } catch (err) {
+          console.warn('[ads] 横幅尺寸监听注册失败', err);
+        }
+      }
     }
     bannerVisible = true;
   } catch (err) {
@@ -186,6 +219,8 @@ export async function hideBanner(): Promise<void> {
     const { AdMob } = await import('@capacitor-community/admob');
     await AdMob.hideBanner();
     bannerVisible = false;
+    // 横幅没了，留出的位置也收回，导航回到贴底
+    syncBannerHeightVar(0);
   } catch {
     /* 隐藏失败时忽略，不影响页面 */
   }
